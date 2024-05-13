@@ -1,4 +1,4 @@
-package com.lidm.facillify
+package com.lidm.facillify.util
 
 import android.content.ContentValues.TAG
 import android.os.Bundle
