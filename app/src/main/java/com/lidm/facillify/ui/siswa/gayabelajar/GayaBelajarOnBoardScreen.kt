@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.R
-import com.lidm.facillify.components.MainButton
+import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 

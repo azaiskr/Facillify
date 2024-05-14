@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lidm.facillify.components.MainButton
+import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.util.GayaBelajarResultPage
 
