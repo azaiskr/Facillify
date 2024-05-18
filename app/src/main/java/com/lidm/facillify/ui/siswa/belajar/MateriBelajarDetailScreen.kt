@@ -41,6 +41,7 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 @Composable
 fun MateriBelajarDetailScreen(
     modifier: Modifier,
+    onNavigateToMateriVideo: () -> Unit,
 ) {
 
 //        when (val response = viewModel.materiBelajar){
@@ -54,12 +55,16 @@ fun MateriBelajarDetailScreen(
 //                /*TODO*/
 //            }
 //        }
-    DetailMateriBelajar(modifier = modifier)
+    DetailMateriBelajar(
+        modifier = modifier,
+        onNavigateToMateriVideo = onNavigateToMateriVideo
+    )
 }
 
 @Composable
 fun DetailMateriBelajar(
     modifier: Modifier,
+    onNavigateToMateriVideo: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -95,7 +100,7 @@ fun DetailMateriBelajar(
             iconVector = R.drawable.videoimage,
             text = "Materi Video",
             modifier = modifier,
-            onClick = { /*TODO*/ }
+            onClick = { onNavigateToMateriVideo() }
         )
         Spacer(modifier = modifier.height(8.dp))
         BtnMateriBelajar(
@@ -164,5 +169,5 @@ fun BtnMateriBelajar(
 fun DetailMateriBelajarPreview(
     modifier: Modifier = Modifier
 ) {
-    DetailMateriBelajar(modifier = modifier)
+    DetailMateriBelajar(modifier = modifier, onNavigateToMateriVideo = {})
 }

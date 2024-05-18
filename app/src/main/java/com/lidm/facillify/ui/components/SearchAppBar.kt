@@ -2,6 +2,7 @@ package com.lidm.facillify.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
@@ -30,7 +31,7 @@ fun SearchAppBar(
     label: String,
     modifier: Modifier,
 ) {
-    SearchBar(
+    DockedSearchBar(
         query = query,
         onQueryChange = onQueryChange,
         onSearch = onSearch,
