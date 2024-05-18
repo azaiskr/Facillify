@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
@@ -58,7 +57,7 @@ import com.lidm.facillify.util.Role
 
 @Composable
 fun SignUpInputScreen(
-    SelectedRole : Role,
+    selectedRole : Role,
     onSignUp: () -> Unit = {}
 ) {
     Surface(
@@ -76,6 +75,7 @@ fun SignUpInputScreen(
         var nisn by remember { mutableStateOf("") }
         var nip by remember { mutableStateOf("") }
         var job by remember { mutableStateOf("") }
+        var dateOfBirth by remember { mutableStateOf("") }
 
         val genderList = listOf("Laki-laki", "Perempuan")
         var selectedGender by rememberSaveable { mutableStateOf("") }
@@ -96,7 +96,7 @@ fun SignUpInputScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                when (SelectedRole) {
+                when (selectedRole) {
                     Role.STUDENT -> {
                         Text(
                             text = "Mendaftar Sebagai Murid",
@@ -141,6 +141,7 @@ fun SignUpInputScreen(
                     insideText = "Masukan email",
                     valueText = email ,
                     onValueChange = { email = it } ,
+                    isEmail = true
                 )
 
                 //Password
@@ -149,7 +150,8 @@ fun SignUpInputScreen(
                     topText = "Kata Sandi",
                     insideText = "Masukan kata sandi",
                     valueText = password,
-                    onValueChange = { password = it }
+                    onValueChange = { password = it },
+                    isPassword = true
                 )
 
                 //Confirm Password
@@ -158,7 +160,8 @@ fun SignUpInputScreen(
                     topText = "Konfirmasi Kata Sandi",
                     insideText = "Masukan ulang kata sandi",
                     valueText = confirmPassword,
-                    onValueChange = { confirmPassword = it }
+                    onValueChange = { confirmPassword = it },
+                    isPassword = true
                 )
 
                 //Birth Place
@@ -171,10 +174,19 @@ fun SignUpInputScreen(
                 )
 
                 //Birth Date
+                Spacer(modifier = Modifier.height(16.dp))
+                InputTextFieldDefault(
+                    topText = "Tanggal Lahir",
+                    insideText = "Masukan tanggal lahir",
+                    valueText = dateOfBirth,
+                    onValueChange = { dateOfBirth = it},
+                    isDate = true
+                )
 
                 //Gender
                 Spacer(modifier = Modifier.height(16.dp))
                 SpinnerTemplate(
+                    topText = "Jenis Kelamin",
                     listItem = genderList,
                     selectedItem = selectedGender,
                     onItemSelected = { selectedGender = it },
@@ -203,6 +215,7 @@ fun SignUpInputScreen(
                 //Religion
                 Spacer(modifier = Modifier.height(16.dp))
                 SpinnerTemplate(
+                    topText = "Agama",
                     listItem = religionOption,
                     selectedItem = selectedReligion,
                     onItemSelected = { selectedReligion = it },
@@ -211,7 +224,7 @@ fun SignUpInputScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                when (SelectedRole) {
+                when (selectedRole) {
                     Role.STUDENT -> {
                         InputTextFieldDefault(
                             topText = "NISN",
@@ -281,6 +294,7 @@ fun TopSectionSignUp() {
 
 @Composable
 fun SpinnerTemplate(
+    topText: String,
     listItem: List<String>,
     selectedItem : String,
     onItemSelected: (selectedItem : String) -> Unit,
@@ -290,7 +304,7 @@ fun SpinnerTemplate(
     var expanded by rememberSaveable { mutableStateOf(false) }
     val mContext = LocalContext.current
     Column {
-        Text(text = "Jenis Kelamin", style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold), color = Blue)
+        Text(text = topText, style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold), color = Blue)
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
             modifier = Modifier
@@ -328,7 +342,7 @@ fun SpinnerTemplate(
                 .background(Color.White),
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            ) {
+        ) {
             listItem.forEach {item ->
                 DropdownMenuItem(
                     text = { Text(text = item) },
@@ -337,14 +351,13 @@ fun SpinnerTemplate(
                         onItemSelected(item)
                         tempSelected = item
                         Toast.makeText(mContext, "Item terpilih : $item", Toast.LENGTH_SHORT).show()
-                              },
+                    },
                     colors = MenuDefaults.itemColors(
                         textColor = Blue,
                         leadingIconColor = SecondaryBlue
                     ))
             }
         }
-
         //Debug
         //Text(text = "Selected Item : $selectedItem")
     }
@@ -357,7 +370,7 @@ fun SpinnerTemplate(
 @Preview(showBackground = true)
 fun SignUpInputScreenPreview() {
     SignUpInputScreen(
-        SelectedRole = Role.STUDENT
+        selectedRole = Role.STUDENT
     )
 }
 
@@ -367,13 +380,13 @@ fun TopSectionSignUpPreview() {
     TopSectionSignUp()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(showBackground = true)
 fun SpinnerTemplatePreview() {
     val genderList = listOf("Laki-laki", "Perempuan", "Genderuwo","Siluman Gondrong")
     var selectedGender by rememberSaveable { mutableStateOf("") }
     SpinnerTemplate(
+        topText = "Jenis Kelamin",
         listItem = genderList,
         selectedItem = selectedGender,
         onItemSelected = { selectedGender = it },
