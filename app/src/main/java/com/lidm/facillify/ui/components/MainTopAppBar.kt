@@ -21,14 +21,12 @@ import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.theme.DarkBlue
 
-@Preview
 @Composable
 fun MainTopAppBar(
     modifier: Modifier = Modifier,
     sectionTitle: String = "",
     backIcon : Boolean = false,
-    navController: NavHostController = rememberNavController(),
-    context: Context = LocalContext.current
+    onBackClick: () -> Unit,
 ) {
     Row (
         verticalAlignment = Alignment.CenterVertically,
@@ -37,7 +35,7 @@ fun MainTopAppBar(
     ) {
         if (backIcon) {
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = { onBackClick() },
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.round_arrow_back),

@@ -7,7 +7,9 @@ sealed class Screen (
     // === route navigation siswa === \\
     data object SiswaHome: Screen ("siswa_home")
     data object SiswaBelajar: Screen("siswa_belajar")
+    data object SiswaMateriBelajar: Screen("siswa_materi_belajar")
     data object SiswaKonsultasi:  Screen("siswa_konsultasi")
     data object SiswaRiwayat: Screen("siswa_riwayat")
+
 
 }

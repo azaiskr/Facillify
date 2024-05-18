@@ -7,5 +7,4 @@ data class NavigationItem (
     val icon: Painter,
     val iconSelected: Painter? = null,
     val screen: Screen,
-) {
-}
+)

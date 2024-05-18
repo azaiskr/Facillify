@@ -1,6 +1,5 @@
 package com.lidm.facillify.navigation
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -19,6 +18,7 @@ import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
 import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
+import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
 import com.lidm.facillify.ui.siswa.konsultasi.SiswaKonsultasiScreen
 
@@ -49,19 +49,19 @@ fun SiswaNavigation(
                 sectionTitle = when (currentRoute) {
                     Screen.SiswaHome.route -> "Home"
                     Screen.SiswaBelajar.route -> "Belajar"
+                    Screen.SiswaMateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaKonsultasi.route -> "Konsultasi"
                     Screen.SiswaRiwayat.route -> "Riwayat"
                     else -> ""
                 },
                 backIcon = when (currentRoute) {
-                    Screen.SiswaHome.route -> true
+                    Screen.SiswaHome.route -> false
                     Screen.SiswaBelajar.route -> false
                     Screen.SiswaKonsultasi.route -> false
                     Screen.SiswaRiwayat.route -> false
                     else -> true
                 },
-                context = context,
-                navController = navController,
+                onBackClick = { navController.popBackStack() }
             )
         },
     ) { innerPadding ->
@@ -77,7 +77,12 @@ fun SiswaNavigation(
             composable(Screen.SiswaBelajar.route) {
                 SiswaBelajarScreen(
                     modifier = modifier,
+                    onBelajarClick = { navController.navigate(Screen.SiswaMateriBelajar.route) },
+                    // TODO: onLatihanClick
                 )
+            }
+            composable(Screen.SiswaMateriBelajar.route) {
+                MateriBelajarScreen()
             }
 
             composable(Screen.SiswaKonsultasi.route) {

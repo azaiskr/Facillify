@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,21 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.R
-import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.components.SmallButton
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 
 @Composable
 fun SiswaBelajarScreen(
     modifier: Modifier,
+    onBelajarClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -44,12 +41,22 @@ fun SiswaBelajarScreen(
     ) {
         CardBelajarLandingpage(
             modifier = modifier,
-            content = { ContentCardBelajar(modifier = modifier) }
+            content = {
+                ContentCardBelajar(
+                    modifier = modifier,
+                    navigateToMateriBelajar = onBelajarClick,
+                )
+            },
         )
         Spacer(modifier = modifier.height(16.dp))
         CardBelajarLandingpage(
             modifier = modifier,
-            content = { ContentCardLatihan(modifier = modifier) }
+            content = {
+                ContentCardLatihan(
+                    modifier = modifier,
+                    navigateToLatihan = {/*TODO*/},
+                )
+            },
         )
 
     }
@@ -73,6 +80,7 @@ fun CardBelajarLandingpage(
 @Composable
 fun ContentCardBelajar(
     modifier: Modifier,
+    navigateToMateriBelajar: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -89,13 +97,13 @@ fun ContentCardBelajar(
                 .size(160.dp),
             contentScale = ContentScale.Crop,
         )
-        Column (
+        Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.End,
             modifier = modifier
                 .weight(1.5f)
         ) {
-            Text (
+            Text(
                 text = "Materi\nBelajar",
                 fontSize = 32.sp,
                 color = Color.White,
@@ -103,12 +111,15 @@ fun ContentCardBelajar(
                 textAlign = TextAlign.End
             )
             Spacer(modifier = modifier.height(8.dp))
-            SmallButton(onClick = { /*TODO*/ }, labelText = "Mulai Belajar")
+            SmallButton(onClick = { navigateToMateriBelajar() }, labelText = "Mulai Belajar")
         }
     }
-}@Composable
+}
+
+@Composable
 fun ContentCardLatihan(
     modifier: Modifier,
+    navigateToLatihan: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -117,21 +128,21 @@ fun ContentCardLatihan(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
-        Column (
+        Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.Start,
             modifier = modifier
                 .weight(1.5f)
         ) {
-            Text (
-                text ="Latihan\nSoal",
+            Text(
+                text = "Latihan\nSoal",
                 fontSize = 32.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
             )
             Spacer(modifier = modifier.height(8.dp))
-            SmallButton(onClick = { /*TODO*/ }, labelText = "Lihat Latihan")
+            SmallButton(onClick = { navigateToLatihan() }, labelText = "Lihat Latihan")
         }
         Image(
             painter = painterResource(id = R.drawable.latihan),
@@ -147,16 +158,19 @@ fun ContentCardLatihan(
 
 @Preview
 @Composable
-fun SiswaBelajarScreenPreview (
+fun SiswaBelajarScreenPreview(
     modifier: Modifier = Modifier,
 ) {
-    SiswaBelajarScreen(modifier = modifier)
+    SiswaBelajarScreen(modifier = modifier, onBelajarClick = {})
 }
 
 @Preview
 @Composable
-fun CardPreview (
+fun CardPreview(
     modifier: Modifier = Modifier,
 ) {
-    CardBelajarLandingpage(content = { ContentCardBelajar(modifier = modifier) }, modifier = modifier )
+    CardBelajarLandingpage(
+        content = { ContentCardBelajar(modifier = modifier, navigateToMateriBelajar = {}) },
+        modifier = modifier
+    )
 }
