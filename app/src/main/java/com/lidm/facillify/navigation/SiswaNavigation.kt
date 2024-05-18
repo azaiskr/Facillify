@@ -16,23 +16,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.components.MainBottomAppBar
+import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
 import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
 import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
 import com.lidm.facillify.ui.siswa.konsultasi.SiswaKonsultasiScreen
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview
 @Composable
-fun SiswaNavigation (
+fun SiswaNavigation(
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
-){
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Scaffold (
+    Scaffold(
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,
@@ -43,26 +43,48 @@ fun SiswaNavigation (
                     Screen.SiswaRiwayat,
                 ),
             )
-        }
-    ){innerPadding ->
+        },
+        topBar = {
+            MainTopAppBar(
+                sectionTitle = when (currentRoute) {
+                    Screen.SiswaHome.route -> "Home"
+                    Screen.SiswaBelajar.route -> "Belajar"
+                    Screen.SiswaKonsultasi.route -> "Konsultasi"
+                    Screen.SiswaRiwayat.route -> "Riwayat"
+                    else -> ""
+                },
+                backIcon = when (currentRoute) {
+                    Screen.SiswaHome.route -> true
+                    Screen.SiswaBelajar.route -> false
+                    Screen.SiswaKonsultasi.route -> false
+                    Screen.SiswaRiwayat.route -> false
+                    else -> true
+                },
+                context = context,
+                navController = navController,
+            )
+        },
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.SiswaHome.route,
             modifier = modifier.padding(innerPadding)
         ) {
-            composable(Screen.SiswaHome.route){
+            composable(Screen.SiswaHome.route) {
                 SiswaHomeScreen()
             }
 
-            composable(Screen.SiswaBelajar.route){
-                SiswaBelajarScreen()
+            composable(Screen.SiswaBelajar.route) {
+                SiswaBelajarScreen(
+                    modifier = modifier,
+                )
             }
 
-            composable(Screen.SiswaKonsultasi.route){
+            composable(Screen.SiswaKonsultasi.route) {
                 SiswaKonsultasiScreen()
             }
 
-            composable(Screen.SiswaRiwayat.route){
+            composable(Screen.SiswaRiwayat.route) {
                 SiswaRiwayatScreen()
             }
         }
