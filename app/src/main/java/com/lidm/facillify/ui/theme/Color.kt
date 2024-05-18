@@ -15,3 +15,5 @@ val DarkBlue = Color(0xFF153E90)
 val SecondaryBlue = Color(0xFFD5DFFF)
 
 val Black = Color(0xFF100F0F)
+
+val AlertRed = Color(0xFFFF0000)

@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -104,8 +104,8 @@ fun InputTextFieldDefault(
                 )
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = if (isEmail && emailError) Color.Red else Blue,
-                unfocusedBorderColor = if (isEmail && emailError) Color.Red else SecondaryBlue,
+                focusedBorderColor = if (isEmail && emailError) AlertRed else Blue,
+                unfocusedBorderColor = if (isEmail && emailError) AlertRed else SecondaryBlue,
                 cursorColor = SecondaryBlue,
                 focusedTextColor = Blue,
                 unfocusedTextColor = if (valueText.isNotEmpty()) Blue else SecondaryBlue
