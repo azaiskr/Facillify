@@ -47,6 +47,10 @@ fun LoginScreen(
     onLogin: () -> Unit = {},
     onSignUp: () -> Unit = {}
 ) {
+    //State
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Surface(color = Color.White){
         Column(
             modifier = Modifier
@@ -61,24 +65,27 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Selamat Datang di Facillify.",
+                    text = "Selamat Datang di FACILIFFY.",
                     color = Blue,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
-
                 )
 
                 //Text Field
                 Spacer(modifier = Modifier.height(16.dp))
                 InputBox(
                     topText = "Email",
-                    insideBox = "Masukkan email"
+                    insideField = "Masukkan email",
+                    valueText = email,
+                    onValueChange = { email = it }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 InputBox(
                     topText = "Password",
-                    insideBox = "Masukkan password"
+                    insideField = "Masukkan password",
+                    valueText = password,
+                    onValueChange = { password = it }
                 )
 
                 //Button
@@ -100,7 +107,7 @@ fun LoginScreen(
 }
 
 @Composable
-private fun TopSection() {
+fun TopSection() {
     Box(
         modifier = Modifier
             .size(350.dp)
@@ -117,7 +124,7 @@ private fun TopSection() {
         Image(
             painter = painterResource(id = R.drawable.image_logo_white),
             contentDescription = "logo",
-            modifier = Modifier.size(200.dp)
+            modifier = Modifier.size(150.dp)
         )
 
     }
@@ -126,12 +133,10 @@ private fun TopSection() {
 @Composable
 fun InputBox(
     topText: String,
-    insideBox: String,
+    insideField: String,
+    valueText: String,
+    onValueChange: (String) -> Unit
 ) {
-    //State
-    var inputText by remember { mutableStateOf("") }
-
-    //UI
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -141,13 +146,13 @@ fun InputBox(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth(),
-            value = inputText,
+            value = valueText,
             onValueChange = {
-                inputText = it
+                onValueChange(it)
             },
             label = {
                 Text(
-                    text = insideBox,
+                    text = insideField,
                     color = SecondaryBlue,
                 ) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -216,9 +221,12 @@ fun LoginScreenPreview() {
 @Composable
 @Preview(showBackground = true)
 fun InputBoxPreview() {
+    var teks by remember { mutableStateOf("") }
     InputBox(
         topText = "Email",
-        insideBox = "Masukkan email"
+        insideField = "Masukkan email",
+        valueText = teks,
+        onValueChange = { teks = it}
     )
 }
 
