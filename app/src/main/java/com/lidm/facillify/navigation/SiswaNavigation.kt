@@ -45,6 +45,11 @@ fun SiswaNavigation(
                     Screen.SiswaKonsultasi,
                     Screen.SiswaRiwayat,
                 ),
+                modifier = modifier,
+                hideBottomBar = !(currentRoute == Screen.SiswaHome.route ||
+                        currentRoute == Screen.SiswaBelajar.route ||
+                        currentRoute == Screen.SiswaKonsultasi.route ||
+                        currentRoute == Screen.SiswaRiwayat.route)
             )
         },
         topBar = {
