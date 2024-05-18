@@ -18,9 +18,12 @@ import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
 import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
+import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
+import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
 import com.lidm.facillify.ui.siswa.konsultasi.SiswaKonsultasiScreen
+import com.lidm.facillify.ui.siswa.profile.ProfileScreen
 
 @Preview
 @Composable
@@ -50,8 +53,11 @@ fun SiswaNavigation(
                     Screen.SiswaHome.route -> "Home"
                     Screen.SiswaBelajar.route -> "Belajar"
                     Screen.SiswaMateriBelajar.route -> "Materi Belajar"
+                    Screen.SiswaMateriBelajarDetail.route -> "Materi Belajar"
+                    Screen.SiswaMateriBelajarVideo.route -> "Materi Belajar"
                     Screen.SiswaKonsultasi.route -> "Konsultasi"
                     Screen.SiswaRiwayat.route -> "Riwayat"
+                    Screen.SiswaProfile.route -> "Profil Siswa"
                     else -> ""
                 },
                 backIcon = when (currentRoute) {
@@ -61,7 +67,12 @@ fun SiswaNavigation(
                     Screen.SiswaRiwayat.route -> false
                     else -> true
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onProfileClick = { navController.navigate(Screen.SiswaProfile.route) },
+                profileIcon = when (currentRoute) {
+                    Screen.SiswaProfile.route -> false
+                    else -> true
+                }
             )
         },
     ) { innerPadding ->
@@ -84,6 +95,15 @@ fun SiswaNavigation(
             composable(Screen.SiswaMateriBelajar.route) {
                 MateriBelajarScreen()
             }
+            composable(Screen.SiswaMateriBelajarDetail.route){
+                MateriBelajarDetailScreen(
+                    modifier = modifier,
+                    onNavigateToMateriVideo = {navController.navigate(Screen.SiswaMateriBelajarVideo.route)}
+                )
+            }
+            composable(Screen.SiswaMateriBelajarVideo.route){
+                MateriBelajarVideoScreen(modifier = modifier)
+            }
 
             composable(Screen.SiswaKonsultasi.route) {
                 SiswaKonsultasiScreen()
@@ -91,6 +111,9 @@ fun SiswaNavigation(
 
             composable(Screen.SiswaRiwayat.route) {
                 SiswaRiwayatScreen()
+            }
+            composable(Screen.SiswaProfile.route) {
+                ProfileScreen()
             }
         }
     }
