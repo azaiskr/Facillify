@@ -33,6 +33,7 @@ import com.lidm.facillify.ui.theme.OnBlueSecondary
 fun SiswaBelajarScreen(
     modifier: Modifier,
     onBelajarClick: () -> Unit,
+    onLatihanClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -54,7 +55,7 @@ fun SiswaBelajarScreen(
             content = {
                 ContentCardLatihan(
                     modifier = modifier,
-                    navigateToLatihan = {/*TODO*/},
+                    navigateToLatihan = onLatihanClick,
                 )
             },
         )
@@ -161,7 +162,7 @@ fun ContentCardLatihan(
 fun SiswaBelajarScreenPreview(
     modifier: Modifier = Modifier,
 ) {
-    SiswaBelajarScreen(modifier = modifier, onBelajarClick = {})
+    SiswaBelajarScreen(modifier = modifier, onBelajarClick = {}, onLatihanClick = {})
 }
 
 @Preview

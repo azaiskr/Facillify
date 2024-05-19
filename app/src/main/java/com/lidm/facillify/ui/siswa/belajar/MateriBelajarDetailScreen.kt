@@ -1,14 +1,12 @@
 package com.lidm.facillify.ui.siswa.belajar
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,8 +14,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -36,11 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.theme.DarkBlue
-import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun MateriBelajarDetailScreen(
     modifier: Modifier,
+    materiId: Int,
     onNavigateToMateriVideo: () -> Unit,
 ) {
 
@@ -57,7 +53,8 @@ fun MateriBelajarDetailScreen(
 //        }
     DetailMateriBelajar(
         modifier = modifier,
-        onNavigateToMateriVideo = onNavigateToMateriVideo
+        onNavigateToMateriVideo = onNavigateToMateriVideo,
+        materiId = materiId,
     )
 }
 
@@ -65,37 +62,40 @@ fun MateriBelajarDetailScreen(
 fun DetailMateriBelajar(
     modifier: Modifier,
     onNavigateToMateriVideo: () -> Unit,
+    materiId: Int,
 ) {
+    val data = dummyDataMateri.find { it.id == materiId }
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
-            contentDescription = null,
-            modifier = modifier
-                .fillMaxWidth()
-                .height(240.dp),
-            contentScale = ContentScale.FillBounds
-        )
-        Text(
-            text = "Materi Belajar 1",
-            fontSize = 20.sp,
-            color = DarkBlue,
-            maxLines = 1,
-            fontWeight = FontWeight.SemiBold,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 8.dp)
-                .wrapContentHeight()
-        )
-        Text(
-            text = "Bangun ruang adalah bentuk-bentuk tiga dimensi yang kita temui sehari-hari. Bayangkan jika kita menggambar bentuk-bentuk seperti kubus, balok, bola, atau tabung di kertas, lalu kita berusaha membuatnya menjadi benda nyata, itu adalah bangun ruang.",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = modifier.height(200.dp)
-        )
-        Spacer(modifier = modifier.height(24.dp))
+        if (data != null) {
+            Image(
+                painter = painterResource(id = data.image),
+                contentDescription = null,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
+                contentScale = ContentScale.FillBounds
+            )
+            Text(
+                text = data.title,
+                fontSize = 20.sp,
+                color = DarkBlue,
+                maxLines = 1,
+                fontWeight = FontWeight.SemiBold,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 8.dp)
+                    .wrapContentHeight()
+            )
+            Text(
+                text = data.desc,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = modifier.height(200.dp)
+            )
+        }
         BtnMateriBelajar(
             iconVector = R.drawable.videoimage,
             text = "Materi Video",
@@ -169,5 +169,5 @@ fun BtnMateriBelajar(
 fun DetailMateriBelajarPreview(
     modifier: Modifier = Modifier
 ) {
-    DetailMateriBelajar(modifier = modifier, onNavigateToMateriVideo = {})
+    DetailMateriBelajar(modifier = modifier, onNavigateToMateriVideo = {}, materiId = 1)
 }
