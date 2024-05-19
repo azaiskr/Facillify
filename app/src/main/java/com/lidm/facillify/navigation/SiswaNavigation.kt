@@ -22,8 +22,9 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
-import com.lidm.facillify.ui.siswa.konsultasi.SiswaKonsultasiScreen
-import com.lidm.facillify.ui.siswa.profile.ProfileScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiScreen
+import com.lidm.facillify.ui.siswa.profile.FormTambahDataOrtu
+import com.lidm.facillify.ui.profile.ProfileScreen
 
 @Preview
 @Composable
@@ -63,6 +64,7 @@ fun SiswaNavigation(
                     Screen.SiswaKonsultasi.route -> "Konsultasi"
                     Screen.SiswaRiwayat.route -> "Riwayat"
                     Screen.SiswaProfile.route -> "Profil Siswa"
+                    Screen.FormTambahDataOrtu.route -> "Tambah Data Orang Tua"
                     else -> ""
                 },
                 backIcon = when (currentRoute) {
@@ -76,6 +78,7 @@ fun SiswaNavigation(
                 onProfileClick = { navController.navigate(Screen.SiswaProfile.route) },
                 profileIcon = when (currentRoute) {
                     Screen.SiswaProfile.route -> false
+                    Screen.FormTambahDataOrtu.route -> false
                     else -> true
                 }
             )
@@ -111,14 +114,20 @@ fun SiswaNavigation(
             }
 
             composable(Screen.SiswaKonsultasi.route) {
-                SiswaKonsultasiScreen()
+                KonsultasiScreen()
             }
 
             composable(Screen.SiswaRiwayat.route) {
                 SiswaRiwayatScreen()
             }
             composable(Screen.SiswaProfile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    modifier = modifier,
+                    navigateToFormTambahDataOrtu = {navController.navigate(Screen.FormTambahDataOrtu.route)}
+                )
+            }
+            composable(Screen.FormTambahDataOrtu.route){
+                FormTambahDataOrtu()
             }
         }
     }
