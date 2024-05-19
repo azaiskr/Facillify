@@ -1,10 +1,12 @@
 package com.lidm.facillify.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -42,9 +44,11 @@ fun SearchAppBar(
         },
         placeholder = { Text(label) },
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         colors = SearchBarDefaults.colors(
             containerColor = SecondaryBlue,
+            dividerColor = MaterialTheme.colorScheme.background,
             inputFieldColors = TextFieldDefaults.colors(
                 focusedTextColor = DarkBlue,
                 unfocusedTextColor = OnBlueSecondary,

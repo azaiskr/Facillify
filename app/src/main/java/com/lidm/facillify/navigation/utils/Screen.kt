@@ -8,7 +8,10 @@ sealed class Screen (
     data object SiswaHome: Screen ("siswa_home")
     data object SiswaBelajar: Screen("siswa_belajar")
     data object SiswaMateriBelajar: Screen("siswa_materi_belajar")
-    data object SiswaMateriBelajarDetail: Screen("siswa_materi_belajar_detail")
+    data object SiswaMateriBelajarDetail: Screen("siswa_materi_belajar/{materiId}"){
+        fun createRoute(materiId: Int) = "siswa_materi_belajar/$materiId"
+    }
+    data object SiswaLatihan: Screen("siswa_latihan")
     data object SiswaMateriBelajarVideo: Screen("siswa_materi_belajar_video")
     data object SiswaKonsultasi:  Screen("siswa_konsultasi")
     data object SiswaRiwayat: Screen("siswa_riwayat")

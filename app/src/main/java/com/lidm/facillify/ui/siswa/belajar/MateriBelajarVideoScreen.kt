@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +37,7 @@ import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
+
 @Preview
 @Composable
 fun MateriBelajarVideoScreen(
@@ -44,7 +46,6 @@ fun MateriBelajarVideoScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
     ) {
         val title = "Video 1"
         val desc = "Pada video ini kita akan mempelajari mengenai bangun ruang yang ada di sekitar kita"
@@ -89,9 +90,9 @@ fun ListMateriVideo(
         label = "Cari video" ,
         modifier = modifier
     )
-    Spacer(modifier = modifier.height(16.dp))
     LazyColumn (
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp)
     ){
         this.items(4){
             MateriVideoItem(

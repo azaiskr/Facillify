@@ -1,4 +1,4 @@
-package com.lidm.facillify.ui.siswa.profile
+package com.lidm.facillify.ui.siswa
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +21,8 @@ import com.lidm.facillify.ui.login.InputBox
 @Preview(showBackground = true)
 @Composable
 fun FormTambahDataOrtu(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ){
     Column (
         modifier = modifier
@@ -40,7 +41,7 @@ fun FormTambahDataOrtu(
         Spacer(modifier = modifier.height(24.dp))
         SecondaryButton(
             modifier = modifier,
-            onClick = { /*TODO*/ },
+            onClick = { onClick() },
             outline = false,
             label = "Tambah"
         )
