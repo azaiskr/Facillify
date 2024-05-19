@@ -17,6 +17,7 @@ import com.lidm.facillify.ui.theme.Blue
 
 @Composable
 fun ButtonDefault(
+    modifier: Modifier,
     text: String,
     onClick: () -> Unit
 ) {
@@ -38,5 +39,5 @@ fun ButtonDefault(
 @Composable
 @Preview(showBackground = true)
 fun ButtonDefaultPreview() {
-    ButtonDefault(text = "Button", onClick = {})
+    ButtonDefault(modifier = Modifier, text = "Button", onClick = {})
 }

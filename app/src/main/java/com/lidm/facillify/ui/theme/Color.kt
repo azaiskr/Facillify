@@ -18,3 +18,9 @@ val OnBlueSecondary = Color(0xFFA0B5FF)
 val Black = Color(0xFF100F0F)
 
 val AlertRed = Color(0xFFFF0000)
+
+val YellowOrange = Color(0xFFFFCC29)
+
+val DarkGreen = Color(0xFF007965)
+
+val Grey = Color(0xFFEEEEEE)
