@@ -1,4 +1,4 @@
-package com.lidm.facillify.ui.siswa.konsultasi
+package com.lidm.facillify.ui.konsultasi
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.theme.DarkBlue
-import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
 
@@ -40,7 +39,7 @@ data class Konsultant(
 )
 @Preview
 @Composable
-fun SiswaKonsultasiScreen(
+fun KonsultasiScreen(
     modifier: Modifier = Modifier
 ) {
 

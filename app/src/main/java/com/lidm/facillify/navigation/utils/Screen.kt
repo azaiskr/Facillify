@@ -13,6 +13,7 @@ sealed class Screen (
     data object SiswaKonsultasi:  Screen("siswa_konsultasi")
     data object SiswaRiwayat: Screen("siswa_riwayat")
     data object SiswaProfile: Screen("siswa_profile")
+    data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
 
 
 }
