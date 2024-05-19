@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -36,17 +37,42 @@ import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
-@Preview
+data class MateriBelajar(
+    val id: Int,
+    val image: Int,
+    val title: String,
+    val desc: String,
+)
+
+val dummyDataMateri = listOf(
+    MateriBelajar(
+        id = 1,
+        image = R.drawable.ic_launcher_background,
+        title = "Bangun Ruang",
+        desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu"),
+
+    MateriBelajar(
+        id = 2,
+        image = R.drawable.ic_launcher_background,
+        title = "SPLDV",
+        desc = "Sistem Persamaan Linear Dua Variabel adalah sistem persamaan yang mempunyai dua variabel yang berbentuk persamaan linear."),
+    MateriBelajar(
+        id = 3,
+        image = R.drawable.ic_launcher_background,
+        title = "Trigonometri",
+        desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget consectetur pellentesque,"),
+)
+
 @Composable
 fun MateriBelajarScreen(
-    modifier: Modifier = Modifier,
-
+    modifier: Modifier,
+    onNavigateToMateriBelajarDetail: (Int) -> Unit,
 ){
     Column (
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
     ) {
+
 //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
 //                /*TODO*/
@@ -58,14 +84,20 @@ fun MateriBelajarScreen(
 //                /*TODO*/
 //            }
 //        }
-        MateriBelajarGrid()
+
+        MateriBelajarGrid(
+            modifier = modifier,
+            materi = dummyDataMateri,
+            onItemClick = onNavigateToMateriBelajarDetail
+        )
     }
 }
 
 @Composable
 fun MateriBelajarGrid(
     modifier: Modifier = Modifier,
-//    materi : List<>
+    materi : List<MateriBelajar>,
+    onItemClick: (Int) -> Unit
 ) {
     var query by rememberSaveable {
         mutableStateOf("")
@@ -86,16 +118,17 @@ fun MateriBelajarGrid(
         label = "Cari materi",
         modifier = modifier
     )
-    Spacer(modifier = modifier.height(16.dp))
     LazyVerticalGrid(
         columns = GridCells.Adaptive(147.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp)
     ) {
-        this.items(3){item ->
+        this.items(materi.size){item ->
             MateriBelajarItem(
                 modifier = modifier,
-                onClick = {/*TODO*/}
+                onClick = { onItemClick(materi[item].id) },
+                materi = materi[item]
             )
         }
     }
@@ -104,7 +137,8 @@ fun MateriBelajarGrid(
 @Composable
 fun MateriBelajarItem(
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    materi: MateriBelajar,
 ) {
     Card (
         modifier = modifier
@@ -125,7 +159,7 @@ fun MateriBelajarItem(
             verticalArrangement = Arrangement.Top
         ){
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = materi.image),
                 contentDescription = "Materi",
                 modifier = modifier
                     .height(100.dp),
@@ -134,7 +168,7 @@ fun MateriBelajarItem(
             )
             Text(
                 modifier = modifier.padding(top = 16.dp, bottom = 8.dp),
-                text = "Bangun Ruang",
+                text = materi.title,
                 fontSize = 16.sp,
                 color = DarkBlue,
                 overflow = TextOverflow.Ellipsis,
@@ -142,7 +176,7 @@ fun MateriBelajarItem(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu",
+                text = materi.desc,
                 color = DarkBlue,
                 fontSize = 12.sp,
                 overflow = TextOverflow.Clip,
@@ -158,6 +192,11 @@ fun MateriBelajarItem(
 fun MateriBelajarItemPreview() {
     MateriBelajarItem(
         modifier = Modifier,
-        onClick = {}
+        onClick = {},
+        materi = MateriBelajar(
+            id = 1,
+            image = R.drawable.ic_launcher_background,
+            title = "Bangun Ruang",
+            desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu")
     )
 }
