@@ -256,6 +256,7 @@ fun SignUpInputScreen(
                 //Button
                 Spacer(modifier = Modifier.height(32.dp))
                 ButtonDefault(
+                    modifier = Modifier,
                     text = "Daftar",
                     onClick = onSignUp
                 )
