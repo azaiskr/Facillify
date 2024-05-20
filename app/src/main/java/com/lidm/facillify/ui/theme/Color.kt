@@ -21,6 +21,7 @@ val Black = Color(0xFF100F0F)
 val AlertRed = Color(0xFFFF0000)
 
 val YellowOrange = Color(0xFFFFCC29)
+val Orange = Color(0xFFF58634)
 
 val DarkGreen = Color(0xFF007965)
 
