@@ -289,7 +289,7 @@ fun DialogTambahSoal(
                             )
                         )
 
-                        if (index == answers.lastIndex) {
+                        if (index == answers.lastIndex && answers.size < 6) {
                             IconButton(onClick = {
                                 answers = answers.toMutableList().apply { add("") }
                             }) {
