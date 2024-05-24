@@ -29,12 +29,16 @@ import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
+import com.lidm.facillify.util.Question
+import com.lidm.facillify.util.dummyQuestions
 
 data class LatihanItem(
+    val id: Int,
     val jmlSoal: Int,
     val judul: String,
     val deskripsi: String,
     val waktu: Int,
+    val questions: List<Question>,
     val subBab: String,
     val done: Boolean = false,
 )
@@ -46,24 +50,30 @@ data class Filter(
 
 val dummyDataLatihan = listOf(
     LatihanItem(
+        id = 1,
         jmlSoal = 10,
         waktu = 20,
         judul = "Latihan 1",
         deskripsi = "Latihan 1",
+        questions = dummyQuestions,
         subBab = "Bangun Ruang",
         done = true
     ),
     LatihanItem(
+        id = 2,
         jmlSoal = 20,
         waktu = 45,
         judul = "Latihan 2",
+        questions = dummyQuestions,
         deskripsi = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
         subBab = "Bangun Ruang",
         done = false
     ),
     LatihanItem(
+        id = 3,
         jmlSoal = 25,
         waktu = 60,
+        questions = dummyQuestions,
         judul = "Latihan 3",
         deskripsi = "Latihan 3",
         subBab = "Statistika",
@@ -90,10 +100,10 @@ val dummyDataFilter = listOf(
     ),
 )
 
-@Preview (showBackground = true)
 @Composable
-fun LatihanSiswaScreen(
-    modifier: Modifier = Modifier,
+fun LatihanSiswaListScreen(
+    modifier: Modifier,
+    onNavigateToLatihanForm: (Int) -> Unit,
 ) {
     //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
@@ -110,6 +120,7 @@ fun LatihanSiswaScreen(
         data = dummyDataLatihan,
         filter = dummyDataFilter,
         modifier = modifier,
+        onNavigateToLatihanForm = onNavigateToLatihanForm
     )
 }
 
@@ -118,6 +129,7 @@ fun ListLatihan(
     data: List<LatihanItem>,
     filter : List<Filter>,
     modifier: Modifier,
+    onNavigateToLatihanForm: (Int) -> Unit,
 ) {
     Column (
         modifier = modifier
@@ -156,7 +168,11 @@ fun ListLatihan(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(data.size){latihan ->
-                CardLatihanItem(latihan = data[latihan], modifier = modifier)
+                CardLatihanItem(
+                    latihan = data[latihan],
+                    modifier = modifier,
+                    onCLick = { onNavigateToLatihanForm(data[latihan].id) }
+                )
             }
         }
 

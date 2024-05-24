@@ -32,7 +32,7 @@ fun RiwayatScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = false, profileIcon = false, sectionTitle = "Riwayat Kamu")
+//        MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = false, profileIcon = false, sectionTitle = "Riwayat Kamu")
         LazyRow {
             items(listRiwayat.size) { index ->
                 AbilityCard(
