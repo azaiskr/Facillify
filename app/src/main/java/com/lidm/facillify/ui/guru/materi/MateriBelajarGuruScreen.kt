@@ -53,16 +53,6 @@ fun MateriBelajarGuruScreen(
                 MateriBelajarGuruItem(dummyDataMateriVideo[it])
             }
         }
-        FloatingActionButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(24.dp),
-            containerColor = OnBlueSecondary,
-            contentColor = Black,
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = null)
-        }
     }
 }
 

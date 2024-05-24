@@ -1,4 +1,4 @@
-package com.lidm.facillify.ui.siswa.konsultasi
+package com.lidm.facillify.ui.chat.konsultasi
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -8,8 +8,8 @@ import com.lidm.facillify.ui.chat.ChatScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun KonsultasiSiswaChat(
-
+fun ChatKonsultasi(
+    onBackClick: () -> Unit ={},
 ) {
     //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
@@ -36,6 +36,7 @@ fun KonsultasiSiswaChat(
                 isUser = false,
                 timestamp = "9 Januari 2024"
             ),
-        )
+        ),
+        onBackClick = onBackClick,
     )
 }

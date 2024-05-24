@@ -30,7 +30,7 @@ import com.lidm.facillify.ui.components.SmallButton
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 
 @Composable
-fun SiswaBelajarScreen(
+fun BelajarScreen(
     modifier: Modifier,
     onBelajarClick: () -> Unit,
     onLatihanClick: () -> Unit,
@@ -162,7 +162,7 @@ fun ContentCardLatihan(
 fun SiswaBelajarScreenPreview(
     modifier: Modifier = Modifier,
 ) {
-    SiswaBelajarScreen(modifier = modifier, onBelajarClick = {}, onLatihanClick = {})
+    BelajarScreen(modifier = modifier, onBelajarClick = {}, onLatihanClick = {})
 }
 
 @Preview

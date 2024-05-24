@@ -28,6 +28,7 @@ import com.lidm.facillify.ui.theme.DarkBlue
 fun MainTopAppBar(
     modifier: Modifier = Modifier,
     sectionTitle: String = "",
+    contentColor: Color = DarkBlue,
     backIcon: Boolean = false,
     onBackClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -39,7 +40,7 @@ fun MainTopAppBar(
             title = {
                 Text(
                     text = sectionTitle,
-                    color = DarkBlue,
+                    color = contentColor,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -52,7 +53,7 @@ fun MainTopAppBar(
                         Icon(
                             painter = painterResource(id = R.drawable.round_arrow_back),
                             contentDescription = "back",
-                            tint = DarkBlue
+                            tint = contentColor
                         )
                     }
                 }

@@ -39,7 +39,7 @@ fun ChatScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, profileIcon = false, backIcon = true, sectionTitle = if (!isBotChat) userToChat else "FACILLIFY AI")
+        MainTopAppBar(onBackClick = onBackClick, onProfileClick = { /*TODO*/ }, profileIcon = false, backIcon = true, sectionTitle = if (!isBotChat) userToChat else "FACILLIFY AI")
 
         LazyColumn(
             modifier = Modifier
