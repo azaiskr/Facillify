@@ -14,6 +14,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com\"")
+        buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com\"")
+        buildConfigField("String", "SECRET_KEY", "\"sk-proj-PaYdr8fx5l1B9psJapJcT3BlbkFJIPhKd71v9LF5ugaPIUDK\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -38,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
