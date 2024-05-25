@@ -86,5 +86,14 @@ dependencies {
     //youtubePlayer
     implementation(libs.core)
 
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
+    //OKHTTP
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    //live data
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
 }
