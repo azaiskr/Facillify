@@ -19,12 +19,13 @@ import com.lidm.facillify.R
 import com.lidm.facillify.navigation.utils.NavigationItem
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.theme.DarkBlue
+import com.lidm.facillify.util.Role
 
 @Composable
 fun MainBottomAppBar(
     navController: NavHostController,
-    screen: List<Screen>,
     modifier: Modifier,
+    role: Role,
     hideBottomBar: Boolean,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -35,33 +36,76 @@ fun MainBottomAppBar(
             containerColor = DarkBlue,
             modifier = modifier.height(64.dp)
         ) {
-            val navigationItems = listOf(
-                NavigationItem (
-                    title = "Home",
-                    icon = painterResource(id = R.drawable.location_away_rounded),
-                    iconSelected = painterResource(id = R.drawable.location_away_fill),
-                    screen = screen[0]
-                ),
-                NavigationItem (
-                    title = "Belajar",
-                    icon = painterResource(id = R.drawable.book_4_rounded),
-                    iconSelected = painterResource(id = R.drawable.book_4_fill),
-                    screen = screen[1]
-                ),
-                NavigationItem(
-                    title = "Konsultasi",
-                    icon = painterResource(id = R.drawable.forum_rounded),
-                    iconSelected = painterResource(id = R.drawable.forum_fill),
-                    screen = screen[2]
-                ),
-                NavigationItem (
-                    title = "Riwayat",
-                    icon = painterResource(id = R.drawable.analytics_rounded),
-                    iconSelected = painterResource(id = R.drawable.analytics_fill),
-                    screen = screen[3]
-                )
+            val screen = listOf(
+                Screen.SiswaHome,
+                Screen.Belajar,
+                Screen.Konsultasi,
+                Screen.Riwayat,
+                Screen.TrackingList
             )
 
+            val navigationItems = when(role){
+                Role.TEACHER -> listOf(
+                    NavigationItem (
+                        title = "Belajar",
+                        icon = painterResource(id = R.drawable.book_4_rounded),
+                        iconSelected = painterResource(id = R.drawable.book_4_fill),
+                        screen = screen[1]
+                    ),
+                    NavigationItem(
+                        title = "Konsultasi",
+                        icon = painterResource(id = R.drawable.forum_rounded),
+                        iconSelected = painterResource(id = R.drawable.forum_fill),
+                        screen = screen[2]
+                    ),
+                    NavigationItem (
+                        title = "Tracking Siswa",
+                        icon = painterResource(id = R.drawable.analytics_rounded),
+                        iconSelected = painterResource(id = R.drawable.analytics_fill),
+                        screen = screen[4]
+                    )
+                )
+                Role.PARENT -> listOf(
+                    NavigationItem(
+                        title = "Konsultasi",
+                        icon = painterResource(id = R.drawable.forum_rounded),
+                        iconSelected = painterResource(id = R.drawable.forum_fill),
+                        screen = screen[2]
+                    ),
+                    NavigationItem (
+                        title = "Tracking Anak",
+                        icon = painterResource(id = R.drawable.analytics_rounded),
+                        iconSelected = painterResource(id = R.drawable.analytics_fill),
+                        screen = screen[4]
+                    )
+                )
+                Role.STUDENT -> listOf(
+                    NavigationItem (
+                        title = "Home",
+                        icon = painterResource(id = R.drawable.location_away_rounded),
+                        iconSelected = painterResource(id = R.drawable.location_away_fill),
+                        screen = screen[0]
+                    ),
+                    NavigationItem (
+                        title = "Belajar",
+                        icon = painterResource(id = R.drawable.book_4_rounded),
+                        iconSelected = painterResource(id = R.drawable.book_4_fill),
+                        screen = screen[1]
+                    ),
+                    NavigationItem(
+                        title = "Konsultasi",
+                        icon = painterResource(id = R.drawable.forum_rounded),
+                        iconSelected = painterResource(id = R.drawable.forum_fill),
+                        screen = screen[2]
+                    ),
+                    NavigationItem (
+                        title = "Riwayat",
+                        icon = painterResource(id = R.drawable.analytics_rounded),
+                        iconSelected = painterResource(id = R.drawable.analytics_fill),
+                        screen = screen[3]
+                    )
+                )
+            }
             navigationItems.map { item ->
                 NavigationBarItem(
                     icon = {
@@ -96,5 +140,4 @@ fun MainBottomAppBar(
             }
         }
     }
-
 }

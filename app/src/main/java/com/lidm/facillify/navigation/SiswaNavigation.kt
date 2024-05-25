@@ -25,14 +25,15 @@ import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
-import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
-import com.lidm.facillify.ui.siswa.konsultasi.KonsultasiSiswaScreen
+import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
+import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.siswa.FormTambahDataOrtu
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
-import com.lidm.facillify.ui.siswa.konsultasi.KonsultasiSiswaChat
+import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
+import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
@@ -44,50 +45,46 @@ fun SiswaNavigation(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val role = Role.STUDENT
 
     Scaffold(
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,
-                screen = listOf(
-                    Screen.SiswaHome,
-                    Screen.SiswaBelajar,
-                    Screen.Konsultasi,
-                    Screen.SiswaRiwayat,
-                ),
+                role = role,
                 modifier = modifier,
                 hideBottomBar = !(currentRoute == Screen.SiswaHome.route ||
-                        currentRoute == Screen.SiswaBelajar.route ||
+                        currentRoute == Screen.Belajar.route ||
                         currentRoute == Screen.Konsultasi.route ||
-                        currentRoute == Screen.SiswaRiwayat.route)
+                        currentRoute == Screen.Riwayat.route)
             )
         },
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
                     Screen.SiswaHome.route -> "Home"
-                    Screen.SiswaBelajar.route -> "Belajar"
-                    Screen.SiswaMateriBelajar.route -> "Materi Belajar"
+                    Screen.Belajar.route -> "Belajar"
+                    Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
-                    Screen.SiswaLatihan.route -> "Latihan Soal"
+                    Screen.Latihan.route -> "Latihan Soal"
                     Screen.Konsultasi.route -> "Konsultasi"
-                    Screen.SiswaRiwayat.route -> "Riwayat Kamu"
-                    Screen.SiswaProfile.route -> "Profil Siswa"
+                    Screen.Riwayat.route -> "Riwayat Kamu"
+                    Screen.Profile.route -> "Profil Siswa"
                     Screen.FormTambahDataOrtu.route -> "Tambah Data Orang Tua"
                     else -> ""
                 },
                 backIcon = when (currentRoute) {
                     Screen.SiswaHome.route -> false
-                    Screen.SiswaBelajar.route -> false
+                    Screen.Belajar.route -> false
                     Screen.Konsultasi.route -> false
-                    Screen.SiswaRiwayat.route -> false
+                    Screen.Riwayat.route -> false
                     else -> true
                 },
                 onBackClick = { navController.popBackStack() },
-                onProfileClick = { navController.navigate(Screen.SiswaProfile.route) },
+                onProfileClick = { navController.navigate(Screen.Profile.route) },
                 profileIcon = when (currentRoute) {
-                    Screen.SiswaProfile.route -> false
+                    Screen.Profile.route -> false
                     Screen.FormTambahDataOrtu.route -> false
                     else -> true
                 },
@@ -105,15 +102,15 @@ fun SiswaNavigation(
             }
 
             // BELAJAR
-            composable(Screen.SiswaBelajar.route) {
-                SiswaBelajarScreen(
+            composable(Screen.Belajar.route) {
+                BelajarScreen(
                     modifier = modifier,
-                    onBelajarClick = { navController.navigate(Screen.SiswaMateriBelajar.route) },
-                    onLatihanClick = {navController.navigate(Screen.SiswaLatihan.route)}
+                    onBelajarClick = { navController.navigate(Screen.MateriBelajar.route) },
+                    onLatihanClick = {navController.navigate(Screen.Latihan.route)}
                 )
             }
             // BELAJAR-MATERI
-            composable(Screen.SiswaMateriBelajar.route) {
+            composable(Screen.MateriBelajar.route) {
                 MateriBelajarScreen(
                     modifier = modifier,
                     onNavigateToMateriBelajarDetail = { materiId ->
@@ -151,7 +148,7 @@ fun SiswaNavigation(
                     )
             }
             //BELAJAR - LATIHAN
-            composable(Screen.SiswaLatihan.route){
+            composable(Screen.Latihan.route){
                 LatihanSiswaListScreen(
                     onNavigateToLatihanForm = {latihanId ->
                         navController.navigate(Screen.SiswaLatihanForm.createRoute(latihanId))
@@ -171,20 +168,20 @@ fun SiswaNavigation(
             }
 
             composable(Screen.Konsultasi.route) {
-                KonsultasiSiswaScreen(
+                ListKonsultasi(
                     modifier = modifier,
                     onNavigateToChat = { navController.navigate(Screen.Chat.route) }
                 )
             }
 
             composable(Screen.Chat.route){
-                KonsultasiSiswaChat()
+                ChatKonsultasi()
             }
 
-            composable(Screen.SiswaRiwayat.route) {
+            composable(Screen.Riwayat.route) {
                 SiswaRiwayatScreen()
             }
-            composable(Screen.SiswaProfile.route) {
+            composable(Screen.Profile.route) {
                 ProfileScreen(
                     modifier = modifier,
                     navigateToFormTambahDataOrtu = { navController.navigate(Screen.FormTambahDataOrtu.route) }

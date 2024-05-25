@@ -20,6 +20,35 @@ import com.lidm.facillify.ui.components.StudentCard
 import com.lidm.facillify.util.Role
 
 @Composable
+fun ListTrackingScreen(
+    onDetailClick: (Student) -> Unit,
+) {
+    //replace
+    val role = Role.PARENT
+    val studentList = listOf(
+        Student(
+            image = R.drawable.pp_deafult,
+            name = "Rizky",
+            number = 1
+        ),
+        Student(
+            image = R.drawable.pp_deafult,
+            name = "Wijanarko",
+            number = 2
+        ),
+    )
+
+    //viewModel
+    //state
+
+    TrackingAnakScreen(
+        onDetailClick = onDetailClick,
+        studentList = studentList,
+        userRole = role
+    )
+}
+
+@Composable
 fun TrackingAnakScreen(
     onDetailClick: (Student) -> Unit,
     studentList: List<Student>,
@@ -29,15 +58,16 @@ fun TrackingAnakScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        MainTopAppBar(
-            profileIcon = false,
-            sectionTitle = if (userRole == Role.TEACHER) "Tracking Siswa" else if (userRole == Role.PARENT) "Tracking Anak" else "",
-            onProfileClick = {},
-            onBackClick = {},
-        )
+//        MainTopAppBar(
+//            profileIcon = false,
+//            sectionTitle = if (userRole == Role.TEACHER) "Tracking Siswa" else if (userRole == Role.PARENT) "Tracking Anak" else "",
+//            onProfileClick = {},
+//            onBackClick = {},
+//        )
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth().padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(studentList.size) { index ->
