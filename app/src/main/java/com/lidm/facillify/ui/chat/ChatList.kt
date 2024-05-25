@@ -1,4 +1,4 @@
-package com.lidm.facillify.ui.konsultasi
+package com.lidm.facillify.ui.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -25,75 +25,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lidm.facillify.R
+import com.lidm.facillify.ui.siswa.konsultasi.Konsultant
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
-
-
-data class Konsultant(
-    var nama: String,
-    var profesi: String,
-    var profilImg: Int,
-)
-@Preview
-@Composable
-fun KonsultasiScreen(
-    modifier: Modifier = Modifier
-) {
-
-    val data = listOf(
-        Konsultant(
-            "Dr. Ir. H. Fathul Muzakki, M. Sc.",
-            "Psikolog",
-            R.drawable.ic_launcher_background
-        ),
-        Konsultant(
-            "Dr. Ir. H. Fathul Muzakki, M. Sc.",
-            "Psikolog",
-            R.drawable.ic_launcher_background
-        ),
-        Konsultant(
-            "Dr. Ir. H. Fathul Muzakki, M. Sc.",
-            "Psikolog",
-            R.drawable.ic_launcher_background
-        )
-    )
-
-    //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
-
-    ChatList(
-        data = data,
-        modifier = modifier
-    )
-}
 
 @Composable
 fun ChatList(
     data: List<Konsultant>,
-    modifier: Modifier
+    modifier: Modifier,
+    onClick: () -> Unit,
 ) {
-    LazyColumn (
+    LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier.fillMaxSize()
     ) {
-        items(data.size){
+        items(data.size) {
             ChatItem(
                 data = data[it],
                 modifier = modifier,
-                onClick = { /*TODO*/ }
+                onClick = { onClick() }
             )
         }
     }
@@ -105,7 +57,7 @@ fun ChatItem(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    Card (
+    Card(
         modifier = modifier
             .fillMaxWidth()
             .height(96.dp)
@@ -115,12 +67,12 @@ fun ChatItem(
             contentColor = DarkBlue
         )
     ) {
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-        ){
+        ) {
             Image(
                 painter = painterResource(id = data.profilImg),
                 contentDescription = null,
@@ -129,7 +81,7 @@ fun ChatItem(
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
-            Column (
+            Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = modifier
                     .fillMaxWidth()

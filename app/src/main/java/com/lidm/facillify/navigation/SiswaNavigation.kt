@@ -1,6 +1,8 @@
 package com.lidm.facillify.navigation
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -24,11 +26,15 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.SiswaBelajarScreen
-import com.lidm.facillify.ui.konsultasi.KonsultasiScreen
+import com.lidm.facillify.ui.siswa.konsultasi.KonsultasiSiswaScreen
 import com.lidm.facillify.ui.siswa.FormTambahDataOrtu
 import com.lidm.facillify.ui.profile.ProfileScreen
-import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
+import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.ui.siswa.konsultasi.KonsultasiSiswaChat
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun SiswaNavigation(
@@ -46,13 +52,13 @@ fun SiswaNavigation(
                 screen = listOf(
                     Screen.SiswaHome,
                     Screen.SiswaBelajar,
-                    Screen.SiswaKonsultasi,
+                    Screen.Konsultasi,
                     Screen.SiswaRiwayat,
                 ),
                 modifier = modifier,
                 hideBottomBar = !(currentRoute == Screen.SiswaHome.route ||
                         currentRoute == Screen.SiswaBelajar.route ||
-                        currentRoute == Screen.SiswaKonsultasi.route ||
+                        currentRoute == Screen.Konsultasi.route ||
                         currentRoute == Screen.SiswaRiwayat.route)
             )
         },
@@ -65,8 +71,8 @@ fun SiswaNavigation(
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
                     Screen.SiswaLatihan.route -> "Latihan Soal"
-                    Screen.SiswaKonsultasi.route -> "Konsultasi"
-                    Screen.SiswaRiwayat.route -> "Riwayat"
+                    Screen.Konsultasi.route -> "Konsultasi"
+                    Screen.SiswaRiwayat.route -> "Riwayat Kamu"
                     Screen.SiswaProfile.route -> "Profil Siswa"
                     Screen.FormTambahDataOrtu.route -> "Tambah Data Orang Tua"
                     else -> ""
@@ -74,7 +80,7 @@ fun SiswaNavigation(
                 backIcon = when (currentRoute) {
                     Screen.SiswaHome.route -> false
                     Screen.SiswaBelajar.route -> false
-                    Screen.SiswaKonsultasi.route -> false
+                    Screen.Konsultasi.route -> false
                     Screen.SiswaRiwayat.route -> false
                     else -> true
                 },
@@ -84,7 +90,8 @@ fun SiswaNavigation(
                     Screen.SiswaProfile.route -> false
                     Screen.FormTambahDataOrtu.route -> false
                     else -> true
-                }
+                },
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
             )
         },
     ) { innerPadding ->
@@ -126,15 +133,52 @@ fun SiswaNavigation(
                 )
             }
             composable(Screen.SiswaMateriBelajarVideo.route) {
-                MateriBelajarVideoScreen(modifier = modifier)
+                MateriBelajarVideoScreen(
+                    modifier = modifier,
+                    onNavigateToVideoPlayer = { videoId ->
+                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(videoId))
+                    }
+                )
+            }
+            composable(
+                route = Screen.SiswaVideoPlayer.route,
+                arguments = listOf(navArgument("videoId") { type = NavType.IntType })
+            ){
+                    val id = it.arguments?.getInt("videoId") ?: 0
+                    VideoPlayerScreen(
+                        modifier = modifier,
+                        id = id
+                    )
             }
             //BELAJAR - LATIHAN
             composable(Screen.SiswaLatihan.route){
-                LatihanSiswaScreen()
+                LatihanSiswaListScreen(
+                    onNavigateToLatihanForm = {latihanId ->
+                        navController.navigate(Screen.SiswaLatihanForm.createRoute(latihanId))
+                    },
+                    modifier = modifier,
+                )
+            }
+            composable(
+                route = Screen.SiswaLatihanForm.route,
+                arguments = listOf(navArgument("latihanId"){type = NavType.IntType})
+            ) {
+                val id = it.arguments?.getInt("latihanId") ?: 0
+                LatihanScreen(
+                    modifier = modifier,
+                    latihanId = id
+                )
             }
 
-            composable(Screen.SiswaKonsultasi.route) {
-                KonsultasiScreen()
+            composable(Screen.Konsultasi.route) {
+                KonsultasiSiswaScreen(
+                    modifier = modifier,
+                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
+                )
+            }
+
+            composable(Screen.Chat.route){
+                KonsultasiSiswaChat()
             }
 
             composable(Screen.SiswaRiwayat.route) {

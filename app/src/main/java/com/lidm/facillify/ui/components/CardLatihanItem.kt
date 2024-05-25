@@ -2,6 +2,7 @@ package com.lidm.facillify.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,10 +37,12 @@ import com.lidm.facillify.ui.theme.Yellow
 fun CardLatihanItem(
     latihan: LatihanItem,
     modifier: Modifier,
+    onCLick: () -> Unit,
 ) {
     OutlinedCard(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onCLick() },
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.outlinedCardColors(
             containerColor = Color.Transparent,
@@ -114,13 +117,16 @@ fun CardLatihanItem(
 fun CardLatihanItemPreview() {
     CardLatihanItem(
         latihan = LatihanItem(
+            id = 1,
             jmlSoal = 10,
             waktu = 20,
             judul = "Latihan 1",
             deskripsi = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
             subBab = "Bangun Ruang",
-            done = true
+            done = true,
+            questions = emptyList()
         ),
         modifier = Modifier,
+        onCLick = {}
     )
 }

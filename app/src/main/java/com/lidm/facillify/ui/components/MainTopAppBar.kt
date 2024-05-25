@@ -32,43 +32,46 @@ fun MainTopAppBar(
     onBackClick: () -> Unit,
     onProfileClick: () -> Unit,
     profileIcon: Boolean = true,
+    isHide: Boolean = false,
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = sectionTitle,
-                color = DarkBlue,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        navigationIcon = {
-            if (backIcon) {
-                IconButton(
-                    onClick = { onBackClick() },
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_arrow_back),
-                        contentDescription = "back",
-                        tint = DarkBlue
+    if (!isHide) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = sectionTitle,
+                    color = DarkBlue,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            navigationIcon = {
+                if (backIcon) {
+                    IconButton(
+                        onClick = { onBackClick() },
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_arrow_back),
+                            contentDescription = "back",
+                            tint = DarkBlue
+                        )
+                    }
+                }
+            },
+            actions = {
+                if (profileIcon) {
+                    ProfileIcon(
+                        modifier = modifier,
+                        onClick = onProfileClick
                     )
                 }
-            }
-        },
-        actions = {
-            if (profileIcon) {
-                ProfileIcon(
-                    modifier = modifier,
-                    onClick = onProfileClick
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            navigationIconContentColor = DarkBlue,
-            titleContentColor = DarkBlue
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                navigationIconContentColor = DarkBlue,
+                titleContentColor = DarkBlue
+            )
         )
-    )
+    }
 }
 
 @Composable
