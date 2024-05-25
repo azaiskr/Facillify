@@ -51,7 +51,7 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 
 @Composable
-fun TambahLationSoalGuruScreen() {
+fun TambahLatianSoalGuruScreen() {
     var latihanSoal = remember { mutableStateListOf<ItemSoal>() }
     var judulSoal by remember { mutableStateOf("") }
     var deskripsiSoal by remember { mutableStateOf("") }
@@ -317,7 +317,7 @@ fun DialogTambahSoal(
 @Composable
 @Preview(showBackground = true)
 fun TambahLationSoalGuruScreenPreview() {
-    TambahLationSoalGuruScreen()
+    TambahLatianSoalGuruScreen()
 }
 
 @Composable
