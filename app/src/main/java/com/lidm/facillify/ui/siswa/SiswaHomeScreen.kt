@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -24,9 +23,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -37,14 +39,10 @@ import com.lidm.facillify.R
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
 import com.lidm.facillify.ui.siswa.belajar.dummyDataLatihan
-import com.lidm.facillify.ui.siswa.belajar.dummyDataMateri
+import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.ui.siswa.belajar.DialogConfirm
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
-import com.lidm.facillify.ui.theme.DarkBlue
-import com.lidm.facillify.ui.theme.Green
-import com.lidm.facillify.ui.theme.Grey
-import com.lidm.facillify.ui.theme.OnBlueSecondary
-import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun SiswaHomeScreen(
@@ -77,6 +75,14 @@ fun HomeScreenContent(
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
 ) {
+    var showDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var selectedLatihanId by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -165,11 +171,11 @@ fun HomeScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(dummyDataMateri.size) {
+                        items(materiBelajarData.size) {
                             MateriBelajarItem(
                                 modifier = modifier,
-                                onClick = { onItemBelajarClick(dummyDataMateri[it].id) },
-                                materi = dummyDataMateri[it]
+                                onClick = { onItemBelajarClick(materiBelajarData[it].id) },
+                                materi = materiBelajarData[it]
                             )
                         }
                     }
@@ -214,10 +220,23 @@ fun HomeScreenContent(
                     CardLatihanItem(
                         latihan = dummyDataLatihan[it],
                         modifier = modifier,
-                        onCLick = { onItemLatihanClick(it) }
+                        onCLick = {
+                            selectedLatihanId = dummyDataLatihan[it].id
+                            showDialog = true
+                        }
                     )
                 }
             }
+        }
+
+        if (showDialog && selectedLatihanId != null) {
+            DialogConfirm(
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    showDialog = false
+                    onItemLatihanClick(selectedLatihanId!!)
+                }
+            )
         }
 
     }

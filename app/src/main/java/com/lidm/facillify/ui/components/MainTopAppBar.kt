@@ -42,7 +42,7 @@ fun MainTopAppBar(
                     text = sectionTitle,
                     color = contentColor,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Bold
                 )
             },
             navigationIcon = {

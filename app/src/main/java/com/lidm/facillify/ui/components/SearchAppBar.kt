@@ -1,6 +1,8 @@
 package com.lidm.facillify.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DockedSearchBar
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.theme.DarkBlue
@@ -44,7 +47,9 @@ fun SearchAppBar(
         },
         placeholder = { Text(label) },
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(max = 210.dp)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         colors = SearchBarDefaults.colors(
             containerColor = SecondaryBlue,
@@ -62,4 +67,18 @@ fun SearchAppBar(
     ) {
         content()
     }
+}
+@Preview
+@Composable
+fun SearchAppBarPreview() {
+    SearchAppBar(
+        query = "",
+        onQueryChange = {} ,
+        onSearch = {},
+        active = true,
+        onActiveChange = {},
+        content = { /*TODO*/ },
+        label = "" ,
+        modifier = Modifier
+    )
 }

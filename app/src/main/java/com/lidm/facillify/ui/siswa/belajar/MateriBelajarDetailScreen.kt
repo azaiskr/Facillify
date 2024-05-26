@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Button
@@ -25,19 +26,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.lidm.facillify.R
+import com.lidm.facillify.data.local.materiBelajarData
 import com.lidm.facillify.ui.theme.DarkBlue
 
 @Composable
 fun MateriBelajarDetailScreen(
     modifier: Modifier,
     materiId: Int,
-    onNavigateToMateriVideo: () -> Unit,
+    onNavigateToMateriVideo: (Int) -> Unit,
 ) {
 
 //        when (val response = viewModel.materiBelajar){
@@ -53,7 +59,7 @@ fun MateriBelajarDetailScreen(
 //        }
     DetailMateriBelajar(
         modifier = modifier,
-        onNavigateToMateriVideo = onNavigateToMateriVideo,
+        onNavigateToMateriVideo = {onNavigateToMateriVideo(materiId)},
         materiId = materiId,
     )
 }
@@ -61,24 +67,31 @@ fun MateriBelajarDetailScreen(
 @Composable
 fun DetailMateriBelajar(
     modifier: Modifier,
-    onNavigateToMateriVideo: () -> Unit,
+    onNavigateToMateriVideo: (Int) -> Unit,
     materiId: Int,
 ) {
-    val data = dummyDataMateri.find { it.id == materiId }
+    val data = materiBelajarData.find { it.id == materiId }
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         if (data != null) {
-            Image(
-                painter = painterResource(id = data.image),
-                contentDescription = null,
+
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(data.image)
+                    .crossfade(true)
+                    .build(),
+                error = painterResource(id = R.drawable.connectivity5),
+                contentDescription = "Materi Poster",
+                contentScale = ContentScale.Crop,
                 modifier = modifier
+                    .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
                     .height(240.dp),
-                contentScale = ContentScale.FillBounds
             )
+
             Text(
                 text = data.title,
                 fontSize = 20.sp,
@@ -93,6 +106,7 @@ fun DetailMateriBelajar(
             Text(
                 text = data.desc,
                 style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Justify,
                 modifier = modifier.height(200.dp)
             )
         }
@@ -100,7 +114,7 @@ fun DetailMateriBelajar(
             iconVector = R.drawable.videoimage,
             text = "Materi Video",
             modifier = modifier,
-            onClick = { onNavigateToMateriVideo() }
+            onClick = { onNavigateToMateriVideo(materiId) }
         )
         Spacer(modifier = modifier.height(8.dp))
         BtnMateriBelajar(

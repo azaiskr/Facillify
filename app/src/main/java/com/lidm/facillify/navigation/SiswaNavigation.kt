@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,27 +18,22 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.DummyLoginResponse
-import com.lidm.facillify.ui.chat.ChatScreen
 import com.lidm.facillify.ui.chat.ChatbotScreen
+import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
+import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
+import com.lidm.facillify.ui.profile.ProfileScreen
+import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
 import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
+import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
-import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
-import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
-import com.lidm.facillify.ui.profile.ProfileScreen
-import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
-import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
-import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarResultScreen
-import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
-import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
 //@Preview
@@ -74,6 +68,7 @@ fun SiswaNavigation(
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
+                    Screen.SiswaVideoPlayer.route -> "Video Player"
                     Screen.Latihan.route -> "Latihan Soal"
                     Screen.Konsultasi.route -> "Konsultasi"
                     Screen.Chatbot.route -> "FACILLIFY AI"
@@ -92,9 +87,11 @@ fun SiswaNavigation(
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = { navController.navigate(Screen.Profile.route) },
                 profileIcon = when (currentRoute) {
-                    Screen.Profile.route -> false
-                    Screen.FormTambahDataOrtu.route -> false
-                    else -> true
+                    Screen.SiswaHome.route -> true
+                    Screen.Belajar.route -> true
+                    Screen.Konsultasi.route -> true
+                    Screen.Riwayat.route -> true
+                    else -> false
                 },
                 isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
             )
@@ -108,11 +105,23 @@ fun SiswaNavigation(
             composable(Screen.SiswaHome.route) {
                 SiswaHomeScreen(
                     modifier = modifier,
-                    onNavigateToBelajar = {navController.navigate(Screen.MateriBelajar.route)},
-                    onNavigateToLatihan = {navController.navigate(Screen.Latihan.route)},
-                    onItemBelajarClick = {materiId -> navController.navigate(Screen.SiswaMateriBelajarDetail.createRoute(materiId))},
-                    onItemLatihanClick = {latihanId -> navController.navigate(Screen.SiswaLatihanForm.createRoute(latihanId))},
-                    onNavigateToChatbot = {navController.navigate(Screen.Chatbot.route)}
+                    onNavigateToBelajar = { navController.navigate(Screen.MateriBelajar.route) },
+                    onNavigateToLatihan = { navController.navigate(Screen.Latihan.route) },
+                    onItemBelajarClick = { materiId ->
+                        navController.navigate(
+                            Screen.SiswaMateriBelajarDetail.createRoute(
+                                materiId
+                            )
+                        )
+                    },
+                    onItemLatihanClick = { latihanId ->
+                        navController.navigate(
+                            Screen.SiswaLatihanForm.createRoute(
+                                latihanId
+                            )
+                        )
+                    },
+                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) }
 
                 )
             }
@@ -123,7 +132,7 @@ fun SiswaNavigation(
                 BelajarScreen(
                     modifier = modifier,
                     onBelajarClick = { navController.navigate(Screen.MateriBelajar.route) },
-                    onLatihanClick = {navController.navigate(Screen.Latihan.route)}
+                    onLatihanClick = { navController.navigate(Screen.Latihan.route) }
                 )
             }
             // BELAJAR-MATERI
@@ -143,31 +152,46 @@ fun SiswaNavigation(
                 MateriBelajarDetailScreen(
                     modifier = modifier,
                     materiId = id,
-                    onNavigateToMateriVideo = { navController.navigate(Screen.SiswaMateriBelajarVideo.route) }
+                    onNavigateToMateriVideo = { materiId ->
+                        navController.navigate(Screen.SiswaMateriBelajarVideo.createRoute(materiId))
+                    }
                 )
             }
-            composable(Screen.SiswaMateriBelajarVideo.route) {
+            composable(
+                route = Screen.SiswaMateriBelajarVideo.route,
+                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+            ) {
+                val id = it.arguments?.getInt("materiId") ?: 0
                 MateriBelajarVideoScreen(
                     modifier = modifier,
-                    onNavigateToVideoPlayer = { videoId ->
-                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(videoId))
+                    materiId = id,
+                    onNavigateToVideoPlayer = { materiId, videoId ->
+                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(materiId, videoId))
                     }
                 )
             }
             composable(
                 route = Screen.SiswaVideoPlayer.route,
-                arguments = listOf(navArgument("videoId") { type = NavType.IntType })
-            ){
-                    val id = it.arguments?.getInt("videoId") ?: 0
-                    VideoPlayerScreen(
-                        modifier = modifier,
-                        id = id
-                    )
+                arguments = listOf(
+                    navArgument("materiId") { type = NavType.IntType },
+                    navArgument("videoId") { type = NavType.StringType }
+                )
+            ) {
+                val materiId = it.arguments?.getInt("materiId") ?: 0
+                val videoId = it.arguments?.getString("videoId") ?: ""
+                VideoPlayerScreen(
+                    modifier = modifier,
+                    videoId = videoId,
+                    materiId = materiId,
+                    onNavigateToVideoContent = { materiId, videoId2 ->
+                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(materiId, videoId2))
+                    }
+                )
             }
             //BELAJAR - LATIHAN
-            composable(Screen.Latihan.route){
+            composable(Screen.Latihan.route) {
                 LatihanSiswaListScreen(
-                    onNavigateToLatihanForm = {latihanId ->
+                    onNavigateToLatihanForm = { latihanId ->
                         navController.navigate(Screen.SiswaLatihanForm.createRoute(latihanId))
                     },
                     modifier = modifier,
@@ -175,7 +199,7 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaLatihanForm.route,
-                arguments = listOf(navArgument("latihanId"){type = NavType.IntType})
+                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
             ) {
                 val id = it.arguments?.getInt("latihanId") ?: 0
                 LatihanScreen(
@@ -191,13 +215,13 @@ fun SiswaNavigation(
                 )
             }
 
-            composable(Screen.Chat.route){
+            composable(Screen.Chat.route) {
                 ChatKonsultasi(
-                    onBackClick = {navController.popBackStack()}
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
-            composable(Screen.Chatbot.route){
+            composable(Screen.Chatbot.route) {
                 ChatbotScreen()
             }
 
@@ -212,7 +236,7 @@ fun SiswaNavigation(
             }
             composable(Screen.FormTambahDataOrtu.route) {
                 FormEditEmailOrtu(
-                    onClick = {navController.popBackStack()}
+                    onClick = { navController.popBackStack() }
                 )
             }
         }

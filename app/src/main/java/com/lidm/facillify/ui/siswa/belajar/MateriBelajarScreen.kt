@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,7 +23,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,36 +33,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.lidm.facillify.R
+import com.lidm.facillify.data.local.MateriBelajar
+import com.lidm.facillify.data.local.materiBelajarData
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
-
-data class MateriBelajar(
-    val id: Int,
-    val image: Int,
-    val title: String,
-    val desc: String,
-)
-
-val dummyDataMateri = listOf(
-    MateriBelajar(
-        id = 1,
-        image = R.drawable.ic_launcher_background,
-        title = "Bangun Ruang",
-        desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu"),
-
-    MateriBelajar(
-        id = 2,
-        image = R.drawable.ic_launcher_background,
-        title = "SPLDV",
-        desc = "Sistem Persamaan Linear Dua Variabel adalah sistem persamaan yang mempunyai dua variabel yang berbentuk persamaan linear."),
-    MateriBelajar(
-        id = 3,
-        image = R.drawable.ic_launcher_background,
-        title = "Trigonometri",
-        desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget consectetur pellentesque,"),
-)
 
 @Composable
 fun MateriBelajarScreen(
@@ -87,7 +66,7 @@ fun MateriBelajarScreen(
 
         MateriBelajarGrid(
             modifier = modifier,
-            materi = dummyDataMateri,
+            materi = materiBelajarData,
             onItemClick = onNavigateToMateriBelajarDetail
         )
     }
@@ -158,13 +137,17 @@ fun MateriBelajarItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ){
-            Image(
-                painter = painterResource(id = materi.image),
-                contentDescription = "Materi",
-                modifier = modifier
-                    .height(100.dp),
+            AsyncImage(
+                model = ImageRequest.Builder(context = LocalContext.current)
+                    .data(materi.image)
+                    .crossfade(true)
+                    .build(),
+                error = painterResource(id = R.drawable.connectivity5),
+                contentDescription = "Materi Poster",
                 contentScale = ContentScale.FillHeight,
-                alignment = Alignment.Center
+                modifier = modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .height(100.dp),
             )
             Text(
                 modifier = modifier.padding(top = 16.dp, bottom = 8.dp),
@@ -196,8 +179,10 @@ fun MateriBelajarItemPreview() {
         onClick = {},
         materi = MateriBelajar(
             id = 1,
-            image = R.drawable.ic_launcher_background,
+            image = "",
             title = "Bangun Ruang",
-            desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu")
+            desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu",
+            materiVideo = listOf()
+        ),
     )
 }
