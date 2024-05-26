@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 class ChatViewModel(private val chatbotApiService: ChatbotApiService) : ViewModel() {
 
-
     private val _messages = MutableStateFlow<List<ChatMessage>>(listOf(
         ChatMessage(
             text = "Halo, saya FACILLIFY AI. Bagaimana saya bisa membantu Anda hari ini?",
