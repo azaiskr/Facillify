@@ -22,6 +22,7 @@ fun FormSoal(
     item: List<Question>,
     onSubmit: () -> Unit,
     answer: MutableList<String>,
+    submitAnswer: () -> Unit,
     totalTimeMinutes: Int = 60,
 ){
     val remainingTime = remember { mutableIntStateOf(totalTimeMinutes * 60) }
@@ -33,7 +34,7 @@ fun FormSoal(
             delay(1000L)
             remainingTime.intValue -= 1
         }
-        onSubmit() // Automatically submit when timer ends
+        submitAnswer() // Automatically submit when timer ends
     }
 
 

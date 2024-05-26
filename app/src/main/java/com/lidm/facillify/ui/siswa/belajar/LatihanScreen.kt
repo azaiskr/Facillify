@@ -35,7 +35,6 @@ fun LatihanScreen(
     var showDialog by remember { mutableStateOf(false) }
 
     fun onSubmit () {
-
         showDialog = true
     }
 
@@ -60,6 +59,7 @@ fun LatihanScreen(
         latihanItem = latihan,
         answer = answer,
         onSubmit = ::onSubmit,
+        submitAnswer = ::submitAnswer,
         totalTimeMinutes = 1
     )
 
@@ -80,6 +80,7 @@ fun FormLatihan(
     modifier: Modifier = Modifier,
     answer: MutableList<String>,
     onSubmit: () -> Unit,
+    submitAnswer: () -> Unit,
     totalTimeMinutes: Int,
 ) {
 
@@ -112,6 +113,7 @@ fun FormLatihan(
             item = latihanItem.questions,
             answer = answer,
             onSubmit = onSubmit,
+            submitAnswer = submitAnswer,
             totalTimeMinutes = totalTimeMinutes
         )
     }
