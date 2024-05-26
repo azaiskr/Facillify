@@ -2,67 +2,82 @@ package com.lidm.facillify.ui.chat
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lidm.facillify.data.ChatMessage
+import androidx.lifecycle.ViewModelProvider
+import com.lidm.facillify.data.remote.api.ApiConfig
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatBubble
 import com.lidm.facillify.ui.components.ChatInputField
 import com.lidm.facillify.ui.components.DateHeader
-import com.lidm.facillify.ui.components.MainTopAppBar
-import com.lidm.facillify.util.getCurrentDateTime
+import com.lidm.facillify.ui.viewmodel.ChatViewModel
+import com.lidm.facillify.util.formatDate
+import com.lidm.facillify.util.getCurrentDate
+import com.lidm.facillify.util.getYesterdayDate
+import com.lidm.facillify.util.parseDate
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatScreen(
-    isBotChat: Boolean = false,
-    onBackClick: () -> Unit = {},
-    userToChat: String,
-    chatMessage: List<ChatMessage>
+    viewModel: ChatViewModel
 ) {
-    var messages by remember { mutableStateOf(chatMessage) }
-    var currentMessage by remember { mutableStateOf("") }
+    var userInput by remember { mutableStateOf("") }
+    val messages by viewModel.messages.collectAsState()
+    // Create a reference to the LazyListState
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(messages.size) {
+        // Scroll to the bottom when a new message is added
+        listState.animateScrollToItem(messages.size)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        MainTopAppBar(onBackClick = onBackClick, onProfileClick = { /*TODO*/ }, profileIcon = false, backIcon = true, sectionTitle = if (!isBotChat) userToChat else "FACILLIFY AI")
-
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),
+            state = listState
         ) {
-            val groupedMessages = messages.groupBy { it.timestamp }
-            if (groupedMessages.isNotEmpty()) {
-                groupedMessages.forEach { (date, messages) ->
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            DateHeader(date = date)
-                        }
+            var lastDate: LocalDate? = null
+            items(messages) { message ->
+                val messageDate = parseDate(message.timestamp)
+                if (messageDate != lastDate) {
+                    lastDate = messageDate
+                    val headerText = when (messageDate) {
+                        getCurrentDate() -> "Hari Ini"
+                        getYesterdayDate() -> "Kemarin"
+                        else -> formatDate(messageDate)
                     }
-
-                    items(messages) { message ->
-                        ChatBubble(message)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        DateHeader(date = headerText)
                     }
                 }
+                ChatBubble(message = message)
             }
         }
         Column(
@@ -71,17 +86,12 @@ fun ChatScreen(
                 .padding(16.dp, 0.dp, 16.dp, 16.dp)
         ) {
             ChatInputField(
-                message = currentMessage,
-                onMessageChange = { currentMessage = it },
+                message = userInput,
+                onMessageChange = { userInput = it },
                 onSend = {
-                    //TODO: LOGIC FOR SEND MESSAGE
-                    if (currentMessage.isNotEmpty()) {
-                        messages = messages + ChatMessage(
-                            text = currentMessage,
-                            isUser = true,
-                            timestamp = getCurrentDateTime()
-                        )
-                        currentMessage = ""
+                    if (userInput.isNotEmpty()) {
+                        viewModel.sendMessage(userInput)
+                        userInput = ""
                     }
                 }
             )
@@ -93,96 +103,13 @@ fun ChatScreen(
 @Composable
 @Preview(showBackground = true)
 fun ChatScreenPreview() {
-    ChatScreen(
-        isBotChat = true,
-        userToChat = "Budi",
-        chatMessage = listOf(
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "9 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "9 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Baik juga",
-                isUser = true,
-                timestamp = "9 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "9 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Baik juga",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Baik juga",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Baik juga",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "10 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "11 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Baik juga",
-                isUser = true,
-                timestamp = "11 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, apa kabar?",
-                isUser = true,
-                timestamp = "11 Januari 2024"
-            ),
-            ChatMessage(
-                text = "Halo, baik. Kamu?",
-                isUser = false,
-                timestamp = "11 Januari 2024"
-            )
-        )
-    )
+    val context = LocalContext.current
+    val apiService = ApiConfig.getChatbotApiService(context)
+    val viewModelFactory = ViewModelFactory(apiService)
+    val chatViewModel = ViewModelProvider(
+        LocalContext.current as androidx.activity.ComponentActivity,
+        viewModelFactory
+    )[ChatViewModel::class.java]
 
+    ChatScreen(viewModel = chatViewModel)
 }

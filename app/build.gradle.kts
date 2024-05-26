@@ -16,7 +16,7 @@ android {
 
         buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com\"")
         buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com\"")
-        buildConfigField("String", "SECRET_KEY", "\"sk-proj-PaYdr8fx5l1B9psJapJcT3BlbkFJIPhKd71v9LF5ugaPIUDK\"")
+        buildConfigField("String", "SECRET_KEY", "\"sk-proj-gnkmrs66duYKtqRdlvHnT3BlbkFJqNX2lPhTO3cXj83Iu2Ao\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
