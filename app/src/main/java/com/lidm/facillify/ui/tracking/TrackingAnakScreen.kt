@@ -58,12 +58,6 @@ fun TrackingAnakScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        MainTopAppBar(
-//            profileIcon = false,
-//            sectionTitle = if (userRole == Role.TEACHER) "Tracking Siswa" else if (userRole == Role.PARENT) "Tracking Anak" else "",
-//            onProfileClick = {},
-//            onBackClick = {},
-//        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()

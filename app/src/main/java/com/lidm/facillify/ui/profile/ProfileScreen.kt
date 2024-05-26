@@ -145,7 +145,7 @@ fun ProfileContent(
         }
         Spacer(modifier = modifier.height(24.dp))
         if (role == Role.STUDENT && profileData.parent == null) {
-            SecondaryButton(modifier = modifier, onClick = { onClick() }, outline = true, label = "Tambah Data Orang Tua" )
+            SecondaryButton(modifier = modifier, onClick = { onClick() }, outline = true, label = "Edit Email Orang Tua" )
         }
     }
 }

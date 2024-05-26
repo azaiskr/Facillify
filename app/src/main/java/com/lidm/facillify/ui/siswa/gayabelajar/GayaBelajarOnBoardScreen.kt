@@ -37,6 +37,7 @@ import com.lidm.facillify.ui.theme.DarkBlue
 @Composable
 fun GayaBelajarOnBoardScreen(
     modifier: Modifier = Modifier,
+    onNavigateToTestForm: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -95,7 +96,7 @@ fun GayaBelajarOnBoardScreen(
             )
         }
         Spacer(modifier = Modifier.height(48.dp))
-        MainButton(modifier = modifier, onClick = { /*TODO*/ }, labelText = "Mulai Tes")
+        MainButton(modifier = modifier, onClick = { onNavigateToTestForm() }, labelText = "Mulai Tes")
     }
 }
 

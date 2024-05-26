@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,14 +39,16 @@ import com.lidm.facillify.util.GayaBelajarResultPage
 @Composable
 fun GayaBelajarResultScreen(
     modifier: Modifier = Modifier,
+    onNavigateToHome: () -> Unit = {},
 ) {
     val result = GayaBelajarResultPage.Visual
     Box(
         modifier = modifier.fillMaxSize()
     ) {
         Canvas(modifier = Modifier
-            .size(120.dp)
-            .offset { IntOffset(350, -190.dp.roundToPx()) }
+//            .size(120.dp)
+            .fillMaxHeight(fraction = 0.1f)
+            .offset { IntOffset(500, -190.dp.roundToPx()) }
         ) {
             drawCircle(color = Blue, radius = 550.dp.toPx())
         }
@@ -66,8 +69,8 @@ fun GayaBelajarResultScreen(
                 modifier = modifier.align(Alignment.CenterHorizontally)
             )
             TestResultScreen(modifier = modifier, resultPage = result)
-            Spacer(modifier = Modifier.height(48.dp))
-            MainButton(modifier = modifier, onClick = { /*TODO*/ }, labelText = "Lanjut")
+            Spacer(modifier = Modifier.height(24.dp))
+            MainButton(modifier = modifier, onClick = { onNavigateToHome() }, labelText = "Lanjut")
         }
     }
 }
@@ -100,7 +103,7 @@ fun TestResultScreen(
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceEvenly,
-        modifier = modifier.height(240.dp)
+        modifier = modifier.fillMaxHeight(fraction = 0.4f)
     ) {
         Text(
             text = resultPage.desc,
