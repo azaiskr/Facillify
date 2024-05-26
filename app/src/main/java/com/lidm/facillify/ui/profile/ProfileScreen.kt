@@ -47,6 +47,7 @@ data class Siswa(
 fun ProfileScreen(
     modifier: Modifier,
     navigateToFormTambahDataOrtu: () -> Unit ={},
+    role: Role = Role.STUDENT,
 ) {
     //TODO: dummy data, replace with real data
     val siswa = Siswa(
@@ -73,14 +74,20 @@ fun ProfileScreen(
 //                /*TODO*/
 //            }
 //        }
-    ProfileContent(profileData = siswa, modifier = modifier, onClick = navigateToFormTambahDataOrtu)
+    ProfileContent(
+        profileData = siswa,
+        modifier = modifier,
+        onClick = navigateToFormTambahDataOrtu,
+        role = role,
+    )
 }
 
 @Composable
 fun ProfileContent(
     profileData: Siswa,
     modifier: Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    role: Role = Role.STUDENT,
 ) {
     val dataLabel = listOf(
         "Email",
@@ -137,7 +144,7 @@ fun ProfileContent(
             )
         }
         Spacer(modifier = modifier.height(24.dp))
-        if (profileData.role == Role.STUDENT && profileData.parent == null) {
+        if (role == Role.STUDENT && profileData.parent == null) {
             SecondaryButton(modifier = modifier, onClick = { onClick() }, outline = true, label = "Tambah Data Orang Tua" )
         }
     }
