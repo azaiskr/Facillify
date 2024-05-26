@@ -37,7 +37,6 @@ fun TambahMateriBelajarScreen() {
             var judulMateri by remember { mutableStateOf("") }
             var deskripsiMateri by remember { mutableStateOf("") }
 
-            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, profileIcon = false, sectionTitle = "Tambah Materi Belajar", backIcon = true)
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {

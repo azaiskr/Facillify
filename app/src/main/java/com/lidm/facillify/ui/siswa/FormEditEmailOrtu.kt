@@ -3,7 +3,6 @@ package com.lidm.facillify.ui.siswa
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -16,11 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.components.SecondaryButton
-import com.lidm.facillify.ui.login.InputBox
 
 @Preview(showBackground = true)
 @Composable
-fun FormTambahDataOrtu(
+fun FormEditEmailOrtu(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ){
@@ -33,7 +31,7 @@ fun FormTambahDataOrtu(
 
         InputTextFieldDefault(
             topText = "Email Orang Tua",
-            insideText = "Masukkan email orang tua",
+            insideText = "Masukkan email baru orang tua",
             valueText = emailOrtu,
             onValueChange = {emailOrtu = it},
             isEmail = true,
@@ -43,7 +41,7 @@ fun FormTambahDataOrtu(
             modifier = modifier,
             onClick = { onClick() },
             outline = false,
-            label = "Tambah"
+            label = "Simpan"
         )
     }
 }

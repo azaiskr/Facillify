@@ -66,8 +66,6 @@ fun TambahLatianSoalGuruScreen() {
         modifier = Modifier.fillMaxSize()
     ){
         Column {
-            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = false, sectionTitle = "Tambah Latihan Soal")
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,7 +82,6 @@ fun TambahLatianSoalGuruScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn{
-                    
                     items(latihanSoal.size){index ->
                         ItemSoalCard(
                             soal = latihanSoal[index].soal,

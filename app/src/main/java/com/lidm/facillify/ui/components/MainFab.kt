@@ -6,7 +6,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import com.lidm.facillify.ui.theme.Black
+import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
+import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun MainFab(
@@ -16,8 +18,8 @@ fun MainFab(
     if (isShown) {
         FloatingActionButton(
             onClick = onClick,
-            containerColor = OnBlueSecondary,
-            contentColor = Black,
+            containerColor = Blue,
+            contentColor = SecondaryBlue,
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null)
         }
