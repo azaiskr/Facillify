@@ -101,4 +101,12 @@ dependencies {
 
     //live data
     implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
+
+    //Coil
+    //implementation(libs.accompanist.coil)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    //Document
+    implementation(libs.androidx.documentfile)
+
 }
