@@ -47,25 +47,24 @@ fun GayaBelajarResultScreen(
     ) {
         Canvas(modifier = Modifier
 //            .size(120.dp)
-            .fillMaxHeight(fraction = 0.1f)
+            .fillMaxHeight(fraction = 0.15f)
             .offset { IntOffset(500, -190.dp.roundToPx()) }
         ) {
             drawCircle(color = Blue, radius = 550.dp.toPx())
         }
         Column(
             modifier = modifier
-                .padding(PaddingValues(horizontal = 24.dp, vertical = 16.dp))
+                .padding(PaddingValues(horizontal = 24.dp,))
+                .padding(top = 16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Gaya Belajar Kamu ...",
-                style = TextStyle(
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                ),
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
                 modifier = modifier.align(Alignment.CenterHorizontally)
             )
             TestResultScreen(modifier = modifier, resultPage = result)
@@ -92,14 +91,12 @@ fun TestResultScreen(
     Text(
         text = resultPage.title,
         modifier = modifier.fillMaxWidth(),
-        style = TextStyle(
-            fontSize = 24.sp,
-            lineHeight = 20.sp,
-            fontWeight = FontWeight(700),
-            textAlign = TextAlign.Center,
-            color = Color.White
-        ),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        color = Color.White
     )
+    Spacer(modifier = modifier.height(8.dp))
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -107,34 +104,27 @@ fun TestResultScreen(
     ) {
         Text(
             text = resultPage.desc,
-            style = TextStyle(
-                fontSize = 16.sp,
-                lineHeight = 20.sp,
-                fontWeight = FontWeight(400),
-                textAlign = TextAlign.Justify,
-            ),
+            fontSize = 16.sp,
+            lineHeight = 20.sp,
+            fontWeight = FontWeight(400),
+            textAlign = TextAlign.Justify,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(PaddingValues(vertical = 16.dp))
         )
         Text(
             text = "Cara Belajar",
-            style = TextStyle(
-                fontSize = 20.sp,
-                fontWeight = FontWeight(700),
-                textAlign = TextAlign.Start,
-            ),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start,
             color = DarkBlue,
             modifier = modifier
                 .fillMaxWidth()
         )
         Text(
             text = resultPage.tips,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight(400),
-                textAlign = TextAlign.Justify,
-            ),
+            fontSize = 16.sp,
+            textAlign = TextAlign.Justify,
             modifier = modifier
                 .fillMaxWidth()
         )

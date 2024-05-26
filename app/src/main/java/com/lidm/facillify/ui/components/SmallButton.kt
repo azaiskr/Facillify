@@ -30,7 +30,6 @@ fun SmallButton(
     ) {
         Text (
             text = labelText,
-            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

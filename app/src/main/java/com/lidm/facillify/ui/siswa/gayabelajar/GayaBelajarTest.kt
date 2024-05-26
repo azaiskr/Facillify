@@ -126,11 +126,9 @@ fun FormTest(
     ) {
         Text(
             text = "Tes Gaya Belajar",
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                color = DarkBlue
-            ),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 24.sp,
+            color = DarkBlue,
             modifier = modifier
                 .padding(vertical = 24.dp)
         )

@@ -81,20 +81,6 @@ fun HomeScreenContent(
         modifier = modifier
             .fillMaxSize()
     ) {
-//        Text(
-//            text = "Hallo!",
-//            style = MaterialTheme.typography.bodyLarge,
-//            fontWeight = FontWeight.Medium,
-//            color = Blue,
-//            modifier = modifier.padding(horizontal = 16.dp)
-//        )
-//        Text(
-//            text = "Alamsyah",
-//            style = MaterialTheme.typography.titleLarge,
-//            fontWeight = FontWeight.Medium,
-//            modifier = modifier.padding(horizontal = 16.dp)
-//        )
-
         Button(
             onClick = { onNavigateToChatbot() },
             modifier = modifier
@@ -151,7 +137,7 @@ fun HomeScreenContent(
                         Text(
                             text = "Belajar",
                             style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Black,
                             color = Blue,
                             modifier = modifier.align(Alignment.CenterStart)
                         )
@@ -182,7 +168,7 @@ fun HomeScreenContent(
                         items(dummyDataMateri.size) {
                             MateriBelajarItem(
                                 modifier = modifier,
-                                onClick = { onItemBelajarClick(it) },
+                                onClick = { onItemBelajarClick(dummyDataMateri[it].id) },
                                 materi = dummyDataMateri[it]
                             )
                         }
@@ -199,7 +185,7 @@ fun HomeScreenContent(
                     Text(
                         text = "Latihan Soal",
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Black,
                         color = Blue,
                         modifier = modifier.align(Alignment.CenterStart)
                     )

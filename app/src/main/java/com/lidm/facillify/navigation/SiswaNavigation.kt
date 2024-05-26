@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
+import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.ChatScreen
 import com.lidm.facillify.ui.chat.ChatbotScreen
 import com.lidm.facillify.ui.components.MainBottomAppBar
@@ -41,17 +42,17 @@ import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview
+//@Preview
 @Composable
 fun SiswaNavigation(
+    loginData: DummyLoginResponse,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = Role.STUDENT
-    val name = "Student"
+    val role = loginData.role
 
     Scaffold(
         bottomBar = {
@@ -68,7 +69,7 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Hallo, $name"
+                    Screen.SiswaHome.route -> "Hallo, ${loginData.username}"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"

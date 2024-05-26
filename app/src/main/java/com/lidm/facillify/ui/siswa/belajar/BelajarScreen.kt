@@ -108,6 +108,7 @@ fun ContentCardBelajar(
                 text = "Materi\nBelajar",
                 fontSize = 32.sp,
                 color = Color.White,
+                lineHeight = 32.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End
             )
@@ -138,6 +139,7 @@ fun ContentCardLatihan(
             Text(
                 text = "Latihan\nSoal",
                 fontSize = 32.sp,
+                lineHeight = 32.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start

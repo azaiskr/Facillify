@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.navigation.utils.Screen
+import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
 import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
@@ -30,13 +31,14 @@ import com.lidm.facillify.util.Role
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OrtuNavigation(
+    loginData: DummyLoginResponse, //todo remove
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = Role.PARENT
+    val role = loginData.role
 
     Scaffold(
         bottomBar = {
@@ -95,7 +97,8 @@ fun OrtuNavigation(
             }
             composable(Screen.TrackingDetail.route) {
                 DetailTrackingScreen(
-                    onClickBack = { navController.popBackStack() }
+                    onClickBack = { navController.popBackStack() },
+                    role = role
                 )
             }
             composable(Screen.Profile.route) {
@@ -112,5 +115,10 @@ fun OrtuNavigation(
 @Preview
 @Composable
 fun OrtuNavigationPreview() {
-    OrtuNavigation()
+    OrtuNavigation(
+        loginData = DummyLoginResponse(
+            username = "SuchKirman",
+            role = Role.PARENT
+        )
+    )
 }

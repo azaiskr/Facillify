@@ -38,10 +38,8 @@ fun QuestionItem(
     ){
         Text(
             text = question.questionText,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            ),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
             modifier = modifier.padding(bottom = 4.dp)
         )
         question.answer.forEach { answer ->
@@ -65,7 +63,6 @@ fun AnswerItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(32.dp)
             .selectable(
                 selected = (answer == selectedAnswer),
                 onClick = { onAnswerSelected(answer) },
@@ -84,9 +81,7 @@ fun AnswerItem(
         )
         Text(
             text = answer,
-            style = TextStyle(
-                fontSize = 14.sp,
-            ),
+            fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp)
         )
     }

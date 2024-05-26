@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,7 +42,8 @@ fun GayaBelajarOnBoardScreen(
 ) {
     Column(
         modifier = modifier
-            .padding(PaddingValues(horizontal = 24.dp, vertical = 16.dp))
+            .padding(PaddingValues(horizontal = 24.dp,))
+            .padding(top=16.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.Start
@@ -62,34 +64,28 @@ fun GayaBelajarOnBoardScreen(
         ){
             Text(
                 text = "Sebelum melangkah lebih jauh",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(700),
-                    textAlign = TextAlign.Start
-                ),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Start,
                 modifier = modifier.fillMaxWidth(),
                 color = DarkBlue
             )
             Text(
                 text = "Yuk kenali gaya belajar kamu dulu! Ikuti tes berikut ini yaa, pilih jawaban yang menggambarkan kamu banget.",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight(400),
-                    textAlign = TextAlign.Start,
-                ),
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight(400),
+                textAlign = TextAlign.Start,
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(PaddingValues(vertical = 16.dp))
             )
             Text(
                 text = "Semangat!",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 16.sp,
-                    fontWeight = FontWeight(400),
-                    textAlign = TextAlign.Start,
-                ),
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight(400),
+                textAlign = TextAlign.Start,
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(PaddingValues(vertical = 16.dp))
@@ -117,8 +113,8 @@ fun TopSectionGayaBelajar(
         Text(
             text = "Cek Gaya\nBelajarmu!",
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 2.sp,
+            lineHeight = 40.sp,
+            fontWeight = FontWeight.Black,
             color = Color.White,
         )
     }

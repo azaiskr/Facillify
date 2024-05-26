@@ -179,7 +179,8 @@ fun MateriBelajarItem(
                 text = materi.desc,
                 color = DarkBlue,
                 fontSize = 12.sp,
-                overflow = TextOverflow.Clip,
+                lineHeight = 12.sp,
+                overflow = TextOverflow.Ellipsis,
                 maxLines = 3,
                 textAlign = TextAlign.Center
             )
