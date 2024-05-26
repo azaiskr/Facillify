@@ -18,6 +18,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
+import com.lidm.facillify.ui.chat.ChatScreen
+import com.lidm.facillify.ui.chat.ChatbotScreen
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
@@ -27,12 +29,15 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
-import com.lidm.facillify.ui.siswa.FormTambahDataOrtu
+import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarResultScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -46,6 +51,7 @@ fun SiswaNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val role = Role.STUDENT
+    val name = "Student"
 
     Scaffold(
         bottomBar = {
@@ -62,13 +68,14 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Home"
+                    Screen.SiswaHome.route -> "Hallo, $name"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
                     Screen.Latihan.route -> "Latihan Soal"
                     Screen.Konsultasi.route -> "Konsultasi"
+                    Screen.Chatbot.route -> "FACILLIFY AI"
                     Screen.Riwayat.route -> "Riwayat Kamu"
                     Screen.Profile.route -> "Profil Siswa"
                     Screen.FormTambahDataOrtu.route -> "Tambah Data Orang Tua"
@@ -98,8 +105,17 @@ fun SiswaNavigation(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(Screen.SiswaHome.route) {
-                SiswaHomeScreen()
+                SiswaHomeScreen(
+                    modifier = modifier,
+                    onNavigateToBelajar = {navController.navigate(Screen.MateriBelajar.route)},
+                    onNavigateToLatihan = {navController.navigate(Screen.Latihan.route)},
+                    onItemBelajarClick = {materiId -> navController.navigate(Screen.SiswaMateriBelajarDetail.createRoute(materiId))},
+                    onItemLatihanClick = {latihanId -> navController.navigate(Screen.SiswaLatihanForm.createRoute(latihanId))},
+                    onNavigateToChatbot = {navController.navigate(Screen.Chatbot.route)}
+
+                )
             }
+
 
             // BELAJAR
             composable(Screen.Belajar.route) {
@@ -175,7 +191,13 @@ fun SiswaNavigation(
             }
 
             composable(Screen.Chat.route){
-                ChatKonsultasi()
+                ChatKonsultasi(
+                    onBackClick = {navController.popBackStack()}
+                )
+            }
+
+            composable(Screen.Chatbot.route){
+                ChatbotScreen()
             }
 
             composable(Screen.Riwayat.route) {
@@ -188,7 +210,7 @@ fun SiswaNavigation(
                 )
             }
             composable(Screen.FormTambahDataOrtu.route) {
-                FormTambahDataOrtu(
+                FormEditEmailOrtu(
                     onClick = {navController.popBackStack()}
                 )
             }

@@ -33,12 +33,14 @@ import com.lidm.facillify.ui.login.TopSection
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.fontFamily
+import com.lidm.facillify.util.Role
 
 @Composable
 fun SignUpScreen(
-    onSignUpAsStudent: () -> Unit = {},
-    onSignUpAsTeacher: () -> Unit = {},
-    onSignUpAsParent: () -> Unit = {},
+    onSignUp: (role: Role) -> Unit = {},
+    onSignUpAsStudent: (role:Role) -> Unit = {},
+    onSignUpAsTeacher: (role:Role) -> Unit = {},
+    onSignUpAsParent: (role:Role) -> Unit = {},
     onSignIn: () -> Unit = {}
 ) {
     //State
@@ -73,19 +75,19 @@ fun SignUpScreen(
                     fontSize = 14.sp
                 )
                 ButtonAs(
-                    onClick = onSignUpAsStudent,
+                    onClick = { onSignUp(Role.STUDENT) },
                     imageIcon = ImageVector.vectorResource(id = R.drawable.ic_student ),
                     text = "Siswa"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonAs(
-                    onClick = onSignUpAsTeacher,
+                    onClick = { onSignUp(Role.TEACHER) },
                     imageIcon = ImageVector.vectorResource(id = R.drawable.ic_teacher),
                     text = "Guru"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonAs(
-                    onClick = onSignUpAsParent,
+                    onClick = { onSignUp(Role.PARENT) },
                     imageIcon = ImageVector.vectorResource(id = R.drawable.ic_people),
                     text = "Orang Tua"
                 )

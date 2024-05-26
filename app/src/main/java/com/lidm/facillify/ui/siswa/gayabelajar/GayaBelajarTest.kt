@@ -82,11 +82,13 @@ val dummyGayaBelajarTestQuestions = listOf(
 @Preview
 @Composable
 fun GayaBelajarTest(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToTestResult: () -> Unit = {},
 ) {
     val answer = remember { mutableStateListOf<String>() }
     fun onSubmit() {
         Log.d("answer", "LatihanScreen: ${answer.toList()}")
+        onNavigateToTestResult()
     }
 
     //        when (val response = viewModel.materiBelajar){
@@ -105,7 +107,7 @@ fun GayaBelajarTest(
         questions = dummyGayaBelajarTestQuestions,
         onSubmit = ::onSubmit,
         answer = answer,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -114,7 +116,7 @@ fun FormTest(
     questions: List<Question>,
     onSubmit: () -> Unit,
     answer: MutableList<String>,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Column (
         modifier = modifier
@@ -136,7 +138,7 @@ fun FormTest(
             modifier = modifier,
             item = questions,
             onSubmit = onSubmit,
-            answer = answer
+            answer = answer,
         )
     }
 }

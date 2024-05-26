@@ -112,7 +112,7 @@ fun ContentCardBelajar(
                 textAlign = TextAlign.End
             )
             Spacer(modifier = modifier.height(8.dp))
-            SmallButton(onClick = { navigateToMateriBelajar() }, labelText = "Mulai Belajar")
+            SmallButton(onClick = { navigateToMateriBelajar() }, labelText = "Lihat Materi")
         }
     }
 }

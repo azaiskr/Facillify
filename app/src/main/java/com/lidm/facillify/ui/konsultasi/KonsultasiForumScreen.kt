@@ -51,7 +51,9 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 
 @Composable
-fun KonsultasiForumScreen() {
+fun KonsultasiForumScreen(
+    onClickChat: () -> Unit
+) {
     //state
     var isDialogOpen by remember { mutableStateOf(false) }
     var konsultasiList by remember { mutableStateOf(emptyList<KonsulDummy>()) }
@@ -80,7 +82,7 @@ fun KonsultasiForumScreen() {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = true, sectionTitle = "Konsultasi")
+//            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = true, sectionTitle = "Konsultasi")
 
             LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(konsultasiList.size) { index ->
@@ -93,7 +95,7 @@ fun KonsultasiForumScreen() {
                         description = item.description,
                         totalComent = item.totalComment,
                         subject = item.subject,
-                        onClickChat = { /*TODO*/ }
+                        onClickChat = onClickChat
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -256,7 +258,9 @@ fun DialogAddKonsultasi(
 @Composable
 @Preview(showBackground = true)
 fun KonsultasiForumScreenPreview() {
-    KonsultasiForumScreen()
+    KonsultasiForumScreen(
+        onClickChat = {}
+    )
 }
 
 @Composable

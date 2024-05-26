@@ -17,10 +17,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
+import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainFab
 import com.lidm.facillify.ui.components.MainTopAppBar
+import com.lidm.facillify.ui.guru.latihansoal.BaseLatihanSoalGuruScreen
+import com.lidm.facillify.ui.guru.latihansoal.TambahLatianSoalGuruScreen
 import com.lidm.facillify.ui.guru.materi.MateriBelajarGuruScreen
+import com.lidm.facillify.ui.guru.materibelajar.TambahMateriBelajarScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.tracking.DetailTrackingScreen
@@ -54,6 +58,11 @@ fun GuruNavigation(
                 sectionTitle = when (currentRoute) {
                     Screen.Belajar.route -> "Pembelajaran Siswa"
                     Screen.MateriBelajar.route -> "Materi Belajar"
+                    Screen.TambahMateri.route -> "Upload Materi"
+                    Screen.Latihan.route -> "Latihan Siswa"
+                    Screen.TambahLatihan.route -> "Upload Latihan"
+                    Screen.Konsultasi.route -> "Forum Konsultasi"
+                    Screen.Chat.route -> "Detail Konsultasi"
                     Screen.TrackingList.route -> "Tracking Siswa"
                     Screen.TrackingDetail.route -> "Perkembangan Siswa"
                     Screen.Profile.route -> "Profile"
@@ -66,8 +75,10 @@ fun GuruNavigation(
                     else -> true
                 },
                 profileIcon = when (currentRoute) {
-                    Screen.Profile.route -> false
-                    else -> true
+                    Screen.Belajar.route -> true
+                    Screen.Konsultasi.route -> true
+                    Screen.TrackingList.route -> true
+                    else -> false
                 },
                 isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route
             )
@@ -102,20 +113,23 @@ fun GuruNavigation(
                 )
             }
             composable(Screen.Latihan.route) {
-                //TODO : fetch punya aji
+                BaseLatihanSoalGuruScreen ()
             }
             composable(Screen.MateriBelajar.route) {
                 MateriBelajarGuruScreen()
             }
 
             composable(Screen.TambahMateri.route) {
-                //TODO : fetch punya aji
+                TambahMateriBelajarScreen()
             }
             composable(Screen.TambahLatihan.route) {
-                //TODO : fetch punya aji
+                TambahLatianSoalGuruScreen()
             }
             composable(Screen.Konsultasi.route) {
-                //TODO : fetch punya aji
+                ListKonsultasi(
+                    modifier = modifier,
+                    onNavigateToChat = {navController.navigate(Screen.Chat.route)}
+                )
             }
             composable(Screen.Chat.route) {
                 ChatKonsultasi(

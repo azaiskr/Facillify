@@ -24,21 +24,22 @@ import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 
 @Composable
+fun BaseLatihanSoalGuruScreen(
+
+) {
+
+
+    LatihanSoalGuruScreen()
+}
+
+@Composable
 fun LatihanSoalGuruScreen(
-    onOpenDetailSoal: () -> Unit,
     listSoal: List<LatihanSoal> = emptyList()
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         Column {
-            MainTopAppBar(
-                onBackClick = { /*TODO*/ },
-                onProfileClick = { /*TODO*/ },
-                profileIcon = false,
-                sectionTitle = "Latihan Soal",
-                backIcon = true
-            )
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,18 +57,6 @@ fun LatihanSoalGuruScreen(
                 }
             }
         }
-        FloatingActionButton(
-            onClick = {
-                //TODO LOGIC FOR CHANGE SCREEN TO ADD ITEM
-                onOpenDetailSoal()
-                      },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = OnBlueSecondary
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add", tint = Black)
-        }
     }
 
 }
@@ -76,7 +65,6 @@ fun LatihanSoalGuruScreen(
 @Preview(showBackground = true)
 fun LatihanSoalGuruScreenPreview() {
     LatihanSoalGuruScreen(
-        onOpenDetailSoal = {},
         listSoal = listOf(
             LatihanSoal(
                 JudulLatihanSoal = "Latihan 1",

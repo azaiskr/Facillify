@@ -43,7 +43,9 @@ import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
-fun KonsultasiDetailScreen() {
+fun KonsultasiDetailScreen(
+    onBackClick: () -> Unit,
+) {
     var jawaban by remember { mutableStateOf("") }
     var listComment by remember { mutableStateOf<List<dummyCommentKonsul>>(listOf()) }
 
@@ -104,7 +106,7 @@ fun KonsultasiDetailScreen() {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = false)
+            MainTopAppBar(onBackClick = { onBackClick() }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = false)
 
             LazyColumn(
                 modifier = Modifier
@@ -252,7 +254,7 @@ fun CommentSection(
 @Composable
 @Preview(showBackground = true)
 fun KonsultasiDetailScreenPreview() {
-    KonsultasiDetailScreen()
+    KonsultasiDetailScreen(onBackClick = {})
 }
 
 @Composable
