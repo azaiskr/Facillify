@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +29,9 @@ import androidx.compose.ui.unit.sp
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.components.SmallButton
 import com.lidm.facillify.ui.theme.OnBlueSecondary
+import com.lidm.facillify.util.installAPK
+import com.lidm.facillify.util.isAppInstalled
+import com.lidm.facillify.util.launchAPK
 
 @Composable
 fun BelajarScreen(
@@ -35,6 +39,10 @@ fun BelajarScreen(
     onBelajarClick: () -> Unit,
     onLatihanClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val unityPackageName = "com.unity.template.ar_mobile"
+    val apkName = "ar_faciliffy"
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -56,6 +64,22 @@ fun BelajarScreen(
                 ContentCardLatihan(
                     modifier = modifier,
                     navigateToLatihan = onLatihanClick,
+                )
+            },
+        )
+        Spacer(modifier = modifier.height(16.dp))
+        CardBelajarLandingpage(
+            modifier = modifier,
+            content = {
+                ContentCardAR(
+                    modifier = modifier,
+                    navigateToARApp = {
+                        if (isAppInstalled(context, unityPackageName)) {
+                            launchAPK(context, unityPackageName)
+                        } else {
+                            installAPK(context, apkName)
+                        }
+                    },
                 )
             },
         )
@@ -158,9 +182,48 @@ fun ContentCardLatihan(
     }
 }
 
-
-@Preview
 @Composable
+fun ContentCardAR(
+    modifier: Modifier,
+    navigateToARApp: () -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ar),
+            contentDescription = null,
+            modifier = modifier
+                .weight(1f)
+                .size(160.dp),
+            contentScale = ContentScale.FillWidth,
+        )
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.End,
+            modifier = modifier
+                .weight(1.5f)
+        ) {
+            Text(
+                text = "Augmented\nReality",
+                fontSize = 32.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End
+            )
+            Spacer(modifier = modifier.height(8.dp))
+            SmallButton(onClick = { navigateToARApp() }, labelText = "Buka Aplikasi")
+        }
+    }
+}
+
+
+@Composable
+@Preview(showBackground = true)
 fun SiswaBelajarScreenPreview(
     modifier: Modifier = Modifier,
 ) {
@@ -176,4 +239,12 @@ fun CardPreview(
         content = { ContentCardBelajar(modifier = modifier, navigateToMateriBelajar = {}) },
         modifier = modifier
     )
+}
+
+@Composable
+@Preview
+fun ContentCardARPreview(
+    modifier: Modifier = Modifier,
+) {
+    ContentCardAR(modifier = modifier, navigateToARApp = {})
 }
