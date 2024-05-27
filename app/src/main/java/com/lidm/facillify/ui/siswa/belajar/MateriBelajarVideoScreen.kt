@@ -98,34 +98,28 @@ fun ListMateriVideo(
             query = query,
             onQueryChange = { query = it },
             onSearch = { active = false },
-            active = active,
-            onActiveChange = { active = it },
-            content = {
-                val filteredMateri = materi.materiVideo.filter { it.title.contains(query, ignoreCase = true) }
-                LazyColumn {
-                    items(filteredMateri.size) {
-                        MateriVideoItem(
-                            modifier = modifier,
-                            onClick = { onNavigateToVideoContent(materi.id, filteredMateri[it].id) },
-                            videoItem = filteredMateri[it],
-                        )
-                    }
-                }
-            },
+            active = false,
+            onActiveChange = { active = false },
             label = "Cari video",
             modifier = modifier
         )
+    }
+
+    val filteredMateri = if (query != "") {
+        materi.materiVideo.filter { it.title.contains(query, ignoreCase = true) }
+    } else {
+        materi.materiVideo
     }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        items(materi.materiVideo.size) {
+        items(filteredMateri.size) {
             MateriVideoItem(
                 modifier = modifier,
-                onClick = { onNavigateToVideoContent(materi.id, materi.materiVideo[it].id) },
-                videoItem = materi.materiVideo[it],
+                onClick = { onNavigateToVideoContent(materi.id, filteredMateri[it].id) },
+                videoItem = filteredMateri[it],
             )
         }
     }

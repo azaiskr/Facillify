@@ -66,7 +66,7 @@ fun CardLatihanItem(
                     painter = if (latihan.done) painterResource(id = R.drawable.donebadge) else painterResource(id = R.drawable.undonedadge) ,
                     contentDescription = null,
                     modifier = modifier
-                        .size(40.dp),
+                        .size(40.dp)
                 )
                 Text(
                     text = "${latihan.jmlSoal}\nSoal",

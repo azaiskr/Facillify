@@ -91,23 +91,31 @@ fun MateriBelajarGrid(
         query = query,
         onQueryChange = {query = it},
         onSearch = {active = false},
-        active = active,
-        onActiveChange = {active = it} ,
-        content = { /*TODO*/ },
+        active = false,
+        onActiveChange = {active = false} ,
         label = "Cari materi",
         modifier = modifier
     )
+
+    val filteredMateri =if (query != ""){
+        materi.filter {
+            it.title.contains(query, ignoreCase = true)
+        }
+    } else {
+        materi
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(147.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        this.items(materi.size){item ->
+        this.items(filteredMateri.size){index ->
             MateriBelajarItem(
                 modifier = modifier,
-                onClick = { onItemClick(materi[item].id) },
-                materi = materi[item]
+                onClick = { onItemClick(filteredMateri[index].id) },
+                materi = filteredMateri[index]
             )
         }
     }

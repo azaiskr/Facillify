@@ -52,7 +52,7 @@ fun CardLatihanSoalGuru(
                 verticalAlignment = Alignment.Top
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.editor_choice),
+                    painter = painterResource(id = R.drawable.undonedadge),
                     contentDescription = null,
                     modifier = Modifier
                         .size(40.dp),

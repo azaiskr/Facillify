@@ -161,37 +161,18 @@ fun ListLatihan(
             query = query,
             onQueryChange = { query = it },
             onSearch = { active = false },
-            active = active,
-            onActiveChange = { active = it },
-            content = {
-                val filteredData = data.filter { it.judul.contains(query, ignoreCase = true) }
-                LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filteredData.size) {
-                        CardLatihanItem(
-                            latihan = filteredData[it],
-                            modifier = modifier,
-                            onCLick = {
-                                selectedLatihanId = filteredData[it].id
-                                showDialog = true
-                            }
-                        )
-                    }
-                }
-            },
+            active = false,
+            onActiveChange = { active = false },
             label = "Cari latihan",
             modifier = modifier,
         )
 
         var selectedFilters by rememberSaveable { mutableStateOf<Set<Filter>>(emptySet()) }
 
-        val filteredData = if (selectedFilters.isNotEmpty()) {
+        val filteredData = if (selectedFilters.isNotEmpty() || query != "") {
             data.filter { latihan ->
-                selectedFilters.any { filter ->
-                    (filter.id == 1 && latihan.done) || latihan.subBab == filter.name
-                }
+                (selectedFilters.any { filter -> (filter.id == 1 && latihan.done) || latihan.subBab == filter.name })
+                && (query == "" || latihan.judul.contains(query, ignoreCase = true))
             }
         } else {
             data
