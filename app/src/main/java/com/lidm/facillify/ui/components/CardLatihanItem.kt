@@ -63,7 +63,7 @@ fun CardLatihanItem(
                     .fillMaxWidth(),
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.editor_choice),
+                    painter = if (latihan.done) painterResource(id = R.drawable.donebadge) else painterResource(id = R.drawable.undonedadge) ,
                     contentDescription = null,
                     modifier = modifier
                         .size(40.dp),

@@ -40,7 +40,7 @@ import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
 import com.lidm.facillify.ui.siswa.belajar.dummyDataLatihan
 import com.lidm.facillify.data.local.materiBelajarData
-import com.lidm.facillify.ui.siswa.belajar.DialogConfirm
+import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 
@@ -235,7 +235,11 @@ fun HomeScreenContent(
                 onConfirm = {
                     showDialog = false
                     onItemLatihanClick(selectedLatihanId!!)
-                }
+                },
+                title = "Kerjakan Latihan?",
+                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                confirmLabel = "Kerjakan",
+                dismissLabel = "Kembali"
             )
         }
 

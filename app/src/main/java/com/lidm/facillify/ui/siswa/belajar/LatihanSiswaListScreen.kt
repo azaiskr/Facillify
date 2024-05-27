@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.ui.components.CardLatihanItem
+import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
@@ -162,16 +163,54 @@ fun ListLatihan(
             onSearch = { active = false },
             active = active,
             onActiveChange = { active = it },
-            content = { /*TODO*/ },
+            content = {
+                val filteredData = data.filter { it.judul.contains(query, ignoreCase = true) }
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredData.size) {
+                        CardLatihanItem(
+                            latihan = filteredData[it],
+                            modifier = modifier,
+                            onCLick = {
+                                selectedLatihanId = filteredData[it].id
+                                showDialog = true
+                            }
+                        )
+                    }
+                }
+            },
             label = "Cari latihan",
             modifier = modifier,
         )
 
+        var selectedFilters by rememberSaveable { mutableStateOf<Set<Filter>>(emptySet()) }
+
+        val filteredData = if (selectedFilters.isNotEmpty()) {
+            data.filter { latihan ->
+                selectedFilters.any { filter ->
+                    (filter.id == 1 && latihan.done) || latihan.subBab == filter.name
+                }
+            }
+        } else {
+            data
+        }
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(filter.size) {
-                FilterItem(filter[it])
+                FilterItem(
+                    filter = filter[it],
+                    isSelected = selectedFilters.contains(filter[it]),
+                    onFilterSelected = { filter ->
+                        selectedFilters = if (selectedFilters.contains(filter)) {
+                            selectedFilters - filter
+                        } else {
+                            selectedFilters + filter
+                        }
+                    }
+                )
             }
         }
 
@@ -181,12 +220,13 @@ fun ListLatihan(
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(data.size) { index ->
+
+            items(filteredData.size) { index ->
                 CardLatihanItem(
-                    latihan = data[index],
+                    latihan = filteredData[index],
                     modifier = modifier,
                     onCLick = {
-                        selectedLatihanId = data[index].id
+                        selectedLatihanId = filteredData[index].id
                         showDialog = true
                     }
                 )
@@ -199,7 +239,11 @@ fun ListLatihan(
                 onConfirm = {
                     showDialog = false
                     onNavigateToLatihanForm(selectedLatihanId!!)
-                }
+                },
+                title = "Kerjakan Latihan?",
+                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                confirmLabel = "Kerjakan",
+                dismissLabel = "Kembali"
             )
         }
 
@@ -207,18 +251,17 @@ fun ListLatihan(
 }
 
 @Composable
-fun FilterItem(filter: Filter) {
-    var selected by rememberSaveable {
-        mutableStateOf(false)
-    }
-    val selectedFilter = filter.id
-
+fun FilterItem(
+    filter: Filter,
+    isSelected: Boolean,
+    onFilterSelected: (Filter) -> Unit,
+) {
     FilterChip(
-        selected = selected,
-        onClick = { selected = !selected },
+        selected = isSelected,
+        onClick = { onFilterSelected(filter) },
         label = { Text(text = filter.name) },
         leadingIcon = {
-            if (selected) {
+            if (isSelected) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
@@ -236,56 +279,7 @@ fun FilterItem(filter: Filter) {
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (selected) DarkBlue else OnBlueSecondary
+            color = if (isSelected) DarkBlue else OnBlueSecondary
         )
     )
-}
-
-
-@Composable
-fun DialogConfirm(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Konfirmasi Pengerjaan",
-                color = DarkBlue,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Text(
-                style = MaterialTheme.typography.bodyMedium,
-                text = "Apakah kamu yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.  "
-            )
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = DarkBlue,
-                )
-            ) {
-                Text(text = "Kembali", fontWeight = FontWeight.SemiBold)
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = Color.White,
-                    containerColor = Blue
-                )
-            ) {
-                Text(text = "Kerjakan", fontWeight = FontWeight.SemiBold)
-            }
-        },
-        titleContentColor = Blue,
-
-        )
 }

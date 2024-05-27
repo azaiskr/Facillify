@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.ui.components.CountDownTimer
+import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.siswa.FormSoal
 import com.lidm.facillify.ui.theme.DarkBlue
 
@@ -64,12 +65,16 @@ fun LatihanScreen(
     )
 
     if (showDialog) {
-        com.lidm.facillify.ui.components.DialogConfirm(
+        DialogConfirm(
             onDismiss = { showDialog = false },
             onConfirm = {
                 showDialog = false
                 submitAnswer()
-            }
+            },
+            title = "Kumpulkan Jawaban?",
+            msg ="Apakah kamu sudah yakin dengan semua jawabanmu? Pastikan semua soal telah terjawab ya.",
+            confirmLabel = "Kumpulkan",
+            dismissLabel = "Batal"
         )
     }
 }
@@ -105,7 +110,7 @@ fun FormLatihan(
         CountDownTimer(
             totalTimeSeconds = totalSeconds,
             modifier = modifier,
-            onTimerFinished = onSubmit
+            onTimerFinished = submitAnswer
         )
         Spacer(modifier = modifier.padding(8.dp))
         FormSoal(

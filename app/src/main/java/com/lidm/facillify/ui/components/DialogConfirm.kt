@@ -3,6 +3,7 @@ package com.lidm.facillify.ui.components
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -13,16 +14,21 @@ import com.lidm.facillify.ui.theme.DarkBlue
 @Composable
 fun DialogConfirm(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    confirmLabel: String,
+    dismissLabel: String,
+    title: String,
+    msg: String,
+
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(
-            text = "Kumpulkan jawaban",
+            text = title,
             color = DarkBlue,
             fontWeight = FontWeight.Bold
         ) },
-        text = { Text(text = "Apakah kamu sudah yakin dengan semua jawabanmu? Pastikan semua soal telah terjawab ya") },
+        text = { Text(text = msg, style = MaterialTheme.typography.bodyMedium) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -31,7 +37,7 @@ fun DialogConfirm(
                     contentColor = Color.White
                 )
             ) {
-                Text("Ya")
+                Text(confirmLabel)
             }
         },
         dismissButton = {
@@ -42,7 +48,7 @@ fun DialogConfirm(
                     contentColor = Blue
                 )
             ) {
-                Text("Kembali", fontWeight = FontWeight.Bold)
+                Text(dismissLabel, fontWeight = FontWeight.Bold)
             }
         }
     )

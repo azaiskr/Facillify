@@ -29,15 +29,13 @@ fun FormSoal(
     val minutes = remainingTime.intValue / 60
     val seconds = remainingTime.intValue % 60
 
-    LaunchedEffect(Unit) {
-        while (remainingTime.intValue > 0) {
-            delay(1000L)
-            remainingTime.intValue -= 1
-        }
-        submitAnswer() // Automatically submit when timer ends
-    }
-
-
+//    LaunchedEffect(Unit) {
+//        while (remainingTime.intValue > 0) {
+//            delay(1000L)
+//            remainingTime.intValue -= 1
+//        }
+//        submitAnswer() // Automatically submit when timer ends
+//    }
     if (answer.isEmpty()) {
         repeat(item.size) {
             answer.add("")
