@@ -1,5 +1,6 @@
 package com.lidm.facillify.ui.konsultasi
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,16 +16,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +53,7 @@ import com.lidm.facillify.R
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.theme.Blue
+import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 
@@ -56,6 +63,8 @@ fun KonsultasiForumScreen(
 ) {
     //state
     var isDialogOpen by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedSubject by remember { mutableStateOf("") }
     var konsultasiList by remember { mutableStateOf(emptyList<KonsulDummy>()) }
 
     konsultasiList = listOf(
@@ -77,6 +86,14 @@ fun KonsultasiForumScreen(
             totalComment = 10,
             subject = "IPS"
         ))
+
+    val filteredList = konsultasiList.filter {
+        it.title.contains(searchQuery, ignoreCase = true) &&
+                (selectedSubject.isEmpty() || it.subject == selectedSubject)
+    }
+
+    val subjects = konsultasiList.map { it.subject }.distinct()
+
     
     Box(modifier = Modifier.fillMaxSize()){
         Column(
@@ -84,9 +101,55 @@ fun KonsultasiForumScreen(
         ) {
 //            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = true, sectionTitle = "Konsultasi")
 
+            // Search bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")},
+                label = { Text("Cari Pertanyaan") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Blue,
+                    unfocusedBorderColor = SecondaryBlue,
+                    focusedLabelColor = Blue,
+                    unfocusedLabelColor = SecondaryBlue,
+                    focusedLeadingIconColor = Blue,
+                    unfocusedLeadingIconColor = SecondaryBlue,
+                    disabledLabelColor = SecondaryBlue,
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+
+            // Chip board for subjects
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                subjects.forEach { subject ->
+                    FilterChip(
+                        selected = selectedSubject == subject,
+                        onClick = {
+                            selectedSubject = if (selectedSubject == subject) "" else subject
+                        },
+                        label = { Text(text = subject, color = if (selectedSubject == subject) DarkBlue else Blue) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            disabledContainerColor = SecondaryBlue,
+                            selectedContainerColor = SecondaryBlue,
+                        ),
+                        border = if (selectedSubject == subject) {
+                            null
+                        } else BorderStroke(1.dp, Blue),
+                    )
+                }
+            }
+
             LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-                items(konsultasiList.size) { index ->
-                    val item = konsultasiList[index]
+                items(filteredList.size) { index ->
+                    val item = filteredList[index]
                     CardKonsultasi(
                         imagePhotoProfile = item.imagePhotoProfile,
                         name = item.name,

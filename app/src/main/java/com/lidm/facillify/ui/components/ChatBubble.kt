@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,9 +31,10 @@ fun ChatBubble(message: ChatMessage) {
             modifier = Modifier
                 .background(
                     color = if (message.isUser) SecondaryBlue else Grey,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = if (message.isUser) RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp) else RoundedCornerShape(16.dp, 16.dp, 16.dp, 0.dp)
                 )
                 .padding(16.dp)
+                .widthIn(max = 240.dp)
         ) {
             Text(
                 text = message.text,
@@ -50,6 +52,13 @@ fun ChatBubblePreview() {
         message = ChatMessage(
             text = "Halo, apa kabar?",
             isUser = true,
+            timestamp = "2131"
+        )
+    )
+    ChatBubble(
+        message = ChatMessage(
+            text = "Halo, apa kabar?",
+            isUser = false,
             timestamp = "2131"
         )
     )
