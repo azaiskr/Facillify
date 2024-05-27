@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,57 +26,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.lidm.facillify.R
+import com.lidm.facillify.data.local.MateriBelajar
+import com.lidm.facillify.data.local.VideoItem
+import com.lidm.facillify.data.local.materiBelajarData
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
-data class MateriVideo(
-    val id: Int,
-    val title: String,
-    val desc: String,
-    val uri: String,
-)
-
-val dummyDataMateriVideo = listOf(
-    MateriVideo(
-        1,
-        "Marvel Studios' Eternals | Official Trailer",
-        "Marvel Studios’ “Eternals” welcomes an exciting new team of Super Heroes to the Marvel Cinematic Universe. The epic story, spanning thousands of years, features a group of immortal heroes forced out of the shadows to reunite against mankind’s oldest enemy, The Deviants.",
-        "uNWKfPx1UWM"
-    ),
-    MateriVideo(
-        2,
-        "IRONMAN 4",
-        "Teaser Trailer (2024) Robert Downey Jr. Returns as Tony Stark",
-        "G0S6S9Sks70"
-    ),
-    MateriVideo(
-        3,
-        "Marvel Studios' Echo",
-        "Marvel Studios' Echo | Official Trailer | Disney+ and Hulu",
-        "AFUKnherhuw"
-    ),
-    MateriVideo(
-        4,
-        "ETERNALS 2: KING IN BLACK - First Trailer ",
-        "Eternals star, Kumail Nanjiani, recently admitted that he wants a Kingo and Ms. Marvel team up in the Marvel Cinematic Universe. Directed by Academy Award-winning filmmaker, Chloé Zhao, the superhero ensemble film featured an all-star cast as immortal protectors of Earth. Joining Nanjiani, who portrayed the hero-turned-Bollywood star, Kingo, the film saw Gemma Chan as Sersi, Richard Madden as Ikaris, Lia McHugh as Sprite, Brian Tyree Henry as Phastos, Lauren Ridloff, as Makkari, Barry Keoghan as Druig, Don Lee as Gilgamesh, Salma Hayek as Ajak, and Angelina Jolie as Thena.",
-        "rt2KZ4eRYDI"
-    ),
-)
-
 
 @Composable
 fun MateriBelajarVideoScreen(
+    materiId: Int,
     modifier: Modifier,
-    onNavigateToVideoPlayer: (Int) -> Unit,
+    onNavigateToVideoPlayer: (Int, String) -> Unit,
 ) {
+    val materi = materiBelajarData.find { it.id == materiId }!!
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -94,8 +71,8 @@ fun MateriBelajarVideoScreen(
 //        }
 
         ListMateriVideo(
-            modifier,
-            dummyDataMateriVideo,
+            modifier = modifier,
+            materi = materi,
             onNavigateToVideoContent = onNavigateToVideoPlayer,
         )
 
@@ -105,8 +82,8 @@ fun MateriBelajarVideoScreen(
 @Composable
 fun ListMateriVideo(
     modifier: Modifier,
-    videos: List<MateriVideo>,
-    onNavigateToVideoContent: (Int) -> Unit,
+    materi: MateriBelajar,
+    onNavigateToVideoContent: (Int, String) -> Unit,
     isSearchBarVisible: Boolean = true,
 ) {
     var query by rememberSaveable {
@@ -123,7 +100,18 @@ fun ListMateriVideo(
             onSearch = { active = false },
             active = active,
             onActiveChange = { active = it },
-            content = { /*TODO*/ },
+            content = {
+                val filteredMateri = materi.materiVideo.filter { it.title.contains(query, ignoreCase = true) }
+                LazyColumn {
+                    items(filteredMateri.size) {
+                        MateriVideoItem(
+                            modifier = modifier,
+                            onClick = { onNavigateToVideoContent(materi.id, filteredMateri[it].id) },
+                            videoItem = filteredMateri[it],
+                        )
+                    }
+                }
+            },
             label = "Cari video",
             modifier = modifier
         )
@@ -133,11 +121,11 @@ fun ListMateriVideo(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        items(videos.size) {
+        items(materi.materiVideo.size) {
             MateriVideoItem(
                 modifier = modifier,
-                onClick = { onNavigateToVideoContent(videos[it].id) },
-                videoItem = videos[it],
+                onClick = { onNavigateToVideoContent(materi.id, materi.materiVideo[it].id) },
+                videoItem = materi.materiVideo[it],
             )
         }
     }
@@ -148,7 +136,7 @@ fun ListMateriVideo(
 fun MateriVideoItem(
     modifier: Modifier,
     onClick: () -> Unit,
-    videoItem: MateriVideo,
+    videoItem: VideoItem,
 ) {
 
     Card(
@@ -175,34 +163,37 @@ fun MateriVideoItem(
                     .clip(RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.TopCenter
             ) {
-                YouTubePlayer(videoId = "uNWKfPx1UWM", onFullScreenClick = {})
+//                YouTubePlayer(videoId = videoItem.id, onFullScreenClick = {})
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(videoItem.thumbinal)
+                        .crossfade(true)
+                        .build(),
+                    error = painterResource(id = R.drawable.connectivity5),
+                    contentDescription = "video thumbinal",
+                    contentScale = ContentScale.Crop,
+                    modifier = modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .size(width = 160.dp, height = 120.dp),
+                )
             }
-//            Image(
-//                painter = painterResource(id = R.drawable.ic_launcher_background),
-//                contentDescription = "video",
-//                modifier = Modifier
-//                    .size(width = 160.dp, height = 120.dp),
-//                contentScale = ContentScale.Crop
-//            )
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = modifier.padding(8.dp)
             ) {
                 Text(
                     text = videoItem.title,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    fontSize = 16.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = videoItem.desc,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                    ),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 16.sp,
                     maxLines = 3,
                     modifier = modifier.padding(top = 8.dp),
                     overflow = TextOverflow.Ellipsis,

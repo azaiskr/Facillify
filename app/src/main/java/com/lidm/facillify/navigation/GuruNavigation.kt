@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.navigation.utils.Screen
+import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
 import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
@@ -34,13 +35,14 @@ import com.lidm.facillify.util.Role
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GuruNavigation(
+    loginData: DummyLoginResponse, //todo: remove this
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = Role.TEACHER
+    val role = loginData.role
 
     Scaffold(
         bottomBar = {
@@ -56,7 +58,7 @@ fun GuruNavigation(
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = { navController.navigate(Screen.Profile.route) },
                 sectionTitle = when (currentRoute) {
-                    Screen.Belajar.route -> "Pembelajaran Siswa"
+                    Screen.Belajar.route -> "Halo, ${loginData.username}"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.TambahMateri.route -> "Upload Materi"
                     Screen.Latihan.route -> "Latihan Siswa"
@@ -143,7 +145,8 @@ fun GuruNavigation(
             }
             composable(Screen.TrackingDetail.route) {
                 DetailTrackingScreen(
-                    onClickBack = { navController.popBackStack() }
+                    onClickBack = { navController.popBackStack() },
+                    role = role
                 )
             }
             composable(Screen.Profile.route) {
@@ -157,5 +160,10 @@ fun GuruNavigation(
 @Preview
 @Composable
 fun PreviewGuruNavigation() {
-    GuruNavigation()
+    GuruNavigation(
+        loginData = DummyLoginResponse(
+            username = "Alamsyah.Shesh",
+            role = Role.TEACHER,
+        ),
+    )
 }

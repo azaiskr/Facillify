@@ -27,12 +27,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.media3.common.util.UnstableApi
+import com.lidm.facillify.data.local.MateriBelajar
+import com.lidm.facillify.data.local.VideoItem
+import com.lidm.facillify.data.local.bangunRuangVideos
+import com.lidm.facillify.data.local.materiBelajarData
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -44,9 +49,12 @@ import com.lidm.facillify.ui.siswa.belajar.BackHandler as _BackHandler
 @Composable
 fun VideoPlayerScreen(
     modifier: Modifier = Modifier,
-    id: Int = 1,
+    videoId: String = "uNWKfPx1UWM",
+    materiId: Int = 1,
+    onNavigateToVideoContent: (Int, String) -> Unit ={ _, _ ->}
 ) {
-    val videoContent = dummyDataMateriVideo.find { it.id == id } ?: return
+    val materiBelajar = materiBelajarData.find { it.id == materiId } !!
+    val video = materiBelajar.materiVideo.find { it.id == videoId } !!
 
     //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
@@ -61,8 +69,9 @@ fun VideoPlayerScreen(
 //        }
     VideoPlayerContent(
         modifier = modifier,
-        videoContent = videoContent,
-        relatedContents = dummyDataMateriVideo
+        videoContent = video,
+        relatedContents = materiBelajar,
+        onNavigateToVideoContent = onNavigateToVideoContent
     )
 
 }
@@ -71,19 +80,17 @@ fun VideoPlayerScreen(
 @Composable
 fun VideoPlayerContent(
     modifier: Modifier,
-    videoContent: MateriVideo,
-    relatedContents: List<MateriVideo>
+    videoContent: VideoItem,
+    relatedContents: MateriBelajar,
+    onNavigateToVideoContent: (Int, String) -> Unit
 ) {
-//    val a = "uNWKfPx1UWM"
-
-
     var isFullScreen by rememberSaveable {
         mutableStateOf(false)
     }
 
     if (isFullScreen) {
         FullScreenVideoPlayer(
-            videoId = videoContent.uri,
+            videoId = videoContent.id,
             onBackPressed = { isFullScreen = false }
         )
     } else {
@@ -98,26 +105,25 @@ fun VideoPlayerContent(
                 contentAlignment = Alignment.TopCenter
             ) {
                 YouTubePlayer(
-                    videoId = videoContent.uri,
+                    videoId = videoContent.id,
                     onFullScreenClick = { isFullScreen = true })
             }
             Text(
                 text = videoContent.title,
-                style = TextStyle(
-                    fontSize = 24.sp,
-                    color = DarkBlue,
-                    fontWeight = FontWeight.Bold,
-                ),
+                fontSize = 20.sp,
+                lineHeight = 20.sp,
+                color = DarkBlue,
+                fontWeight = FontWeight.Bold,
                 modifier = modifier
                     .padding(top = 24.dp, bottom = 8.dp)
                     .padding(horizontal = 16.dp)
             )
             Text(
                 text = videoContent.desc,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    color = DarkBlue,
-                ),
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                color = DarkBlue,
+                textAlign = TextAlign.Justify,
                 modifier = modifier
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 16.dp)
@@ -125,8 +131,8 @@ fun VideoPlayerContent(
 
             ListMateriVideo(
                 modifier = modifier,
-                videos =relatedContents,
-                onNavigateToVideoContent = {},
+                materi = relatedContents,
+                onNavigateToVideoContent = onNavigateToVideoContent,
                 isSearchBarVisible = false
             )
         }
@@ -153,7 +159,6 @@ fun YouTubePlayer(
                     override fun onReady(youTubePlayer: YouTubePlayer) {
                         youTubePlayer.loadVideo(videoId, 0f)
                         youTubePlayer.play()
-                        youTubePlayer.pause()
                     }
                 })
 

@@ -38,13 +38,16 @@ sealed class Screen (
         fun createRoute(materiId: Int) = "materi_belajar/$materiId"
     }
 
+    data object SiswaMateriBelajarVideo: Screen("materi_belajar/{materiId}/video") {
+        fun createRoute(materiId: Int) = "materi_belajar/$materiId/video"
+    }
+
+    data object SiswaVideoPlayer: Screen("materi_belajar/{materiId}/video/{videoId}"){
+        fun createRoute(materiId: Int, videoId: String) = "materi_belajar/$materiId/video/$videoId"
+    }
+
     data object SiswaLatihanForm: Screen("latihan/{latihanId}"){
         fun createRoute(latihanId: Int) = "latihan/$latihanId"
-    }
-    data object SiswaMateriBelajarVideo: Screen("siswa_materi_belajar_video")
-
-    data object SiswaVideoPlayer: Screen("siswa_materi_belajar_video/{videoId}"){
-        fun createRoute(videoId: Int) = "siswa_materi_belajar_video/$videoId"
     }
     data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
 
