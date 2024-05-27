@@ -103,7 +103,16 @@ fun OrtuNavigation(
                 }
             },
             popEnterTransition = {
-                scaleIn(initialScale = 0.8f) + fadeIn()
+                when (targetState.destination.route) {
+                    Screen.Konsultasi.route -> if (
+                        initialState.destination.route == Screen.TrackingList.route
+                    ) {
+                        slideInHorizontally(initialOffsetX = { -1000 })
+                    } else {
+                        scaleIn(initialScale = 0.8f) + fadeIn()
+                    }
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
             },
             popExitTransition = {
                 slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()

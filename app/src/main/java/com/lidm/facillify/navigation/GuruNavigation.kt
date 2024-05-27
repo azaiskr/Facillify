@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
@@ -131,7 +130,19 @@ fun GuruNavigation(
                 }
             },
             popEnterTransition = {
-                scaleIn(initialScale = 0.8f) + fadeIn()
+                when (targetState.destination.route) {
+                    Screen.Belajar.route ->
+                        if (
+                            initialState.destination.route == Screen.TrackingList.route ||
+                            initialState.destination.route == Screen.Konsultasi.route
+                        ) {
+                            slideInHorizontally(initialOffsetX = { -1000 })
+                        } else {
+                            scaleIn(initialScale = 0.8f) + fadeIn()
+                        }
+
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
             },
             popExitTransition = {
                 slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
@@ -145,7 +156,7 @@ fun GuruNavigation(
                 )
             }
             composable(Screen.Latihan.route) {
-                BaseLatihanSoalGuruScreen ()
+                BaseLatihanSoalGuruScreen()
             }
             composable(Screen.MateriBelajar.route) {
                 MateriBelajarGuruScreen()
@@ -160,7 +171,7 @@ fun GuruNavigation(
             composable(Screen.Konsultasi.route) {
                 ListKonsultasi(
                     modifier = modifier,
-                    onNavigateToChat = {navController.navigate(Screen.Chat.route)}
+                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
                 )
             }
             composable(Screen.Chat.route) {
