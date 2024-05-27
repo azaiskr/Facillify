@@ -41,6 +41,7 @@ fun OrtuNavigation(
     val role = loginData.role
 
     Scaffold(
+        containerColor = Color.White,
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,

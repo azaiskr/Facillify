@@ -43,6 +43,8 @@ import com.lidm.facillify.data.local.materiBelajarData
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
+import com.lidm.facillify.ui.theme.OnBlueSecondary
+import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun SiswaHomeScreen(
@@ -103,7 +105,8 @@ fun HomeScreenContent(
                     shape = RoundedCornerShape(16.dp)
                 ),
             colors = ButtonDefaults.buttonColors(
-                Color.Transparent
+                Color.Transparent,
+                contentColor = Color.White
             )
         ) {
             Row(
