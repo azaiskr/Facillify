@@ -1,5 +1,10 @@
 package com.lidm.facillify.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,13 +31,25 @@ fun GayaBelajarNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Scaffold (
+    Scaffold(
         containerColor = Color.White
-    ){ innerPadding ->
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.GayaBelajarInterface.route,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = {1000}) + fadeIn()
+            },
+            exitTransition = {
+                fadeOut()
+            },
+            popEnterTransition = {
+                scaleIn(initialScale = 0.8f) + fadeIn()
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            }
         ) {
             //test gaya belajar
             composable(Screen.GayaBelajarInterface.route) {
