@@ -12,10 +12,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,10 +28,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.ui.components.CardLatihanItem
+import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.SearchAppBar
+import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.util.Question
@@ -127,11 +134,11 @@ fun LatihanSiswaListScreen(
 @Composable
 fun ListLatihan(
     data: List<LatihanItem>,
-    filter : List<Filter>,
+    filter: List<Filter>,
     modifier: Modifier,
     onNavigateToLatihanForm: (Int) -> Unit,
 ) {
-    Column (
+    Column(
         modifier = modifier
             .fillMaxSize()
     ) {
@@ -142,56 +149,119 @@ fun ListLatihan(
             mutableStateOf(false)
         }
 
+        var showDialog by rememberSaveable {
+            mutableStateOf(false)
+        }
+
+        var selectedLatihanId by rememberSaveable {
+            mutableStateOf<Int?>(null)
+        }
+
         SearchAppBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = {active = false},
+            onSearch = { active = false },
             active = active,
-            onActiveChange = { active = it } ,
-            content = { /*TODO*/ },
+            onActiveChange = { active = it },
+            content = {
+                val filteredData = data.filter { it.judul.contains(query, ignoreCase = true) }
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredData.size) {
+                        CardLatihanItem(
+                            latihan = filteredData[it],
+                            modifier = modifier,
+                            onCLick = {
+                                selectedLatihanId = filteredData[it].id
+                                showDialog = true
+                            }
+                        )
+                    }
+                }
+            },
             label = "Cari latihan",
             modifier = modifier,
         )
 
-        LazyRow (
+        var selectedFilters by rememberSaveable { mutableStateOf<Set<Filter>>(emptySet()) }
+
+        val filteredData = if (selectedFilters.isNotEmpty()) {
+            data.filter { latihan ->
+                selectedFilters.any { filter ->
+                    (filter.id == 1 && latihan.done) || latihan.subBab == filter.name
+                }
+            }
+        } else {
+            data
+        }
+        LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(filter.size){
-                FilterItem(filter[it])
+            items(filter.size) {
+                FilterItem(
+                    filter = filter[it],
+                    isSelected = selectedFilters.contains(filter[it]),
+                    onFilterSelected = { filter ->
+                        selectedFilters = if (selectedFilters.contains(filter)) {
+                            selectedFilters - filter
+                        } else {
+                            selectedFilters + filter
+                        }
+                    }
+                )
             }
         }
 
-        LazyColumn (
+        LazyColumn(
             modifier = modifier
                 .fillMaxWidth(),
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(data.size){latihan ->
+
+            items(filteredData.size) { index ->
                 CardLatihanItem(
-                    latihan = data[latihan],
+                    latihan = filteredData[index],
                     modifier = modifier,
-                    onCLick = { onNavigateToLatihanForm(data[latihan].id) }
+                    onCLick = {
+                        selectedLatihanId = filteredData[index].id
+                        showDialog = true
+                    }
                 )
             }
+        }
+
+        if (showDialog && selectedLatihanId != null) {
+            DialogConfirm(
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    showDialog = false
+                    onNavigateToLatihanForm(selectedLatihanId!!)
+                },
+                title = "Kerjakan Latihan?",
+                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                confirmLabel = "Kerjakan",
+                dismissLabel = "Kembali"
+            )
         }
 
     }
 }
 
 @Composable
-fun FilterItem(filter: Filter) {
-    var selected by rememberSaveable {
-        mutableStateOf(false)
-    }
-    val selectedFilter = filter.id
-
+fun FilterItem(
+    filter: Filter,
+    isSelected: Boolean,
+    onFilterSelected: (Filter) -> Unit,
+) {
     FilterChip(
-        selected = selected,
-        onClick = { selected = !selected },
+        selected = isSelected,
+        onClick = { onFilterSelected(filter) },
         label = { Text(text = filter.name) },
         leadingIcon = {
-            if (selected){
+            if (isSelected) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
@@ -209,7 +279,7 @@ fun FilterItem(filter: Filter) {
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if(selected) DarkBlue else OnBlueSecondary
+            color = if (isSelected) DarkBlue else OnBlueSecondary
         )
     )
 }

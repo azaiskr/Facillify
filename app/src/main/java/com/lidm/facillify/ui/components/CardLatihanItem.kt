@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,28 +63,25 @@ fun CardLatihanItem(
                     .fillMaxWidth(),
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.editor_choice),
+                    painter = if (latihan.done) painterResource(id = R.drawable.donebadge) else painterResource(id = R.drawable.undonedadge) ,
                     contentDescription = null,
                     modifier = modifier
                         .size(40.dp),
                 )
                 Text(
                     text = "${latihan.jmlSoal}\nSoal",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        color = Yellow,
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Yellow,
+                    lineHeight = 16.sp,
+                    fontWeight = FontWeight.Black,
                     modifier = modifier
                         .offset(45.dp, (6).dp)
                 )
                 Text(
                     text = "${latihan.waktu} Menit",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        color = OnBlueSecondary,
-                        fontWeight = FontWeight.SemiBold,
-                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnBlueSecondary,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = modifier
                         .align(Alignment.TopEnd)
                 )
@@ -91,20 +89,17 @@ fun CardLatihanItem(
             Spacer(modifier = modifier.height(8.dp))
             Text(
                 text = latihan.judul,
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    color = DarkBlue,
-                    fontWeight = FontWeight.Bold,
-                ),
+                fontSize = 20.sp,
+                color = DarkBlue,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = latihan.deskripsi,
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                ),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 16.sp,
                 maxLines = 2,
                 textAlign = TextAlign.Justify
             )

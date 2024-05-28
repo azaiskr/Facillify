@@ -55,14 +55,15 @@ import com.lidm.facillify.util.Role
 
 @Composable
 fun DetailTrackingScreen(
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
+    role: Role,
 ) {
     //viewModel
     //state
 
     DetailTrackingAnakScreen(
         onClickBack = onClickBack,
-        userRole = Role.TEACHER,
+        userRole = role,
         imagePainter = painterResource(id = R.drawable.pp_deafult),
         name = "Winko Adi",
         number = "310128",
@@ -358,6 +359,7 @@ fun AbilityCard(
             Text(
                 text = title,
                 fontSize = 14.sp,
+                lineHeight = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Blue, // Dark blue color
                 textAlign = TextAlign.Center
@@ -366,6 +368,7 @@ fun AbilityCard(
             Text(
                 text = description,
                 fontSize = 12.sp,
+                lineHeight = 12.sp,
                 color = Blue, // Dark blue color
                 textAlign = TextAlign.Center
             )
