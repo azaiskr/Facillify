@@ -28,11 +28,7 @@ fun ChatbotScreen(
     val threadRepository = ThreadRepository(apiServiceMain)
 //    val viewModelFactory = ViewModelFactory(apiService, threadRepository)
     val chatViewModel: ChatViewModel = viewModel(
-        factory = ViewModelFactory(
-            Inject.privodeChatAPiService(context),
-            Inject.provideThreadRepo(context),
-            Inject.provideAuthRepo(context)
-        )
+        factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
     ChatScreen(

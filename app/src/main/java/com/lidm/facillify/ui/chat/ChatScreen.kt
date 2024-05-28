@@ -116,11 +116,7 @@ fun ChatScreenPreview() {
 //        viewModelFactory
 //    )[ChatViewModel::class.java]
     val chatViewModel: ChatViewModel = viewModel(
-        factory = ViewModelFactory(
-            Inject.privodeChatAPiService(context),
-            Inject.provideThreadRepo(context),
-            Inject.provideAuthRepo(context)
-        )
+        factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
 
