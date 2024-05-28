@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com\"")
+        buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com/\"")
         buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com\"")
         buildConfigField("String", "SECRET_KEY", "\"sk-proj-gnkmrs66duYKtqRdlvHnT3BlbkFJqNX2lPhTO3cXj83Iu2Ao\"")
 
@@ -108,6 +108,12 @@ dependencies {
     //Coil
     //implementation(libs.accompanist.coil)
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    //lifecycle
+    //liveCycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
 
     //Document
     implementation(libs.androidx.documentfile)

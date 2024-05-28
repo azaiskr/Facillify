@@ -9,7 +9,9 @@ import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import retrofit2.HttpException
 
-class ThreadRepository(private val apiService: ApiService) {
+class ThreadRepository(
+    private val apiService: ApiService
+) {
     suspend fun createThread(request: CreateThreadRequest): Result<ThreadCreatedResponse> {
         return try {
             val response = apiService.createThread(request)
@@ -52,5 +54,13 @@ class ThreadRepository(private val apiService: ApiService) {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    companion object {
+        private var instance: ThreadRepository? = null
+        fun getInstance(apiService: ApiService): ThreadRepository =
+            instance ?: synchronized(this) {
+                instance ?: ThreadRepository(apiService).also { instance = it }
+            }
     }
 }

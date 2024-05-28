@@ -23,8 +23,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.data.remote.api.ApiConfig
 import com.lidm.facillify.data.repository.ThreadRepository
+import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatBubble
 import com.lidm.facillify.ui.components.ChatInputField
@@ -108,11 +110,19 @@ fun ChatScreenPreview() {
     val apiServiceChatBot = ApiConfig.getChatbotApiService(context)
     val apiServiceMain = ApiConfig.getMainApiService(context)
     val threadRepository = ThreadRepository(apiServiceMain)
-    val viewModelFactory = ViewModelFactory(apiServiceChatBot, threadRepository)
-    val chatViewModel = ViewModelProvider(
-        LocalContext.current as androidx.activity.ComponentActivity,
-        viewModelFactory
-    )[ChatViewModel::class.java]
+//    val viewModelFactory = ViewModelFactory(apiServiceChatBot, threadRepository)
+//    val chatViewModel = ViewModelProvider(
+//        LocalContext.current as androidx.activity.ComponentActivity,
+//        viewModelFactory
+//    )[ChatViewModel::class.java]
+    val chatViewModel: ChatViewModel = viewModel(
+        factory = ViewModelFactory(
+            Inject.privodeChatAPiService(context),
+            Inject.provideThreadRepo(context),
+            Inject.provideAuthRepo(context)
+        )
+    )
+
 
     ChatScreen(viewModel = chatViewModel)
 }
