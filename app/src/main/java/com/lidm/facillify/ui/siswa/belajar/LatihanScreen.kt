@@ -19,11 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.data.local.LatihanItem
+import com.lidm.facillify.data.local.QuizResult
 import com.lidm.facillify.data.local.dataLatihan
 import com.lidm.facillify.ui.components.CountDownTimer
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.siswa.FormSoal
 import com.lidm.facillify.ui.theme.DarkBlue
+import com.lidm.facillify.util.getGrade
 
 @Composable
 fun LatihanScreen(
@@ -34,14 +36,19 @@ fun LatihanScreen(
     val answer = remember { mutableStateListOf<String>() }
     var showDialog by remember { mutableStateOf(false) }
 
+
     fun onSubmit () {
         showDialog = true
     }
 
-
     fun submitAnswer() {
+        val result = getGrade(answer, latihan.answeKey)
         Log.d("answer", "LatihanScreen: ${answer.toList()}")
+        Log.d("grade", "LatihanScreen: ${result.grade} : correct : ${result.correctAnswer}")
     }
+
+
+
 
     //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
