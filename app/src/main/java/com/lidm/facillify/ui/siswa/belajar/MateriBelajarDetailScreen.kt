@@ -36,7 +36,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lidm.facillify.R
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.theme.DarkBlue
 
 @Composable
@@ -70,7 +71,7 @@ fun DetailMateriBelajar(
     onNavigateToMateriVideo: (Int) -> Unit,
     materiId: Int,
 ) {
-    val data = materiBelajarData.find { it.id == materiId }
+    val data = listMateri.find { it.id == materiId }
     Column(
         modifier = modifier
             .fillMaxSize()

@@ -32,7 +32,6 @@ fun SearchAppBar(
     onSearch: (String) -> Unit,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    content: @Composable () -> Unit,
     label: String,
     modifier: Modifier,
 ) {
@@ -65,7 +64,6 @@ fun SearchAppBar(
             )
         )
     ) {
-        content()
     }
 }
 @Preview
@@ -77,7 +75,6 @@ fun SearchAppBarPreview() {
         onSearch = {},
         active = true,
         onActiveChange = {},
-        content = { /*TODO*/ },
         label = "" ,
         modifier = Modifier
     )

@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,7 +39,8 @@ import coil.request.ImageRequest
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -52,7 +52,7 @@ fun MateriBelajarVideoScreen(
     modifier: Modifier,
     onNavigateToVideoPlayer: (Int, String) -> Unit,
 ) {
-    val materi = materiBelajarData.find { it.id == materiId }!!
+    val materi = listMateri.find { it.id == materiId }!!
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -98,34 +98,28 @@ fun ListMateriVideo(
             query = query,
             onQueryChange = { query = it },
             onSearch = { active = false },
-            active = active,
-            onActiveChange = { active = it },
-            content = {
-                val filteredMateri = materi.materiVideo.filter { it.title.contains(query, ignoreCase = true) }
-                LazyColumn {
-                    items(filteredMateri.size) {
-                        MateriVideoItem(
-                            modifier = modifier,
-                            onClick = { onNavigateToVideoContent(materi.id, filteredMateri[it].id) },
-                            videoItem = filteredMateri[it],
-                        )
-                    }
-                }
-            },
+            active = false,
+            onActiveChange = { active = false },
             label = "Cari video",
             modifier = modifier
         )
+    }
+
+    val filteredMateri = if (query != "") {
+        materi.materiVideo.filter { it.title.contains(query, ignoreCase = true) }
+    } else {
+        materi.materiVideo
     }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        items(materi.materiVideo.size) {
+        items(filteredMateri.size) {
             MateriVideoItem(
                 modifier = modifier,
-                onClick = { onNavigateToVideoContent(materi.id, materi.materiVideo[it].id) },
-                videoItem = materi.materiVideo[it],
+                onClick = { onNavigateToVideoContent(materi.id, filteredMateri[it].id) },
+                videoItem = filteredMateri[it],
             )
         }
     }
