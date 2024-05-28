@@ -3,11 +3,17 @@ package com.lidm.facillify.navigation
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -45,6 +51,7 @@ fun GuruNavigation(
     val role = loginData.role
 
     Scaffold(
+        containerColor = Color.White,
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,
@@ -106,6 +113,40 @@ fun GuruNavigation(
             navController = navController,
             startDestination = Screen.Belajar.route,
             modifier = modifier.padding(innerPadding),
+            enterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Belajar.route, Screen.Konsultasi.route, Screen.TrackingList.route -> slideInHorizontally(
+                        initialOffsetX = { 1000 }) + fadeIn()
+
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Belajar.route, Screen.Konsultasi.route, Screen.TrackingList.route -> slideOutHorizontally(
+                        targetOffsetX = { -1000 }) + fadeOut()
+
+                    else -> fadeOut()
+                }
+            },
+            popEnterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Belajar.route ->
+                        if (
+                            initialState.destination.route == Screen.TrackingList.route ||
+                            initialState.destination.route == Screen.Konsultasi.route
+                        ) {
+                            slideInHorizontally(initialOffsetX = { -1000 })
+                        } else {
+                            scaleIn(initialScale = 0.8f) + fadeIn()
+                        }
+
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            }
         ) {
             composable(Screen.Belajar.route) {
                 BelajarScreen(
@@ -115,7 +156,7 @@ fun GuruNavigation(
                 )
             }
             composable(Screen.Latihan.route) {
-                BaseLatihanSoalGuruScreen ()
+                BaseLatihanSoalGuruScreen()
             }
             composable(Screen.MateriBelajar.route) {
                 MateriBelajarGuruScreen()
@@ -130,7 +171,7 @@ fun GuruNavigation(
             composable(Screen.Konsultasi.route) {
                 ListKonsultasi(
                     modifier = modifier,
-                    onNavigateToChat = {navController.navigate(Screen.Chat.route)}
+                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
                 )
             }
             composable(Screen.Chat.route) {

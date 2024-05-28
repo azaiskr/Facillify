@@ -1,6 +1,5 @@
 package com.lidm.facillify.ui.siswa.belajar
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +36,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.MateriBelajar
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -66,7 +66,7 @@ fun MateriBelajarScreen(
 
         MateriBelajarGrid(
             modifier = modifier,
-            materi = materiBelajarData,
+            materi = listMateri,
             onItemClick = onNavigateToMateriBelajarDetail
         )
     }
@@ -91,23 +91,31 @@ fun MateriBelajarGrid(
         query = query,
         onQueryChange = {query = it},
         onSearch = {active = false},
-        active = active,
-        onActiveChange = {active = it} ,
-        content = { /*TODO*/ },
+        active = false,
+        onActiveChange = {active = false} ,
         label = "Cari materi",
         modifier = modifier
     )
+
+    val filteredMateri =if (query != ""){
+        materi.filter {
+            it.title.contains(query, ignoreCase = true)
+        }
+    } else {
+        materi
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(147.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        this.items(materi.size){item ->
+        this.items(filteredMateri.size){index ->
             MateriBelajarItem(
                 modifier = modifier,
-                onClick = { onItemClick(materi[item].id) },
-                materi = materi[item]
+                onClick = { onItemClick(filteredMateri[index].id) },
+                materi = filteredMateri[index]
             )
         }
     }

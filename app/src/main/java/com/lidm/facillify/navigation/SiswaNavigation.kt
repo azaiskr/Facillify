@@ -3,11 +3,17 @@ package com.lidm.facillify.navigation
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -49,6 +55,7 @@ fun SiswaNavigation(
     val role = loginData.role
 
     Scaffold(
+        containerColor = Color.White,
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,
@@ -100,7 +107,39 @@ fun SiswaNavigation(
         NavHost(
             navController = navController,
             startDestination = Screen.SiswaHome.route,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding),
+            enterTransition = {
+                when (targetState.destination.route) {
+                    Screen.SiswaHome.route, Screen.Belajar.route, Screen.Riwayat.route, Screen.Konsultasi.route -> slideInHorizontally(
+                        initialOffsetX = { 1000 }) + fadeIn()
+
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    Screen.SiswaHome.route, Screen.Belajar.route, Screen.Riwayat.route, Screen.Konsultasi.route -> slideOutHorizontally(
+                        targetOffsetX = { -1000 }) + fadeOut()
+
+                    else -> fadeOut()
+                }
+            },
+            popEnterTransition = {
+                when (targetState.destination.route) {
+                    Screen.SiswaHome.route -> if (initialState.destination.route == Screen.Belajar.route ||
+                        initialState.destination.route == Screen.Riwayat.route ||
+                        initialState.destination.route == Screen.Konsultasi.route
+                    ) {
+                        slideInHorizontally(initialOffsetX = { -1000 })
+                    } else {
+                        scaleIn(initialScale = 0.8f) + fadeIn()
+                    }
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            }
         ) {
             composable(Screen.SiswaHome.route) {
                 SiswaHomeScreen(
@@ -166,7 +205,12 @@ fun SiswaNavigation(
                     modifier = modifier,
                     materiId = id,
                     onNavigateToVideoPlayer = { materiId, videoId ->
-                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(materiId, videoId))
+                        navController.navigate(
+                            Screen.SiswaVideoPlayer.createRoute(
+                                materiId,
+                                videoId
+                            )
+                        )
                     }
                 )
             }
@@ -184,7 +228,12 @@ fun SiswaNavigation(
                     videoId = videoId,
                     materiId = materiId,
                     onNavigateToVideoContent = { materiId, videoId2 ->
-                        navController.navigate(Screen.SiswaVideoPlayer.createRoute(materiId, videoId2))
+                        navController.navigate(
+                            Screen.SiswaVideoPlayer.createRoute(
+                                materiId,
+                                videoId2
+                            )
+                        )
                     }
                 )
             }
