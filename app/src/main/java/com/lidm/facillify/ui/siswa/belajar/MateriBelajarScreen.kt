@@ -1,6 +1,5 @@
 package com.lidm.facillify.ui.siswa.belajar
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +36,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.MateriBelajar
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -66,7 +66,7 @@ fun MateriBelajarScreen(
 
         MateriBelajarGrid(
             modifier = modifier,
-            materi = materiBelajarData,
+            materi = listMateri,
             onItemClick = onNavigateToMateriBelajarDetail
         )
     }

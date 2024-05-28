@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,8 +35,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.media3.common.util.UnstableApi
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
-import com.lidm.facillify.data.local.bangunRuangVideos
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -53,7 +52,7 @@ fun VideoPlayerScreen(
     materiId: Int = 1,
     onNavigateToVideoContent: (Int, String) -> Unit ={ _, _ ->}
 ) {
-    val materiBelajar = materiBelajarData.find { it.id == materiId } !!
+    val materiBelajar = listMateri.find { it.id == materiId } !!
     val video = materiBelajar.materiVideo.find { it.id == videoId } !!
 
     //        when (val response = viewModel.materiBelajar){

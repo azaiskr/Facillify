@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.VideoItem
-import com.lidm.facillify.data.local.bangunRuangVideos
+import com.lidm.facillify.data.local.listMateri
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
@@ -43,8 +43,8 @@ fun MateriBelajarGuruScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(bottom = 16.dp, start = 16.dp, end = 16.dp)
         ) {
-            items(bangunRuangVideos.size) {
-                MateriBelajarGuruItem(bangunRuangVideos[it])
+            items(listMateri[0].materiVideo.size) {
+                MateriBelajarGuruItem(listMateri[0].materiVideo[it])
             }
         }
     }
