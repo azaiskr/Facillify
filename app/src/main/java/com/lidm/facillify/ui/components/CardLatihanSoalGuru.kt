@@ -52,7 +52,8 @@ fun CardLatihanSoalGuru(
                 verticalAlignment = Alignment.Top
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.editor_choice),
+                    //gak ketemu gambarnya
+                    painter = painterResource(id = R.drawable.onboarding_image_one),
                     contentDescription = null,
                     modifier = Modifier
                         .size(40.dp),

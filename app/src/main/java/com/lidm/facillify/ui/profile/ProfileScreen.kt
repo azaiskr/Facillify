@@ -1,7 +1,15 @@
 package com.lidm.facillify.ui.profile
 
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,13 +20,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +51,7 @@ import com.lidm.facillify.ui.components.SecondaryButton
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
+import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.util.Role
 
 data class Siswa(
@@ -68,17 +89,7 @@ fun ProfileScreen(
         nisn = "1234567890",
         role = Role.STUDENT
     )
-    //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
+
     ProfileContent(
         profileData = siswa,
         modifier = modifier,
@@ -117,20 +128,76 @@ fun ProfileContent(
         profileData.parent
     )
 
+    // State to hold the selected profile image URI
+    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
+    // Launcher to pick an image from the gallery
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            if (uri != null) {
+                profileImageUri = uri
+            }
+        }
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = profileData.imgProfile),
-            contentDescription = null,
+        Box(
+            contentAlignment = Alignment.BottomEnd,
             modifier = modifier
                 .size(96.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-        )
+        ) {
+            profileImageUri?.let { uri ->
+                val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                } else {
+                    val source = ImageDecoder.createSource(context.contentResolver, uri)
+                    ImageDecoder.decodeBitmap(source)
+                }
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(96.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop,
+                )
+            } ?: run {
+                Image(
+                    painter = painterResource(id = profileData.imgProfile),
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(96.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            IconButton(
+                onClick = { launcher.launch("image/*") },
+                modifier = modifier
+                    .size(32.dp)
+                    .background(Color.White, CircleShape)
+                    .padding(4.dp),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = SecondaryBlue
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Profile Picture",
+                    tint = Color.Black,
+                    modifier = modifier.padding(4.dp)
+                )
+            }
+        }
         Text(
             text = profileData.name,
             modifier = modifier
