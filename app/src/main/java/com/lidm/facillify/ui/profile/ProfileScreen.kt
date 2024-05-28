@@ -82,11 +82,7 @@ fun ProfileScreen(
     context: Context = LocalContext.current,
 ) {
     val profileViewModel: ProfileViewModel = viewModel(
-        factory = ViewModelFactory(
-            Inject.privodeChatAPiService(context.applicationContext),
-            Inject.provideThreadRepo(context.applicationContext),
-            Inject.provideAuthRepo(context.applicationContext),
-        )
+        factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
     //TODO: dummy data, replace with real data

@@ -15,33 +15,28 @@ import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 
 class ViewModelFactory(
-    private val apiService: ChatbotApiService,
-    private val threadRepository: ThreadRepository,
-    private val authRepository: AuthRepository,
+    private val repositories: Map<Class<*>, Any>
 ) : ViewModelProvider.Factory {
     @RequiresApi(Build.VERSION_CODES.O)
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
+                val authRepository = repositories[AuthRepository::class.java] as AuthRepository
                 AuthViewModel(authRepository) as T
             }
             modelClass.isAssignableFrom(MainViewModel::class.java) -> {
+                val authRepository = repositories[AuthRepository::class.java] as AuthRepository
                 MainViewModel(authRepository) as T
             }
-
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
-                ChatViewModel(apiService) as T
+                val chatbotApiService = repositories[ChatbotApiService::class.java] as ChatbotApiService
+                ChatViewModel(chatbotApiService) as T
             }
-
             modelClass.isAssignableFrom(ThreadViewModel::class.java) -> {
+                val threadRepository = repositories[ThreadRepository::class.java] as ThreadRepository
                 ThreadViewModel(threadRepository) as T
             }
-
-            modelClass.isAssignableFrom( ProfileViewModel::class.java) -> {
-                ProfileViewModel(authRepository) as T
-            }
-
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
@@ -52,9 +47,12 @@ class ViewModelFactory(
         fun getInstance(context: Context) =
             instance ?: synchronized(this) {
                 instance ?: ViewModelFactory(
-                    Inject.privodeChatAPiService(context.applicationContext),
-                    Inject.provideThreadRepo(context.applicationContext),
-                    Inject.provideAuthRepo(context.applicationContext),
+                    mapOf(
+                        AuthRepository::class.java to Inject.provideAuthRepo(context.applicationContext),
+                        ChatbotApiService::class.java to Inject.privodeChatAPiService(context.applicationContext),
+                        ThreadRepository::class.java to Inject.provideThreadRepo(context.applicationContext)
+                        // Tambahkan repository lainnya di sini
+                    )
                 ).also { instance = it }
             }
     }

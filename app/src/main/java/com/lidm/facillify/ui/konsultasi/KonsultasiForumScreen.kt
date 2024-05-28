@@ -76,11 +76,7 @@ fun KonsultasiForumScreen(
     //viewmodel
 
     val threadViewModel: ThreadViewModel = viewModel(
-        factory = ViewModelFactory(
-            Inject.privodeChatAPiService(context),
-            Inject.provideThreadRepo(context),
-            Inject.provideAuthRepo(context)
-        )
+        factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
     val threads by threadViewModel.threads.observeAsState(initial = emptyList())
