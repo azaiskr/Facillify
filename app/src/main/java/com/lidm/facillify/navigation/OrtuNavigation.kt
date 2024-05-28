@@ -3,6 +3,12 @@ package com.lidm.facillify.navigation
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -41,6 +47,7 @@ fun OrtuNavigation(
     val role = loginData.role
 
     Scaffold(
+        containerColor = Color.White,
         bottomBar = {
             MainBottomAppBar(
                 navController = navController,
@@ -79,6 +86,37 @@ fun OrtuNavigation(
             navController = navController,
             startDestination = Screen.Konsultasi.route,
             modifier = modifier.padding(innerPadding),
+            enterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Konsultasi.route, Screen.TrackingList.route -> slideInHorizontally(
+                        initialOffsetX = { 1000 }) + fadeIn()
+
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Konsultasi.route, Screen.TrackingList.route -> slideOutHorizontally(
+                        targetOffsetX = { -1000 }) + fadeOut()
+
+                    else -> fadeOut()
+                }
+            },
+            popEnterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Konsultasi.route -> if (
+                        initialState.destination.route == Screen.TrackingList.route
+                    ) {
+                        slideInHorizontally(initialOffsetX = { -1000 })
+                    } else {
+                        scaleIn(initialScale = 0.8f) + fadeIn()
+                    }
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            }
         ) {
             composable(Screen.Konsultasi.route) {
                 ListKonsultasi(

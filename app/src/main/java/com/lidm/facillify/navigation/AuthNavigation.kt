@@ -1,10 +1,18 @@
 package com.lidm.facillify.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -29,11 +37,50 @@ fun AuthNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Scaffold { innerPadding ->
+    Scaffold (
+        containerColor = Color.White
+    ){ innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.OnBoarding.route,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding),
+            enterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Login.route -> {
+                        if (initialState.destination.route == Screen.Register.route) {
+                            slideInVertically(initialOffsetY = { 1000 }) + fadeIn()
+                        } else
+                            slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn()
+                    }
+
+                    Screen.Register.route -> slideInVertically(initialOffsetY = { 1000 }) + fadeIn()
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            exitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Register.route -> slideOutVertically(targetOffsetY = { -1000 })
+                    else -> fadeOut()
+                }
+            },
+            popEnterTransition = {
+                when (targetState.destination.route) {
+                    Screen.Login.route -> {
+                        if (initialState.destination.route == Screen.Register.route) {
+                            slideInVertically(initialOffsetY = { -1000 }) + fadeIn()
+                        } else
+                            scaleIn(initialScale = 0.8f) + fadeIn()
+                    }
+                    else -> scaleIn(initialScale = 0.8f) + fadeIn()
+                }
+            },
+            popExitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Login.route -> slideOutVertically(targetOffsetY = { 1000 })
+                    else -> slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+                }
+
+            }
         ) {
             composable(Screen.OnBoarding.route) {
                 OnboardingScreen(

@@ -1,7 +1,5 @@
 package com.lidm.facillify.data.local
 
-import com.lidm.facillify.util.Question
-
 val gayaBelajarTestQuestions = listOf(
     Question(
         1,

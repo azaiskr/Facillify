@@ -38,8 +38,9 @@ import androidx.compose.ui.unit.dp
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
-import com.lidm.facillify.ui.siswa.belajar.dummyDataLatihan
-import com.lidm.facillify.data.local.materiBelajarData
+import com.lidm.facillify.data.local.dataLatihan
+import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
@@ -103,7 +104,8 @@ fun HomeScreenContent(
                     shape = RoundedCornerShape(16.dp)
                 ),
             colors = ButtonDefaults.buttonColors(
-                Color.Transparent
+                Color.Transparent,
+                contentColor = Color.White
             )
         ) {
             Row(
@@ -171,11 +173,11 @@ fun HomeScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(materiBelajarData.size) {
+                        items(listMateri.size) {index ->
                             MateriBelajarItem(
                                 modifier = modifier,
-                                onClick = { onItemBelajarClick(materiBelajarData[it].id) },
-                                materi = materiBelajarData[it]
+                                onClick = { onItemBelajarClick(listMateri[index].id) },
+                                materi = listMateri[index]
                             )
                         }
                     }
@@ -215,13 +217,13 @@ fun HomeScreenContent(
                     }
                 }
             }
-            items(dummyDataLatihan.size) {
+            items(dataLatihan.size) {
                 Box(modifier = modifier.padding(horizontal = 16.dp)) {
                     CardLatihanItem(
-                        latihan = dummyDataLatihan[it],
+                        latihan = dataLatihan[it],
                         modifier = modifier,
                         onCLick = {
-                            selectedLatihanId = dummyDataLatihan[it].id
+                            selectedLatihanId = dataLatihan[it].id
                             showDialog = true
                         }
                     )
