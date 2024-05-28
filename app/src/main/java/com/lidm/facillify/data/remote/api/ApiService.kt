@@ -1,14 +1,22 @@
 package com.lidm.facillify.data.remote.api
 
+import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.request.CreateQuizRequest
+import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
+import com.lidm.facillify.data.remote.response.AllThreadResponse
+import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
 import com.lidm.facillify.data.remote.response.QuizListResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
+import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
+import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -16,8 +24,6 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 
 interface ApiService {
 
@@ -69,4 +75,22 @@ interface ApiService {
         @Part("category") category: RequestBody
     ) : MessageResponse
 
+    //THREAD
+    @POST("/api/v1/thread")
+    suspend fun createThread(
+        @Body createThreadRequest: CreateThreadRequest
+    ) : ThreadCreatedResponse
+
+    @POST("/api/v1/thread/comment")
+    suspend fun createThreadComment(
+        @Body createCommentThreadRequest: CreateCommentThreadRequest
+    ) : CreatedThreadCommentResponse
+
+    @GET("/api/v1/thread")
+    suspend fun getAllThread() : AllThreadResponse
+
+    @GET("/api/v1/thread/{threadId}")
+    suspend fun getThreadDetail(
+        @Path("threadId") threadId: String
+    ) : ThreadDetailResponse
 }
