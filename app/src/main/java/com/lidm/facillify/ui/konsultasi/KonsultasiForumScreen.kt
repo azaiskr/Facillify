@@ -1,5 +1,6 @@
 package com.lidm.facillify.ui.konsultasi
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -33,7 +34,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,63 +47,51 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.data.remote.api.ApiConfig
+import com.lidm.facillify.data.repository.ThreadRepository
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
-import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
+import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 
 @Composable
 fun KonsultasiForumScreen(
+    factory: ViewModelFactory,
     onClickChat: () -> Unit
 ) {
-    //state
+    //viewmodel
+    val threadViewModel: ThreadViewModel = viewModel(factory = factory)
+    val threads by threadViewModel.threads.observeAsState(initial = emptyList())
     var isDialogOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedSubject by remember { mutableStateOf("") }
-    var konsultasiList by remember { mutableStateOf(emptyList<KonsulDummy>()) }
 
-    konsultasiList = listOf(
-        KonsulDummy(
-            imagePhotoProfile = painterResource(id = R.drawable.pp_deafult),
-            name = "Nama 1",
-            date = "Date 1",
-            title = "Title 1",
-            description = "Description 1",
-            totalComment = 5,
-            subject = "IPA"
-        ),
-        KonsulDummy(
-            imagePhotoProfile = painterResource(id = R.drawable.pp_deafult),
-            name = "Nama 2",
-            date = "Date 2",
-            title = "Title 2",
-            description = "Description 2",
-            totalComment = 10,
-            subject = "IPS"
-        ))
-
-    val filteredList = konsultasiList.filter {
+    val filteredList = threads.filter {
         it.title.contains(searchQuery, ignoreCase = true) &&
                 (selectedSubject.isEmpty() || it.subject == selectedSubject)
     }
+    val subjects = threads.map { it.subject }.distinct()
 
-    val subjects = konsultasiList.map { it.subject }.distinct()
+    LaunchedEffect(Unit) {
+        threadViewModel.getAllThreads()
+        Log.d("KonsultasiForumScreen", "Fetching threads")
+    }
 
-    
     Box(modifier = Modifier.fillMaxSize()){
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-//            MainTopAppBar(onBackClick = { /*TODO*/ }, onProfileClick = { /*TODO*/ }, backIcon = true, profileIcon = true, sectionTitle = "Konsultasi")
-
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
@@ -151,12 +142,12 @@ fun KonsultasiForumScreen(
                 items(filteredList.size) { index ->
                     val item = filteredList[index]
                     CardKonsultasi(
-                        imagePhotoProfile = item.imagePhotoProfile,
-                        name = item.name,
-                        date = item.date,
+                        imagePhotoProfile = painterResource(id = R.drawable.pp_deafult ), //TODO: replace with real image
+                        name = item.op_name,
+                        date = item.time,
                         title = item.title,
-                        description = item.description,
-                        totalComent = item.totalComment,
+                        description = item.content,
+                        totalComent = 0, //TODO: replace with total comment
                         subject = item.subject,
                         onClickChat = onClickChat
                     )
@@ -321,8 +312,15 @@ fun DialogAddKonsultasi(
 @Composable
 @Preview(showBackground = true)
 fun KonsultasiForumScreenPreview() {
+    val context = LocalContext.current
+    val apiServiceChatbot = ApiConfig.getChatbotApiService(context)
+    val apiServiceMain = ApiConfig.getMainApiService(context)
+    val threadRepository = ThreadRepository(apiServiceMain)
+    val factory = ViewModelFactory(apiServiceChatbot, threadRepository)
+
     KonsultasiForumScreen(
-        onClickChat = {}
+        onClickChat = {},
+        factory = factory
     )
 }
 

@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.lidm.facillify.data.remote.api.ApiConfig
+import com.lidm.facillify.data.repository.ThreadRepository
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatBubble
 import com.lidm.facillify.ui.components.ChatInputField
@@ -104,8 +105,10 @@ fun ChatScreen(
 @Preview(showBackground = true)
 fun ChatScreenPreview() {
     val context = LocalContext.current
-    val apiService = ApiConfig.getChatbotApiService(context)
-    val viewModelFactory = ViewModelFactory(apiService)
+    val apiServiceChatBot = ApiConfig.getChatbotApiService(context)
+    val apiServiceMain = ApiConfig.getMainApiService(context)
+    val threadRepository = ThreadRepository(apiServiceMain)
+    val viewModelFactory = ViewModelFactory(apiServiceChatBot, threadRepository)
     val chatViewModel = ViewModelProvider(
         LocalContext.current as androidx.activity.ComponentActivity,
         viewModelFactory

@@ -112,4 +112,7 @@ dependencies {
     //Document
     implementation(libs.androidx.documentfile)
 
+    //Datastore
+    implementation(libs.androidx.datastore.preferences)
+
 }
