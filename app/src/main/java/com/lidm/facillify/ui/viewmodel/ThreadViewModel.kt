@@ -13,7 +13,9 @@ import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.data.repository.ThreadRepository
 import kotlinx.coroutines.launch
 
-class ThreadViewModel(private val repository: ThreadRepository) : ViewModel() {
+class ThreadViewModel(
+    private val repository: ThreadRepository
+) : ViewModel() {
 
     private val _threads = MutableLiveData<List<ThreadResponse>>()
     val threads: LiveData<List<ThreadResponse>> get() = _threads

@@ -29,8 +29,8 @@ class UserPreferences private constructor(private val dataStore:DataStore<Prefer
             UserModelResponse(
                 //name = preferences[NAME_KEY] ?: "",
                 //role = preferences[ROLE_KEY] ?: "",
-                msg = "LOGIN BERHASIL",
-                token = preferences[TOKEN_KEY] ?: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY4ODY3OTYsImV4cCI6MTcxNjg5NzU5Nn0.q3vp9syB9mCzXQRCVdV2divzG8DcDfaszwVENAc5k8w",
+                msg = "",
+                token = preferences[TOKEN_KEY] ?: "",
             )
         }
     }

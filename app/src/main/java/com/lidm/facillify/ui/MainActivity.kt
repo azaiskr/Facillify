@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,55 +35,83 @@ import com.lidm.facillify.util.Role
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel by viewModels<MainViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var token: String? = "fgg"
-
-        val userLogin = DummyLoginResponse (
+        val userLogin = DummyLoginResponse(
             username = "Icarus",
             role = Role.STUDENT,
             isTested = true,
         )
 
-        setContent {
-            FacillifyTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.White
-                ) {
-                    if (token == null) {
-                        AuthNavigation()
-                    } else {
-                        when (userLogin.role) {
-
-                            Role.STUDENT -> {
-                                if (userLogin.isTested == false){
-                                    GayaBelajarNavigation()
-                                } else {
-                                    SiswaNavigation(
-                                        loginData = userLogin
-                                    )
-                                }
-                            }
-
-                            Role.TEACHER -> {
-                                GuruNavigation(
-                                    loginData = userLogin
-                                )
-                            }
-
-                            Role.PARENT -> {
-                                OrtuNavigation(
-                                    loginData = userLogin
-                                )
-                            }
+        viewModel.getSession().observe(this) { preference ->
+            if (preference.token == "") {
+                setContent {
+                    FacillifyTheme {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = Color.White
+                        ) {
+                            AuthNavigation()
+                        }
+                    }
+                }
+            } else {
+                setContent {
+                    FacillifyTheme {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = Color.White
+                        ) {
+                            SiswaNavigation(loginData = userLogin)
                         }
                     }
                 }
             }
         }
+//        setContent {
+//            FacillifyTheme {
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                    color = Color.White
+//                ) {
+//                    if (token == null) {
+//                        AuthNavigation()
+//                    } else {
+//                        when (userLogin.role) {
+//
+//                            Role.STUDENT -> {
+//                                if (userLogin.isTested == false) {
+//                                    GayaBelajarNavigation()
+//                                } else {
+//                                    SiswaNavigation(
+//                                        loginData = userLogin
+//                                    )
+//                                }
+//                            }
+//
+//                            Role.TEACHER -> {
+//                                GuruNavigation(
+//                                    loginData = userLogin
+//                                )
+//                            }
+//
+//                            Role.PARENT -> {
+//                                OrtuNavigation(
+//                                    loginData = userLogin
+//                                )
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

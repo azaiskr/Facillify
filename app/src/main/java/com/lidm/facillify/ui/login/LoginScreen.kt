@@ -1,5 +1,8 @@
 package com.lidm.facillify.ui.login
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -23,6 +26,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,26 +35,60 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.di.Inject
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
+import com.lidm.facillify.ui.viewmodel.AuthViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun LoginScreen(
     onLogin: () -> Unit = {},
-    onSignUp: () -> Unit = {}
+    onSignUp: () -> Unit = {},
+    context: Context = LocalContext.current,
 ) {
     //State
+    val authViewModel: AuthViewModel = viewModel(
+        factory = ViewModelFactory(
+            Inject.privodeChatAPiService(context),
+            Inject.provideThreadRepo(context),
+            Inject.provideAuthRepo(context),
+        )
+    )
+
+    val loginResultState = authViewModel.loginState.collectAsState()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    LaunchedEffect (loginResultState){
+        when(loginResultState.value) {
+            is ResponseState.Loading -> {}
+            is ResponseState.Success -> {
+                onLogin()
+            }
+            is ResponseState.Error -> {
+                Toast.makeText(
+                    context,
+                    (loginResultState.value as ResponseState.Error).error,
+                    Toast.LENGTH_SHORT
+                ).show()
+                (loginResultState.value as ResponseState.Error).error?.let { Log.d("UserLogin", it) }
+            }
+        }
+    }
 
     Surface(color = Color.White){
         Column(
@@ -95,7 +134,9 @@ fun LoginScreen(
                 ) {
                     CustomButton(
                         text = "Masuk",
-                        onClick = onLogin
+                        onClick = {
+                            authViewModel.login(email,password)
+                        }
                     )
                     SignUpText(
                         onClick = onSignUp

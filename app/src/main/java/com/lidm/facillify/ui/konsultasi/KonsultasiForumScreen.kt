@@ -1,5 +1,6 @@
 package com.lidm.facillify.ui.konsultasi
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -57,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.data.remote.api.ApiConfig
 import com.lidm.facillify.data.repository.ThreadRepository
+import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.theme.Blue
@@ -68,10 +70,19 @@ import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 @Composable
 fun KonsultasiForumScreen(
     factory: ViewModelFactory,
+    context: Context,
     onClickChat: () -> Unit
 ) {
     //viewmodel
-    val threadViewModel: ThreadViewModel = viewModel(factory = factory)
+
+    val threadViewModel: ThreadViewModel = viewModel(
+        factory = ViewModelFactory(
+            Inject.privodeChatAPiService(context),
+            Inject.provideThreadRepo(context),
+            Inject.provideAuthRepo(context)
+        )
+    )
+
     val threads by threadViewModel.threads.observeAsState(initial = emptyList())
     var isDialogOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -316,12 +327,12 @@ fun KonsultasiForumScreenPreview() {
     val apiServiceChatbot = ApiConfig.getChatbotApiService(context)
     val apiServiceMain = ApiConfig.getMainApiService(context)
     val threadRepository = ThreadRepository(apiServiceMain)
-    val factory = ViewModelFactory(apiServiceChatbot, threadRepository)
+//    val factory = ViewModelFactory(apiServiceChatbot, Inject.provideThreadRepo(context))
 
-    KonsultasiForumScreen(
-        onClickChat = {},
-        factory = factory
-    )
+//    KonsultasiForumScreen(
+//        onClickChat = {},
+//        factory = factory
+//    )
 }
 
 @Composable
