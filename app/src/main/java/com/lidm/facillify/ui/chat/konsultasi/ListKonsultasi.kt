@@ -48,7 +48,5 @@ fun ListKonsultasi(
 //            }
 //        }
 
-    KonsultasiForumScreen(
-        onClickChat = onNavigateToChat
-    )
+
 }
