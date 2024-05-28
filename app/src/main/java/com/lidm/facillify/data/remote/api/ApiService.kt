@@ -29,7 +29,7 @@ import retrofit2.http.Query
 interface ApiService {
 
     // AUTH
-    @POST("/api/v1/register")
+    @POST("api/v1/register")
     suspend fun registerUser(
         @Body registerRequest: RegisterRequest
     ) : MessageResponse
@@ -41,15 +41,15 @@ interface ApiService {
 
 
     // QUIZ
-    @POST("/api/v1/quiz")
+    @POST("api/v1/quiz")
     suspend fun createQuiz(
         @Body createQuizRequest: CreateQuizRequest
     ) : MessageResponse
 
-    @GET("/api/v1/quiz")
+    @GET("api/v1/quiz")
     suspend fun getQuizList() : QuizListResponse
 
-    @GET("/api/v1/quiz/{quizId}")
+    @GET("api/v1/quiz/{quizId}")
     suspend fun getQuiz(
         @Path("quizId") quizId: String,
         @Query("key") key: Boolean = true,
@@ -63,11 +63,11 @@ interface ApiService {
 
 
     // VIDEO
-    @GET("/api/v1/content")
+    @GET("api/v1/content")
     suspend fun getVideoList() : VideoListResponse
 
     @Multipart
-    @POST("/api/v1/upload")
+    @POST("api/v1/upload")
     suspend fun uploadVideo(
         @Part image: MultipartBody.Part,
         @Part("video_url") videoUrl: RequestBody,

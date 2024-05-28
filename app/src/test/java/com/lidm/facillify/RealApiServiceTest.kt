@@ -1,5 +1,6 @@
 package com.lidm.facillify
 
+import androidx.compose.ui.platform.LocalContext
 import com.lidm.facillify.data.remote.api.ApiConfig
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
@@ -22,7 +23,7 @@ class RealApiServiceTest {
 
     @Before
     fun setUp() {
-        apiService = ApiConfig.TestCreateApiService("https://lucky.widzzz.com/", token)
+        //apiService = ApiConfig.getMainApiService()
     }
     @Test
     fun `test getAllThread`() = runBlocking {
