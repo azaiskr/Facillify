@@ -1,5 +1,6 @@
 package com.lidm.facillify.ui.profile
 
+import android.content.Context
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -46,12 +47,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.di.Inject
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.SecondaryButton
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
+import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.util.Role
 
 data class Siswa(
@@ -72,9 +77,18 @@ data class Siswa(
 @Composable
 fun ProfileScreen(
     modifier: Modifier,
-    navigateToFormTambahDataOrtu: () -> Unit ={},
+    navigateToFormTambahDataOrtu: () -> Unit = {},
     role: Role = Role.STUDENT,
+    context: Context = LocalContext.current,
 ) {
+    val profileViewModel: ProfileViewModel = viewModel(
+        factory = ViewModelFactory(
+            Inject.privodeChatAPiService(context.applicationContext),
+            Inject.provideThreadRepo(context.applicationContext),
+            Inject.provideAuthRepo(context.applicationContext),
+        )
+    )
+
     //TODO: dummy data, replace with real data
     val siswa = Siswa(
         imgProfile = R.drawable.ic_launcher_background,
@@ -95,6 +109,9 @@ fun ProfileScreen(
         modifier = modifier,
         onClick = navigateToFormTambahDataOrtu,
         role = role,
+        actionLogOut = {
+            profileViewModel.logOut()
+        },
     )
 }
 
@@ -102,6 +119,7 @@ fun ProfileScreen(
 fun ProfileContent(
     profileData: Siswa,
     modifier: Modifier,
+    actionLogOut: () -> Unit = {},
     onClick: () -> Unit = {},
     role: Role = Role.STUDENT,
 ) {
@@ -217,12 +235,19 @@ fun ProfileContent(
         }
         if (role == Role.STUDENT && profileData.parent == null) {
             Spacer(modifier = modifier.height(24.dp))
-            SecondaryButton(modifier = modifier, onClick = { onClick() }, outline = true, label = "Edit Email Orang Tua" )
+            SecondaryButton(
+                modifier = modifier,
+                onClick = { onClick() },
+                outline = true,
+                label = "Edit Email Orang Tua"
+            )
         }
         Spacer(modifier = modifier.height(24.dp))
         OutlinedButton(
-            modifier = modifier.fillMaxWidth().height(40.dp),
-            onClick = { /*TODO*/ },
+            modifier = modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            onClick = { actionLogOut() },
             border = BorderStroke(2.dp, AlertRed),
             shape = RoundedCornerShape(16.dp)
         ) {

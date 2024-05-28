@@ -18,7 +18,6 @@ class ApiConfig {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
-            //TODO: authInterceptor
             val authInterceptor = Interceptor { chain ->
                 val token = runBlocking {
                     val pref = UserPreferences.getInstance(context)
@@ -37,11 +36,13 @@ class ApiConfig {
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
+
             val client = OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptor) // Combining headers carefully
                 .addInterceptor(chatbotInterceptor)
-                .addInterceptor(authInterceptor)
                 .build()
+
             return Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -50,39 +51,13 @@ class ApiConfig {
         }
 
         fun getMainApiService(ctx: Context): ApiService {
-            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx)
+            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx.applicationContext)
             return retrofit.create(ApiService::class.java)
         }
 
         fun getChatbotApiService(ctx: Context): ChatbotApiService {
-            val retrofit = getRetrofit(BuildConfig.CHATBOT_URL, ctx)
+            val retrofit = getRetrofit(BuildConfig.CHATBOT_URL, ctx.applicationContext)
             return retrofit.create(ChatbotApiService::class.java)
         }
-
-        fun TestCreateApiService(baseUrl: String, token: String): ApiService {
-            val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
-            val authInterceptor = Interceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
-                    .build()
-                chain.proceed(request)
-            }
-
-            val client = OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
-                .addInterceptor(authInterceptor)
-                .build()
-
-            return Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService::class.java)
-        }
-
     }
 }

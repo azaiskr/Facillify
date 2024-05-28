@@ -14,12 +14,12 @@ import com.lidm.facillify.data.remote.response.QuizListResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
+import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -34,10 +34,10 @@ interface ApiService {
         @Body registerRequest: RegisterRequest
     ) : MessageResponse
 
-    @POST("/api/v1/login")
+    @POST("api/v1/login")
     suspend fun loginUser(
         @Body loginRequest: LoginRequest
-    ) : MessageResponse //TODO: replace with login response
+    ) : UserModelResponse
 
 
     // QUIZ
@@ -77,22 +77,20 @@ interface ApiService {
     ) : MessageResponse
 
     //THREAD
-    @POST("/api/v1/thread")
+    @POST("api/v1/thread")
     suspend fun createThread(
         @Body createThreadRequest: CreateThreadRequest
     ) : ThreadCreatedResponse
 
-    @POST("/api/v1/thread/comment")
+    @POST("api/v1/thread/comment")
     suspend fun createThreadComment(
         @Body createCommentThreadRequest: CreateCommentThreadRequest
     ) : CreatedThreadCommentResponse
 
     @GET("api/v1/thread")
-    suspend fun getAllThread(
-        @Header("Authorization") token: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY4ODY3OTYsImV4cCI6MTcxNjg5NzU5Nn0.q3vp9syB9mCzXQRCVdV2divzG8DcDfaszwVENAc5k8w"
-    ) : AllThreadResponse
+    suspend fun getAllThread() : AllThreadResponse
 
-    @GET("/api/v1/thread/{threadId}")
+    @GET("api/v1/thread/{threadId}")
     suspend fun getThreadDetail(
         @Path("threadId") threadId: String
     ) : ThreadDetailResponse

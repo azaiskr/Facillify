@@ -109,6 +109,12 @@ dependencies {
     //implementation(libs.accompanist.coil)
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+    //lifecycle
+    //liveCycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
+    implementation("androidx.activity:activity-ktx:1.9.0")
+
     //Document
     implementation(libs.androidx.documentfile)
 
