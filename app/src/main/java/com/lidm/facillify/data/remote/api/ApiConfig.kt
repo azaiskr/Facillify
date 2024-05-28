@@ -59,5 +59,30 @@ class ApiConfig {
             return retrofit.create(ChatbotApiService::class.java)
         }
 
+        fun TestCreateApiService(baseUrl: String, token: String): ApiService {
+            val loggingInterceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+
+            val authInterceptor = Interceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+                chain.proceed(request)
+            }
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptor)
+                .build()
+
+            return Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService::class.java)
+        }
+
     }
 }

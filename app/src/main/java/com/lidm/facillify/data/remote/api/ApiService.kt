@@ -19,6 +19,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -86,8 +87,10 @@ interface ApiService {
         @Body createCommentThreadRequest: CreateCommentThreadRequest
     ) : CreatedThreadCommentResponse
 
-    @GET("/api/v1/thread")
-    suspend fun getAllThread() : AllThreadResponse
+    @GET("api/v1/thread")
+    suspend fun getAllThread(
+        @Header("Authorization") token: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY4ODY3OTYsImV4cCI6MTcxNjg5NzU5Nn0.q3vp9syB9mCzXQRCVdV2divzG8DcDfaszwVENAc5k8w"
+    ) : AllThreadResponse
 
     @GET("/api/v1/thread/{threadId}")
     suspend fun getThreadDetail(

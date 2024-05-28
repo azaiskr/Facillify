@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com\"")
+        buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com/\"")
         buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com\"")
         buildConfigField("String", "SECRET_KEY", "\"sk-proj-gnkmrs66duYKtqRdlvHnT3BlbkFJqNX2lPhTO3cXj83Iu2Ao\"")
 
@@ -114,5 +114,14 @@ dependencies {
 
     //Datastore
     implementation(libs.androidx.datastore.preferences)
+
+    // MockWebServer
+    testImplementation(libs.mockwebserver)
+
+    // JUnit
+    testImplementation(libs.junit)
+
+    // Coroutine Test
+    testImplementation(libs.kotlinx.coroutines.test)
 
 }
