@@ -135,6 +135,10 @@ dependencies {
     // JUnit
     testImplementation(libs.junit)
 
+    //accompanist pager
+    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+
+
     // Coroutine Test
     testImplementation(libs.kotlinx.coroutines.test)
 
