@@ -10,7 +10,7 @@ import retrofit2.http.POST
 interface ChatbotApiService {
 
     //TODO: double check, yet not sure
-    @POST("/v1/chat/completions")
+    @POST("v1/chat/completions")
     suspend fun sendMessage(
         @Body message: ChatbotRequest
     ) : ChatbotResponse

@@ -19,31 +19,39 @@ class ApiConfig {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
-            val authInterceptor = Interceptor { chain ->
-                val token = runBlocking {
-                    val pref = UserPreferences.getInstance(context)
-                    pref.getUserPref().first().token
+            val combinedInterceptor = Interceptor { chain ->
+                val originalRequest = chain.request()
+                val requestBuilder = originalRequest.newBuilder()
+
+                // Add Authorization header if the request is not for the chatbot
+                if (!originalRequest.url.toString().contains(BuildConfig.CHATBOT_URL)) {
+                    val token = runBlocking {
+                        val pref = UserPreferences.getInstance(context)
+                        pref.getUserPref().first().token
+                    }
+                    requestBuilder.addHeader("Authorization", "Bearer $token")
                 }
-                Log.d("AuthInterceptor", "Token: $token")
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
-                    .build()
-                Log.d("AuthInterceptor", "Request Headers: ${request.headers}")
-                chain.proceed(request)
-            }
-            val chatbotInterceptor = Interceptor { chain ->
-                val original = chain.request()
-                val requestBuilder = original.newBuilder()
-                    .header("Authorization", "Bearer ${BuildConfig.SECRET_KEY}")
+
+                // Add chatbot-specific headers if the request is for the chatbot
+                if (originalRequest.url.toString().contains(BuildConfig.CHATBOT_URL)) {
+                    requestBuilder
+                        .addHeader("Authorization", "Bearer ${BuildConfig.OPENAI_SECRET_KEY}")
+                        .addHeader("OpenAI-Organization", BuildConfig.OPENAI_ORGANIZATION)
+                        .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
+                }
                 val request = requestBuilder.build()
                 Log.d("ChatbotInterceptor", "Token: ${BuildConfig.SECRET_KEY}")
                 chain.proceed(request)
             }
 
             val client = OkHttpClient.Builder()
-                .addInterceptor(authInterceptor) // Combining headers carefully
-//                .addInterceptor(chatbotInterceptor)
                 .addInterceptor(loggingInterceptor)
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    Log.d("OkHttp", "Request Headers: ${request.headers}")
+                    chain.proceed(request)
+                }
+                .addInterceptor(combinedInterceptor) // Combining headers carefully
                 .build()
 
             return Retrofit.Builder()

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -15,13 +17,19 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "BASE_URL", "\"https://lucky.widzzz.com/\"")
-        buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com\"")
-        buildConfigField("String", "SECRET_KEY", "\"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\"")
+        buildConfigField("String", "CHATBOT_URL","\"https://api.openai.com/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
+        buildConfigField("String", "OPENAI_SECRET_KEY", "\"${properties.getProperty("OPENAI_SECRET_KEY")}\"")
+        buildConfigField("String", "OPENAI_ORGANIZATION", "\"${properties.getProperty("OPENAI_ORGANIZATION")}\"")
+        buildConfigField("String", "OPENAI_PROJECT", "\"${properties.getProperty("OPENAI_PROJECT")}\"")
     }
 
     buildTypes {
@@ -120,5 +128,16 @@ dependencies {
 
     //Datastore
     implementation(libs.androidx.datastore.preferences)
+
+    // MockWebServer
+    testImplementation(libs.mockwebserver)
+
+    // JUnit
+    testImplementation(libs.junit)
+
+    // Coroutine Test
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    implementation(libs.dotenv.kotlin)
 
 }
