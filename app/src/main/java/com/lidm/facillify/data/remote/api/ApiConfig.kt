@@ -1,6 +1,7 @@
 package com.lidm.facillify.data.remote.api
 
 import android.content.Context
+import android.util.Log
 import com.lidm.facillify.BuildConfig
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import kotlinx.coroutines.flow.first
@@ -18,32 +19,39 @@ class ApiConfig {
                 level = HttpLoggingInterceptor.Level.BODY
             }
 
-            val authInterceptor = Interceptor { chain ->
-                val token = runBlocking {
-                    val pref = UserPreferences.getInstance(context)
-                    pref.getUserPref().first().token
+            val combinedInterceptor = Interceptor { chain ->
+                val originalRequest = chain.request()
+                val requestBuilder = originalRequest.newBuilder()
+
+                // Add Authorization header if the request is not for the chatbot
+                if (!originalRequest.url.toString().contains(BuildConfig.CHATBOT_URL)) {
+                    val token = runBlocking {
+                        val pref = UserPreferences.getInstance(context)
+                        pref.getUserPref().first().token
+                    }
+                    requestBuilder.addHeader("Authorization", "Bearer $token")
                 }
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
-                    .build()
-                chain.proceed(request)
-            }
 
-            val chatbotInterceptor = Interceptor { chain ->
-                val original = chain.request()
+                // Add chatbot-specific headers if the request is for the chatbot
+                if (originalRequest.url.toString().contains(BuildConfig.CHATBOT_URL)) {
+                    requestBuilder
+                        .addHeader("Authorization", "Bearer ${BuildConfig.OPENAI_SECRET_KEY}")
+                        .addHeader("OpenAI-Organization", BuildConfig.OPENAI_ORGANIZATION)
+                        .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
+                }
 
-                val requestBuilder = original.newBuilder()
-                    .header("Authorization", "Bearer ${BuildConfig.OPENAI_SECRET_KEY}")
-                    .addHeader("OpenAI-Organization", BuildConfig.OPENAI_ORGANIZATION)
-                    .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
-                .addInterceptor(authInterceptor) // Combining headers carefully
-                .addInterceptor(chatbotInterceptor)
+                .addInterceptor { chain ->
+                    val request = chain.request()
+                    Log.d("OkHttp", "Request Headers: ${request.headers}")
+                    chain.proceed(request)
+                }
+                .addInterceptor(combinedInterceptor) // Combining headers carefully
                 .build()
 
             return Retrofit.Builder()
@@ -61,31 +69,6 @@ class ApiConfig {
         fun getChatbotApiService(ctx: Context): ChatbotApiService {
             val retrofit = getRetrofit(BuildConfig.CHATBOT_URL, ctx.applicationContext)
             return retrofit.create(ChatbotApiService::class.java)
-        }
-
-        fun createApiServiceTest(baseUrl: String, token: String): ApiService {
-            val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
-            val authInterceptor = Interceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
-                    .build()
-                chain.proceed(request)
-            }
-
-            val client = OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
-                .addInterceptor(authInterceptor)
-                .build()
-
-            return Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(ApiService::class.java)
         }
     }
 }

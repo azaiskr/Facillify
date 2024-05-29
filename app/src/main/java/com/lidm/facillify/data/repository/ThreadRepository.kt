@@ -1,5 +1,8 @@
 package com.lidm.facillify.data.repository
 
+import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
@@ -8,8 +11,10 @@ import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
+import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 
@@ -41,6 +46,8 @@ class ThreadRepository(
     }
 
     suspend fun getAllThreads(): Flow<ResponseState<List<ThreadResponse>>> = flow {
+        val token = userPreferences.getUserPref().first().token
+        Log.d("ThreadRepository", "getAllThreads: $token")
         emit(ResponseState.Loading)
         try {
             val response = apiService.getAllThread()
