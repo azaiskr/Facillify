@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -36,8 +38,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,9 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
-import com.lidm.facillify.data.remote.api.ApiConfig
-import com.lidm.facillify.data.repository.ThreadRepository
-import com.lidm.facillify.di.Inject
+import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.theme.Blue
@@ -66,29 +66,40 @@ import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun KonsultasiForumScreen(
-    factory: ViewModelFactory,
     context: Context,
     onClickChat: () -> Unit
 ) {
     //viewmodel
-
     val threadViewModel: ThreadViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
-    val threads by threadViewModel.threads.observeAsState(initial = emptyList())
+    val threadsState by threadViewModel.threads.collectAsState()
+
     var isDialogOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedSubject by remember { mutableStateOf("") }
 
-    val filteredList = threads.filter {
-        it.title.contains(searchQuery, ignoreCase = true) &&
-                (selectedSubject.isEmpty() || it.subject == selectedSubject)
+    val filteredList = when (threadsState) {
+        is ResponseState.Success -> {
+            (threadsState as ResponseState.Success<List<ThreadResponse>>).data.filter {
+                it.title.contains(searchQuery, ignoreCase = true) &&
+                        (selectedSubject.isEmpty() || it.subject == selectedSubject)
+            }
+        }
+        else -> emptyList()
     }
-    val subjects = threads.map { it.subject }.distinct()
+
+    val subjects = when (threadsState) {
+        is ResponseState.Success -> {
+            (threadsState as ResponseState.Success<List<ThreadResponse>>).data.map { it.subject }.distinct()
+        }
+        else -> emptyList()
+    }
 
     LaunchedEffect(Unit) {
         threadViewModel.getAllThreads()
@@ -145,7 +156,39 @@ fun KonsultasiForumScreen(
                 }
             }
 
-            LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+            when (threadsState) {
+                is ResponseState.Loading -> {
+                    // Show loading indicator
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is ResponseState.Success -> {
+                    LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        items(filteredList) { item ->
+                            CardKonsultasi(
+                                imagePhotoProfile = painterResource(id = R.drawable.pp_deafult), //TODO: replace with real image
+                                name = item.op_name,
+                                date = item.time,
+                                title = item.title,
+                                description = item.content,
+                                totalComent = 0, //TODO: replace with total comment
+                                subject = item.subject,
+                                onClickChat = onClickChat
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                }
+                is ResponseState.Error -> {
+                    // Show error message
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Error: ${(threadsState as ResponseState.Error).error}")
+                    }
+                }
+            }
+
+            /*LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(filteredList.size) { index ->
                     val item = filteredList[index]
                     CardKonsultasi(
@@ -160,7 +203,7 @@ fun KonsultasiForumScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-            }
+            }*/
         }
 
         FloatingActionButton(onClick = { isDialogOpen = true },
@@ -264,7 +307,7 @@ fun CardKonsultasi(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = { /*TODO*/ }, enabled = false, colors = ButtonDefaults.buttonColors(disabledContainerColor = SecondaryBlue)) {
+                Button(onClick = {/*TODO*/}, enabled = false, colors = ButtonDefaults.buttonColors(disabledContainerColor = SecondaryBlue)) {
                     Text(text = subject, color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
@@ -320,15 +363,9 @@ fun DialogAddKonsultasi(
 @Preview(showBackground = true)
 fun KonsultasiForumScreenPreview() {
     val context = LocalContext.current
-    val apiServiceChatbot = ApiConfig.getChatbotApiService(context)
-    val apiServiceMain = ApiConfig.getMainApiService(context)
-    val threadRepository = ThreadRepository(apiServiceMain)
-//    val factory = ViewModelFactory(apiServiceChatbot, Inject.provideThreadRepo(context))
-
-//    KonsultasiForumScreen(
-//        onClickChat = {},
-//        factory = factory
-//    )
+    KonsultasiForumScreen( context = context) {
+        
+    }
 }
 
 @Composable
@@ -354,14 +391,3 @@ fun DialogAddKonsultasiPreview() {
         onConfirm = { /*TODO*/ }
     )
 }
-
-data class KonsulDummy(
-    val imagePhotoProfile: Painter,
-    val name: String,
-    val date: String,
-    val title: String,
-    val description: String,
-    val totalComment: Int,
-    val subject: String
-)
-

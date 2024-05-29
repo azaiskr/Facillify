@@ -1,7 +1,6 @@
 package com.lidm.facillify.data.remote.api
 
 import android.content.Context
-import android.util.Log
 import com.lidm.facillify.BuildConfig
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import kotlinx.coroutines.flow.first

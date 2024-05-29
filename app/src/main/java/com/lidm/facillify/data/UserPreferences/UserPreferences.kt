@@ -30,7 +30,7 @@ class UserPreferences private constructor(private val dataStore:DataStore<Prefer
                 //name = preferences[NAME_KEY] ?: "",
                 //role = preferences[ROLE_KEY] ?: "",
                 msg = "",
-                token = preferences[TOKEN_KEY] ?: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY5MDc5NDYsImV4cCI6MTcxNjkxODc0Nn0.n7Xyd3mY3OmwAMlHG7CMcFPMVXi7qrB_S5n5WRGCk0c",
+                token = preferences[TOKEN_KEY] ?: "",
             )
         }
     }
