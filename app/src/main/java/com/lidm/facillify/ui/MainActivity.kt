@@ -42,22 +42,6 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val muridLogin = DummyLoginResponse(
-            username = "Siswa Reyhan",
-            isTested = true,
-        )
-
-        val guruLogin = DummyLoginResponse(
-            username = "Prof. Facillify",
-            isTested = true,
-        )
-
-        val ortuLogin = DummyLoginResponse(
-            username = "Bp Drajad",
-            isTested = true,
-        )
-
         viewModel.getSession().observe(this) { preference ->
             if (preference.token == "") {
                 setContent {
@@ -71,10 +55,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } else {
-                var role : Role? = null
                 when(preference.type) {
                     "murid" -> {
-                        // role = Role.STUDENT
                         setContent {
                             FacillifyTheme {
                                 Surface(
@@ -87,7 +69,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     "guru" -> {
-                        // role = Role.TEACHER
                         setContent {
                             FacillifyTheme {
                                 Surface(
@@ -100,7 +81,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     "orang tua" -> {
-                        // role = Role.PARENT
                         setContent {
                             FacillifyTheme {
                                 Surface(

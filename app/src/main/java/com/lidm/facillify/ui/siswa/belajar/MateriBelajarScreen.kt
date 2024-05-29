@@ -190,7 +190,8 @@ fun MateriBelajarItemPreview() {
             image = "",
             title = "Bangun Ruang",
             desc = "Pelajari berbagai macam bentuk bangun ruang yang ada di sekitarmu",
-            materiVideo = listOf()
+            materiVideo = listOf(),
+            materiAudio = listOf()
         ),
     )
 }

@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.data.LatihanSoal
+import com.lidm.facillify.data.local.LatihanItem
+import com.lidm.facillify.data.local.dataLatihan
 import com.lidm.facillify.ui.components.CardLatihanSoalGuru
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.theme.Black
@@ -34,7 +36,7 @@ fun BaseLatihanSoalGuruScreen(
 
 @Composable
 fun LatihanSoalGuruScreen(
-    listSoal: List<LatihanSoal> = emptyList()
+    listSoal: List<LatihanItem> = dataLatihan
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -47,9 +49,9 @@ fun LatihanSoalGuruScreen(
             ) {
                 items(listSoal.size) { index ->
                     CardLatihanSoalGuru(
-                        judulSoal = listSoal[index].JudulLatihanSoal,
-                        deskripsiSoal = listSoal[index].DeskripsiLatihanSoal,
-                        waktuSoal = listSoal[index].waktuLatihanSoal
+                        judulSoal = listSoal[index].judul,
+                        deskripsiSoal = listSoal[index].deskripsi,
+                        waktuSoal = listSoal[index].waktu
                     ) {
                         //TODO LOGIC FOR DELETE ITEM
                     }
@@ -65,19 +67,6 @@ fun LatihanSoalGuruScreen(
 @Preview(showBackground = true)
 fun LatihanSoalGuruScreenPreview() {
     LatihanSoalGuruScreen(
-        listSoal = listOf(
-            LatihanSoal(
-                JudulLatihanSoal = "Latihan 1",
-                DeskripsiLatihanSoal = "Latihan 1",
-                waktuLatihanSoal = 20,
-                Soal = listOf()
-            ),
-            LatihanSoal(
-                JudulLatihanSoal = "Latihan 2",
-                DeskripsiLatihanSoal = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                waktuLatihanSoal = 45,
-                Soal = listOf()
-            )
-        )
+        listSoal = dataLatihan
     )
 }

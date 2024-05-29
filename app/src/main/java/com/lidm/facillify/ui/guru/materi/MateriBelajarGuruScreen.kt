@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.VideoItem
 import com.lidm.facillify.data.local.listMateri
@@ -63,7 +65,7 @@ fun MateriBelajarGuruItem(video: VideoItem) {
             modifier = Modifier.padding(8.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = rememberAsyncImagePainter(model = "https://cdn.wccftech.com/wp-content/uploads/2016/08/YouTube.png"),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

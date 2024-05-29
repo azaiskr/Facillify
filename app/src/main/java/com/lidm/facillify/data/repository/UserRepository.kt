@@ -4,6 +4,7 @@ import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.LoginRequest
+import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.util.ResponseState
@@ -32,6 +33,115 @@ class UserRepository (
         }
     }
 
+    suspend fun registerMurid(
+        type: String,
+        email: String,
+        name: String,
+        password: String,
+        pod: String,
+        dob: String,
+        gender: String,
+        address: String,
+        phone_number: String,
+        religion: String,
+        nisn: String,
+    ) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val request = RegisterRequest(
+                type = type,
+                email = email,
+                password = password,
+                name = name,
+                pob = pod,
+                dob = dob,
+                gender = gender,
+                address = address,
+                phone_number = phone_number,
+                religion = religion,
+                nisn = nisn
+            )
+            val response = apiService.registerUser(request)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    suspend fun registerGuru(
+        type: String,
+        email: String,
+        password: String,
+        name: String,
+        pod: String,
+        dob: String,
+        gender: String,
+        address: String,
+        phone_number: String,
+        religion: String,
+        nip: String,
+    ) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val request = RegisterRequest(
+                type = type,
+                email = email,
+                password = password,
+                name = name,
+                pob = pod,
+                dob = dob,
+                gender = gender,
+                address = address,
+                phone_number = phone_number,
+                religion = religion,
+                nip = nip
+            )
+            val response = apiService.registerUser(request)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+    suspend fun registerOrtu(
+        type: String,
+        email: String,
+        password: String,
+        name: String,
+        pod: String,
+        dob: String,
+        gender: String,
+        address: String,
+        phone_number: String,
+        religion: String,
+        job: String,
+    ) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val request = RegisterRequest(
+                type = type,
+                email = email,
+                password = password,
+                name = name,
+                pob = pod,
+                dob = dob,
+                gender = gender,
+                address = address,
+                phone_number = phone_number,
+                religion = religion,
+                job = job
+            )
+            val response = apiService.registerUser(request)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
     suspend fun getUserProfile(email: String) :Flow<ProfileResponse> {
         return flow {
             try {

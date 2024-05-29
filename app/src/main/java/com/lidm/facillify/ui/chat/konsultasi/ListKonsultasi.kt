@@ -31,7 +31,7 @@ val data = listOf(
 @Composable
 fun ListKonsultasi(
     modifier: Modifier,
-    onNavigateToChat : () -> Unit
+    onNavigateToChat : (String) -> Unit
 ) {
 
     //        when (val response = viewModel.materiBelajar){

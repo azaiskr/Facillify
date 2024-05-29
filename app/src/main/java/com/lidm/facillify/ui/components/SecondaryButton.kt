@@ -34,10 +34,8 @@ fun SecondaryButton(
     ) {
         Text(
             text = label,
-            style = TextStyle(
-                color = if (outline) DarkBlue else Color.White,
-                fontSize = 16.sp,
-            )
+            color = if (outline) DarkBlue else Color.White,
+            fontSize = 16.sp,
         )
     }
 }

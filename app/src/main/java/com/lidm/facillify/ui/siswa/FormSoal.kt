@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.lidm.facillify.ui.components.MainButton
@@ -38,7 +39,7 @@ fun FormSoal(
         modifier = modifier
     ) {
         items(item.size) { index ->
-            val selectedAnswer = remember { mutableStateOf(answer[index]) }
+            val selectedAnswer = rememberSaveable { mutableStateOf(answer[index]) }
             QuestionItem(
                 question = item[index],
                 modifier = modifier.padding(bottom = 8.dp),

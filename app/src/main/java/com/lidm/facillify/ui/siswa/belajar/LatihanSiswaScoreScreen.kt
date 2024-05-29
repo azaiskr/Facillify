@@ -28,6 +28,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lidm.facillify.data.local.HasilLatihan
+import com.lidm.facillify.data.local.LatihanItem
+import com.lidm.facillify.data.local.dataLatihan
+import com.lidm.facillify.data.local.hasilLatihan
 import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Blue
@@ -35,35 +39,30 @@ import com.lidm.facillify.ui.theme.Green
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.Yellow
 
-data class LaithanResult(
-    val name: String,
-    val correct: Int,
-    val wrong: Int,
-    val score: Int,
-    val timeTaken: Long,
-    val comment: String,
-)
-
-val dummyResultQuiz = LaithanResult(
-    name = "Latihan 1",
-    correct = 17,
-    wrong = 3,
-    score = 75,
-    timeTaken = 20,
-    comment = "Perolehan nilai kamu menunjukkan bahwa kamu telah memahami dengan baik."
-)
-
 @Composable
 fun LatihanSiswaScoreScreen(
-
+    idLatihan: Int,
+    onBackClicked: () -> Unit,
 ) {
+    val quizResult = hasilLatihan.find { it.idLatihan == idLatihan }!!
+    val quizdata = dataLatihan.find { it.id == idLatihan }!!
 
-    LatihanResult(dummyResultQuiz)
+    androidx.activity.compose.BackHandler (enabled = true) {
+        onBackClicked()
+    }
+
+    LatihanResult(
+        quizResult,
+        quizdata,
+        onBackClicked
+    )
 }
 
 @Composable
 fun LatihanResult(
-    quizResult: LaithanResult,
+    quizResult: HasilLatihan,
+    quizdata: LatihanItem,
+    onBackClicked: () -> Unit
 ) {
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -102,19 +101,19 @@ fun LatihanResult(
                 color = SecondaryBlue,
             )
             Text(
-                text = quizResult.name,
+                text = quizdata.judul,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
                 color = SecondaryBlue,
             )
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(48.dp))
             Box(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    progress = { quizResult.score.toFloat()*0.01f },
-                    modifier = Modifier.size(180.dp),
-                    color = when (quizResult.score) {
+                    progress = { quizResult.grade.toFloat() * 0.01f },
+                    modifier = Modifier.size(160.dp),
+                    color = when (quizResult.grade) {
                         in 51..75 -> Yellow
                         in 75..100 -> Green
                         else -> AlertRed
@@ -122,19 +121,24 @@ fun LatihanResult(
                     strokeWidth = 12.dp,
                     strokeCap = StrokeCap.Round
                 )
+                Canvas(
+                    modifier = Modifier
+                ) {
+                    drawCircle(
+                        color = SecondaryBlue,
+                        radius = 56.dp.toPx(),
+                    )
+                }
                 Text(
-                    text = "${quizResult.score}",
+                    text = "${quizResult.grade}",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.ExtraBold,
                     color = Blue,
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .background(SecondaryBlue)
-                        .padding(32.dp)
                 )
             }
         }
-        Column (
+        Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxHeight(fraction = 0.5f)
@@ -142,37 +146,37 @@ fun LatihanResult(
                 .align(Alignment.BottomStart),
             verticalArrangement = Arrangement.SpaceAround
         ) {
-            Row (
+            Row(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Column (
-                ){
-                    Text (
+            ) {
+                Column(
+                ) {
+                    Text(
                         text = "Jawaban benar",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = Blue,
                     )
-                    Text (
-                        text = quizResult.correct.toString() + " soal",
+                    Text(
+                        text = quizResult.correctAnswer.toString() + " soal",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = Blue,
                     )
                 }
-                Column (
-                ){
-                    Text (
+                Column(
+                ) {
+                    Text(
                         text = "Akurasi",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = Blue,
                     )
-                    Text (
-                        text = "${quizResult.score} %",
+                    Text(
+                        text = "${quizResult.grade} %",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = Blue,
@@ -180,16 +184,16 @@ fun LatihanResult(
                 }
             }
 
-            Column (
+            Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
-            ){
-                Text (
+            ) {
+                Text(
                     text = "Waktu pengerjaan",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = Blue,
                 )
-                Text (
+                Text(
                     text = "${quizResult.timeTaken} mnt",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
@@ -197,8 +201,8 @@ fun LatihanResult(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text (
-                text = quizResult.comment,
+            Text(
+                text = "Perolehan nilai kamu menunjukkan bahwa kamu telah memahami dengan baik.",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Normal,
                 color = Blue,
@@ -206,7 +210,7 @@ fun LatihanResult(
             )
             MainButton(
                 modifier = Modifier,
-                onClick = { /*TODO*/ },
+                onClick = onBackClicked,
                 labelText = "Kembali"
             )
         }
@@ -214,8 +218,12 @@ fun LatihanResult(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LatihanSiswaScoreScreenPreview() {
-    LatihanSiswaScoreScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun LatihanSiswaScoreScreenPreview() {
+//    LatihanResult(
+//        quizResult = hasilLatihan[0],
+//        quizdata = dataLatihan[0],
+//        onBackClicked = {}
+//    )
+//}

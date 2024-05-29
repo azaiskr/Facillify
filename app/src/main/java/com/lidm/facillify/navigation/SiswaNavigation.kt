@@ -24,7 +24,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.ChatbotScreen
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
 import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
@@ -36,9 +35,12 @@ import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
 import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
+import com.lidm.facillify.ui.siswa.belajar.AudioPlayerScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaScoreScreen
+import com.lidm.facillify.ui.siswa.belajar.MateriBelajarAudioScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
@@ -80,6 +82,8 @@ fun SiswaNavigation(
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
                     Screen.SiswaVideoPlayer.route -> "Video Player"
+                    Screen.SiswaMateriBelajarAudio.route -> "Materi Audio"
+                    Screen.SiswaAudioPlayer.route -> "Audio Player"
                     Screen.Latihan.route -> "Latihan Soal"
                     Screen.Konsultasi.route -> "Konsultasi"
                     Screen.Chatbot.route -> "FACILLIFY AI"
@@ -104,7 +108,7 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.SiswaLatihanResult.route,
             )
         },
     ) { innerPadding ->
@@ -138,6 +142,7 @@ fun SiswaNavigation(
                     } else {
                         scaleIn(initialScale = 0.8f) + fadeIn()
                     }
+
                     else -> scaleIn(initialScale = 0.8f) + fadeIn()
                 }
             },
@@ -197,6 +202,9 @@ fun SiswaNavigation(
                     materiId = id,
                     onNavigateToMateriVideo = { materiId ->
                         navController.navigate(Screen.SiswaMateriBelajarVideo.createRoute(materiId))
+                    },
+                    onNavigateToMateriMusik = { materiId ->
+                        navController.navigate(Screen.SiswaMateriBelajarAudio.createRoute(materiId))
                     }
                 )
             }
@@ -241,6 +249,50 @@ fun SiswaNavigation(
                     }
                 )
             }
+            // BELAJAR - AUDIO
+            composable(
+                route = Screen.SiswaMateriBelajarAudio.route,
+                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+            ) {
+                val id = it.arguments?.getInt("materiId") ?: 0
+                MateriBelajarAudioScreen(
+                    modifier = modifier,
+                    materiId = id,
+                    onNavigateToAudioPlayer = { materiId, audioId ->
+                        navController.navigate(
+                            Screen.SiswaAudioPlayer.createRoute(
+                                materiId,
+                                audioId
+                            )
+                        )
+                    }
+                )
+            }
+            composable(
+                route = Screen.SiswaAudioPlayer.route,
+                arguments = listOf(
+                    navArgument("materiId") { type = NavType.IntType },
+                    navArgument("audioId") { type = NavType.StringType }
+                )
+            ) {
+                val _materiId = it.arguments?.getInt("materiId") ?: 0
+                val _audioId = it.arguments?.getString("audioId") ?: ""
+                AudioPlayerScreen(
+                    modifier = modifier,
+                    audioId = _audioId,
+                    materiId = _materiId,
+                    onNavigateToAudioContent = { materiId, audioId ->
+                        navController.navigate(
+                            Screen.SiswaAudioPlayer.createRoute(
+                                materiId,
+                                audioId
+                            )
+                        )
+                    }
+                )
+            }
+
+
             //BELAJAR - LATIHAN
             composable(Screen.Latihan.route) {
                 LatihanSiswaListScreen(
@@ -257,7 +309,30 @@ fun SiswaNavigation(
                 val id = it.arguments?.getInt("latihanId") ?: 0
                 LatihanScreen(
                     modifier = modifier,
-                    latihanId = id
+                    latihanId = id,
+                    onNavigateToTestresult = {
+                        navController.navigate(
+                            Screen.SiswaLatihanResult.createRoute(
+                                id
+                            )
+                        )
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.SiswaLatihanResult.route,
+                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
+            ) {
+                val id = it.arguments?.getInt("latihanId") ?: 0
+                LatihanSiswaScoreScreen(
+                    idLatihan = id,
+                    onBackClicked = {
+                        navController.popBackStack(
+                            Screen.SiswaLatihanForm.route,
+                            inclusive = true
+                        )
+                    }
                 )
             }
             //KONSULTASI -> THREAD
