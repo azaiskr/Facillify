@@ -25,7 +25,6 @@ import androidx.compose.ui.text.googlefonts.isAvailableOnDevice
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.navigation.AuthNavigation
-import com.lidm.facillify.navigation.GayaBelajarNavigation
 import com.lidm.facillify.navigation.GuruNavigation
 import com.lidm.facillify.navigation.OrtuNavigation
 import com.lidm.facillify.navigation.SiswaNavigation
@@ -44,9 +43,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val userLogin = DummyLoginResponse(
-            username = "Icarus",
-            role = Role.STUDENT,
+        val muridLogin = DummyLoginResponse(
+            username = "Siswa Reyhan",
+            isTested = true,
+        )
+
+        val guruLogin = DummyLoginResponse(
+            username = "Prof. Facillify",
+            isTested = true,
+        )
+
+        val ortuLogin = DummyLoginResponse(
+            username = "Bp Drajad",
             isTested = true,
         )
 
@@ -63,29 +71,50 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } else {
-                setContent {
-                    FacillifyTheme {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = Color.White
-                        ) {
-                            SiswaNavigation(loginData = userLogin)
+                var role : Role? = null
+                when(preference.type) {
+                    "murid" -> {
+                        // role = Role.STUDENT
+                        setContent {
+                            FacillifyTheme {
+                                Surface(
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = Color.White
+                                ) {
+                                    SiswaNavigation(email = preference.email)
+                                }
+                            }
+                        }
+                    }
+                    "guru" -> {
+                        // role = Role.TEACHER
+                        setContent {
+                            FacillifyTheme {
+                                Surface(
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = Color.White
+                                ) {
+                                    GuruNavigation(email = preference.email)
+                                }
+                            }
+                        }
+                    }
+                    "orang tua" -> {
+                        // role = Role.PARENT
+                        setContent {
+                            FacillifyTheme {
+                                Surface(
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = Color.White
+                                ) {
+                                    OrtuNavigation(email = preference.email)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-//        setContent {
-//            FacillifyTheme {
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = Color.White
-//                ) {
-//                    if (token == null) {
-//                        AuthNavigation()
-//                    } else {
-//                        when (userLogin.role) {
-//
 //                            Role.STUDENT -> {
 //                                if (userLogin.isTested == false) {
 //                                    GayaBelajarNavigation()
@@ -96,22 +125,6 @@ class MainActivity : ComponentActivity() {
 //                                }
 //                            }
 //
-//                            Role.TEACHER -> {
-//                                GuruNavigation(
-//                                    loginData = userLogin
-//                                )
-//                            }
-//
-//                            Role.PARENT -> {
-//                                OrtuNavigation(
-//                                    loginData = userLogin
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

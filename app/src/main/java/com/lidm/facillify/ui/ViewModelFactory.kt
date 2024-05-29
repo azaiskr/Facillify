@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.lidm.facillify.data.remote.api.ChatbotApiService
-import com.lidm.facillify.data.repository.AuthRepository
+import com.lidm.facillify.data.repository.UserRepository
 import com.lidm.facillify.data.repository.ThreadRepository
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.viewmodel.AuthViewModel
@@ -22,12 +22,12 @@ class ViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
-                val authRepository = repositories[AuthRepository::class.java] as AuthRepository
-                AuthViewModel(authRepository) as T
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                AuthViewModel(userRepository) as T
             }
             modelClass.isAssignableFrom(MainViewModel::class.java) -> {
-                val authRepository = repositories[AuthRepository::class.java] as AuthRepository
-                MainViewModel(authRepository) as T
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                MainViewModel(userRepository) as T
             }
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
                 val chatbotApiService = repositories[ChatbotApiService::class.java] as ChatbotApiService
@@ -36,6 +36,10 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ThreadViewModel::class.java) -> {
                 val threadRepository = repositories[ThreadRepository::class.java] as ThreadRepository
                 ThreadViewModel(threadRepository) as T
+            }
+            modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                ProfileViewModel(userRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
@@ -48,9 +52,10 @@ class ViewModelFactory(
             instance ?: synchronized(this) {
                 instance ?: ViewModelFactory(
                     mapOf(
-                        AuthRepository::class.java to Inject.provideAuthRepo(context.applicationContext),
+                        UserRepository::class.java to Inject.provideAuthRepo(context.applicationContext),
                         ChatbotApiService::class.java to Inject.privodeChatAPiService(context.applicationContext),
                         ThreadRepository::class.java to Inject.provideThreadRepo(context.applicationContext)
+
                         // Tambahkan repository lainnya di sini
                     )
                 ).also { instance = it }

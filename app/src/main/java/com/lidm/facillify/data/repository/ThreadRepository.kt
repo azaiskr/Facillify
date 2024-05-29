@@ -72,6 +72,7 @@ class ThreadRepository(
     }
 
     companion object {
+        @Volatile
         private var instance:ThreadRepository? = null
         fun getInstance(apiService: ApiService, userPreferences: UserPreferences): ThreadRepository =
             instance ?: synchronized(this) {

@@ -1,15 +1,17 @@
 package com.lidm.facillify.data.repository
 
+import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.LoginRequest
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 
-class AuthRepository (
+class UserRepository (
     private val apiService: ApiService,
     private val userPreferences: UserPreferences,
 ) {
@@ -30,6 +32,17 @@ class AuthRepository (
         }
     }
 
+    suspend fun getUserProfile(email: String) :Flow<ProfileResponse> {
+        return flow {
+            try {
+                emit(apiService.getUserProfile(email))
+            } catch (e:Exception){
+                Log.d("User Repository", "getUserProfile: ${e.localizedMessage}" )
+                e.printStackTrace()
+            }
+        }
+    }
+
     suspend fun saveSession(user: UserModelResponse) {
         userPreferences.saveUserPref(user)
     }
@@ -41,10 +54,10 @@ class AuthRepository (
     fun getSession(): Flow<UserModelResponse> = userPreferences.getUserPref()
 
     companion object {
-        private var instance:AuthRepository? = null
-        fun getInstance(apiService: ApiService, userPreferences: UserPreferences): AuthRepository =
+        private var instance:UserRepository? = null
+        fun getInstance(apiService: ApiService, userPreferences: UserPreferences): UserRepository =
             instance ?: synchronized(this) {
-                instance ?: AuthRepository(apiService, userPreferences).also { instance = it }
+                instance ?: UserRepository(apiService, userPreferences).also { instance = it }
             }
     }
 }
