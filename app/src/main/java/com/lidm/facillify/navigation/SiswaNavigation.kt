@@ -40,19 +40,20 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
 //@Preview
 @Composable
 fun SiswaNavigation(
-    loginData: DummyLoginResponse,
+    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = loginData.role
+    val role = Role.STUDENT
 
     Scaffold(
         containerColor = Color.White,
@@ -70,7 +71,7 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Hallo, ${loginData.username}"
+                    Screen.SiswaHome.route -> "Hallo, ${email}"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"

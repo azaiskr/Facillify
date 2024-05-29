@@ -37,14 +37,14 @@ import com.lidm.facillify.util.Role
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OrtuNavigation(
-    loginData: DummyLoginResponse, //todo remove
+    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = loginData.role
+    val role = Role.PARENT
 
     Scaffold(
         containerColor = Color.White,
@@ -59,7 +59,7 @@ fun OrtuNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.Konsultasi.route -> "Konsultasi"
+                    Screen.Konsultasi.route -> "Halo, ${email}"
                     Screen.TrackingList.route -> "Tracking Anak"
                     Screen.TrackingDetail.route -> "Perkembangan Anak"
                     Screen.Profile.route -> "Profile"
@@ -154,9 +154,6 @@ fun OrtuNavigation(
 @Composable
 fun OrtuNavigationPreview() {
     OrtuNavigation(
-        loginData = DummyLoginResponse(
-            username = "SuchKirman",
-            role = Role.PARENT
-        )
+        email = "helen.herron.taft@my-own-personal-domain.com"
     )
 }

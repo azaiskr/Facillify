@@ -61,11 +61,7 @@ fun LoginScreen(
 ) {
     //State
     val authViewModel: AuthViewModel = viewModel(
-        factory = ViewModelFactory(
-            Inject.privodeChatAPiService(context),
-            Inject.provideThreadRepo(context),
-            Inject.provideAuthRepo(context),
-        )
+        factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
     val loginResultState = authViewModel.loginState.collectAsState()

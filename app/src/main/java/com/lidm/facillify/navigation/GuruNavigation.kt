@@ -41,14 +41,14 @@ import com.lidm.facillify.util.Role
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GuruNavigation(
-    loginData: DummyLoginResponse, //todo: remove this
+    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController(),
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val role = loginData.role
+    val role = Role.TEACHER
 
     Scaffold(
         containerColor = Color.White,
@@ -65,7 +65,7 @@ fun GuruNavigation(
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = { navController.navigate(Screen.Profile.route) },
                 sectionTitle = when (currentRoute) {
-                    Screen.Belajar.route -> "Halo, ${loginData.username}"
+                    Screen.Belajar.route -> "Halo, ${email}"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.TambahMateri.route -> "Upload Materi"
                     Screen.Latihan.route -> "Latihan Siswa"
@@ -202,9 +202,6 @@ fun GuruNavigation(
 @Composable
 fun PreviewGuruNavigation() {
     GuruNavigation(
-        loginData = DummyLoginResponse(
-            username = "Alamsyah.Shesh",
-            role = Role.TEACHER,
-        ),
+        email = "james.francis.byrnes@example-pet-store.com"
     )
 }
