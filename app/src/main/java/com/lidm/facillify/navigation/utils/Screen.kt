@@ -13,7 +13,9 @@ sealed class Screen (
 
 
     // === common route navigation === \\
-    data object Konsultasi:  Screen("konsultasi")
+    data object Konsultasi:  Screen("konsultasi/{threadId}"){
+        fun createRoute(threadId: String) = "konsultasi/$threadId"
+    }
     data object Chat: Screen ("chat")
     data object Chatbot: Screen ("chatbot")
     data object Belajar: Screen("belajar")
@@ -50,6 +52,10 @@ sealed class Screen (
         fun createRoute(latihanId: Int) = "latihan/$latihanId"
     }
     data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
+
+    data object KonsultasiThread: Screen("konsultasi_thread/{threadId}"){
+        fun createRoute(threadId: String) = "konsultasi_thread/$threadId"
+    }
 
 
     // === route navigation guru === \\

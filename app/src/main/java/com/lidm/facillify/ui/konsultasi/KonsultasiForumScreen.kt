@@ -56,12 +56,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.flowlayout.SizeMode
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.R
@@ -75,11 +72,12 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 import com.lidm.facillify.util.ResponseState
+import com.lidm.facillify.util.convertToReadableDate
 
 @Composable
 fun KonsultasiForumScreen(
     context: Context = LocalContext.current,
-    onClickDetailForum: (String) -> Unit
+    onClickDetailForum: (String) -> Unit,
 ) {
     //viewmodel
     val threadViewModel: ThreadViewModel = viewModel(
@@ -91,6 +89,7 @@ fun KonsultasiForumScreen(
     val emailUserState by threadViewModel.emailUser.collectAsState()
     val createThreadResult by threadViewModel.createThreadResult.collectAsState()
     val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
+    val totalComments by threadViewModel.totalComments.collectAsState()
 
     val emailUser = if (emailUserState is ResponseState.Success) {
         (emailUserState as ResponseState.Success).data
@@ -193,30 +192,6 @@ fun KonsultasiForumScreen(
                     )
                 }
             }
-            /*FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                mainAxisSpacing = 8.dp,
-                mainAxisSize = SizeMode.Expand,
-            ) {
-                subjects.forEach { subject ->
-                    FilterChip(
-                        selected = selectedSubject == subject,
-                        onClick = {
-                            selectedSubject = if (selectedSubject == subject) "" else subject
-                        },
-                        label = { Text(text = subject, color = if (selectedSubject == subject) DarkBlue else Blue) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            disabledContainerColor = SecondaryBlue,
-                            selectedContainerColor = SecondaryBlue,
-                        ),
-                        border = if (selectedSubject == subject) {
-                            null
-                        } else BorderStroke(1.dp, Blue),
-                    )
-                }
-            }*/
 
             when (threadsState) {
                 is ResponseState.Loading -> {
@@ -231,15 +206,18 @@ fun KonsultasiForumScreen(
                         LazyColumn(
                             modifier = Modifier.padding(horizontal = 16.dp)) {
                             items(filteredList) { item ->
+                                threadViewModel.getTotalComment(item._id)
                                 CardKonsultasi(
                                     imagePhotoProfile = painterResource(id = R.drawable.pp_deafult), //TODO: replace with real image
                                     name = item.op_name,
-                                    date = item.time,
+                                    date = convertToReadableDate(item.time),
                                     title = item.title,
                                     description = item.content,
-                                    totalComent = 0, //TODO: replace with total comment
+                                    totalComent = totalComments.size, //TODO: replace with total comment
                                     subject = item.subject,
-                                    onClickChat = {item._id}
+                                    onClickChat = {
+                                        onClickDetailForum(item._id)
+                                    }
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
@@ -360,14 +338,14 @@ fun CardKonsultasi(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {/*TODO*/}, enabled = false, colors = ButtonDefaults.buttonColors(disabledContainerColor = SecondaryBlue)) {
                     Text(text = subject, color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
-                Text(text = "$totalComent Jawaban", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                //Text(text = "$totalComent Jawaban", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -412,29 +390,5 @@ fun DialogAddKonsultasi(
 
         }
 
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun KonsultasiForumScreenPreview() {
-    val context = LocalContext.current
-    KonsultasiForumScreen( context = context) {
-        
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun CardKonsultasiPreview() {
-    CardKonsultasi(
-        imagePhotoProfile = painterResource(id = R.drawable.pp_deafult),
-        name = "Nama",
-        date = "Date",
-        title = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-        totalComent = 10,
-        subject = "IPA",
-        onClickChat = {}
     )
 }

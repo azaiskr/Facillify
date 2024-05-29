@@ -23,5 +23,5 @@ fun ChatKonsultasi(
 //                /*TODO*/
 //            }
 //        }
-    KonsultasiDetailScreen(onBackClick = onBackClick)
+    //KonsultasiDetailScreen(onBackClick = onBackClick)
 }
