@@ -1,67 +1,82 @@
 package com.lidm.facillify.data.repository
 
+import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
-import com.lidm.facillify.data.remote.response.AllThreadResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
+import com.lidm.facillify.data.remote.response.ThreadResponse
+import com.lidm.facillify.data.remote.response.UserModelResponse
+import com.lidm.facillify.util.ResponseState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 
 class ThreadRepository(
-    private val apiService: ApiService
-) {
-    suspend fun createThread(request: CreateThreadRequest): Result<ThreadCreatedResponse> {
-        return try {
+    private val apiService: ApiService,
+    private val userPreferences: UserPreferences,) {
+    suspend fun createThread(request: CreateThreadRequest): Flow<ResponseState<ThreadCreatedResponse>> = flow {
+        emit(ResponseState.Loading)
+        try {
             val response = apiService.createThread(request)
-            Result.success(response)
+            emit(ResponseState.Success(response))
         } catch (e: HttpException) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message()))
         } catch (e: Exception) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
 
-    suspend fun createThreadComment(request: CreateCommentThreadRequest): Result<CreatedThreadCommentResponse> {
-        return try {
+    suspend fun createThreadComment(request: CreateCommentThreadRequest): Flow<ResponseState<CreatedThreadCommentResponse>> = flow {
+        emit(ResponseState.Loading)
+        try {
             val response = apiService.createThreadComment(request)
-            Result.success(response)
+            emit(ResponseState.Success(response))
         } catch (e: HttpException) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message()))
         } catch (e: Exception) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
 
-    suspend fun getAllThreads(): Result<AllThreadResponse> {
-        return try {
+    suspend fun getAllThreads(): Flow<ResponseState<List<ThreadResponse>>> = flow {
+        val token = userPreferences.getUserPref().first().token
+        Log.d("ThreadRepository", "getAllThreads: $token")
+        emit(ResponseState.Loading)
+        try {
             val response = apiService.getAllThread()
-            Result.success(response)
+            emit(ResponseState.Success(response.result))
         } catch (e: HttpException) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message()))
         } catch (e: Exception) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
 
-    suspend fun getThreadDetail(threadId: String): Result<ThreadDetailResponse> {
-        return try {
+    suspend fun getThreadDetail(threadId: String): Flow<ResponseState<ThreadDetailResponse>> = flow {
+        emit(ResponseState.Loading)
+        try {
             val response = apiService.getThreadDetail(threadId)
-            Result.success(response)
+            emit(ResponseState.Success(response))
         } catch (e: HttpException) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message()))
         } catch (e: Exception) {
-            Result.failure(e)
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
 
     companion object {
         @Volatile
-        private var instance: ThreadRepository? = null
-        fun getInstance(apiService: ApiService): ThreadRepository =
+        private var instance:ThreadRepository? = null
+        fun getInstance(apiService: ApiService, userPreferences: UserPreferences): ThreadRepository =
             instance ?: synchronized(this) {
-                instance ?: ThreadRepository(apiService).also { instance = it }
+                instance ?: ThreadRepository(apiService, userPreferences).also { instance = it }
             }
     }
 }

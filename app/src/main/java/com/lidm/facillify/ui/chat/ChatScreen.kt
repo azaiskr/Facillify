@@ -107,9 +107,6 @@ fun ChatScreen(
 @Preview(showBackground = true)
 fun ChatScreenPreview() {
     val context = LocalContext.current
-    val apiServiceChatBot = ApiConfig.getChatbotApiService(context)
-    val apiServiceMain = ApiConfig.getMainApiService(context)
-    val threadRepository = ThreadRepository(apiServiceMain)
 //    val viewModelFactory = ViewModelFactory(apiServiceChatBot, threadRepository)
 //    val chatViewModel = ViewModelProvider(
 //        LocalContext.current as androidx.activity.ComponentActivity,

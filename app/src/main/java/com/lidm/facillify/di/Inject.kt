@@ -9,7 +9,9 @@ import com.lidm.facillify.data.repository.ThreadRepository
 
 object Inject {
     fun provideThreadRepo(context: Context): ThreadRepository {
-     return ThreadRepository.getInstance(ApiConfig.getMainApiService(context))
+        val apiService = ApiConfig.getMainApiService(context.applicationContext)
+        val userPref = UserPreferences.getInstance(context.applicationContext)
+     return ThreadRepository.getInstance(apiService, userPref)
     }
 
     fun privodeChatAPiService(context: Context) : ChatbotApiService {
