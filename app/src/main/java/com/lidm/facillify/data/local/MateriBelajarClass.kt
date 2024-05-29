@@ -1,5 +1,6 @@
 package com.lidm.facillify.data.local
 
+import android.provider.MediaStore.Video
 import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 
 data class MateriBelajar(
@@ -8,6 +9,7 @@ data class MateriBelajar(
     val title: String,
     val desc: String,
     val materiVideo: List<VideoItem>,
+    val materiAudio: List<VideoItem>,
 )
 
 data class VideoItem(
@@ -20,5 +22,5 @@ data class VideoItem(
 val listMateri = listOf(
     materi_bangun_ruang,
 
-)
+    )
 

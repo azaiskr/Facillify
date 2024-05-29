@@ -45,6 +45,7 @@ fun MateriBelajarDetailScreen(
     modifier: Modifier,
     materiId: Int,
     onNavigateToMateriVideo: (Int) -> Unit,
+    onNavigateToMateriMusik: (Int) -> Unit,
 ) {
 
 //        when (val response = viewModel.materiBelajar){
@@ -62,6 +63,7 @@ fun MateriBelajarDetailScreen(
         modifier = modifier,
         onNavigateToMateriVideo = {onNavigateToMateriVideo(materiId)},
         materiId = materiId,
+        onNavigateToMateriMusik = {onNavigateToMateriMusik(materiId)}
     )
 }
 
@@ -69,6 +71,7 @@ fun MateriBelajarDetailScreen(
 fun DetailMateriBelajar(
     modifier: Modifier,
     onNavigateToMateriVideo: (Int) -> Unit,
+    onNavigateToMateriMusik: (Int) -> Unit,
     materiId: Int,
 ) {
     val data = listMateri.find { it.id == materiId }
@@ -119,17 +122,10 @@ fun DetailMateriBelajar(
         )
         Spacer(modifier = modifier.height(8.dp))
         BtnMateriBelajar(
-            iconVector = R.drawable.arimage,
-            text = "Materi AR",
-            modifier = modifier,
-            onClick = { /*TODO*/ }
-        )
-        Spacer(modifier = modifier.height(8.dp))
-        BtnMateriBelajar(
             iconVector = R.drawable.musicimage,
             text = "Materi Musik",
             modifier = modifier,
-            onClick = { /*TODO*/ }
+            onClick = { onNavigateToMateriMusik(materiId) }
         )
     }
 }
@@ -184,5 +180,5 @@ fun BtnMateriBelajar(
 fun DetailMateriBelajarPreview(
     modifier: Modifier = Modifier
 ) {
-    DetailMateriBelajar(modifier = modifier, onNavigateToMateriVideo = {}, materiId = 1)
+    DetailMateriBelajar(modifier = modifier, onNavigateToMateriVideo = {}, materiId = 1, onNavigateToMateriMusik = {})
 }

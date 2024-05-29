@@ -36,7 +36,6 @@ import androidx.media3.common.util.UnstableApi
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
 import com.lidm.facillify.data.local.listMateri
-import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -50,10 +49,10 @@ fun VideoPlayerScreen(
     modifier: Modifier = Modifier,
     videoId: String = "uNWKfPx1UWM",
     materiId: Int = 1,
-    onNavigateToVideoContent: (Int, String) -> Unit ={ _, _ ->}
+    onNavigateToVideoContent: (Int, String) -> Unit = { _, _ -> }
 ) {
-    val materiBelajar = listMateri.find { it.id == materiId } !!
-    val video = materiBelajar.materiVideo.find { it.id == videoId } !!
+    val materiBelajar = listMateri.find { it.id == materiId }!!
+    val video = materiBelajar.materiVideo.find { it.id == videoId }!!
 
     //        when (val response = viewModel.materiBelajar){
 //            is Response.Loading -> {
@@ -80,8 +79,10 @@ fun VideoPlayerScreen(
 fun VideoPlayerContent(
     modifier: Modifier,
     videoContent: VideoItem,
+    contentVideo: Boolean = true,
     relatedContents: MateriBelajar,
-    onNavigateToVideoContent: (Int, String) -> Unit
+    onNavigateToVideoContent: (Int, String) -> Unit,
+    onNavigateToAudioContent: (Int, String) -> Unit = { _, _ -> }
 ) {
     var isFullScreen by rememberSaveable {
         mutableStateOf(false)
@@ -127,13 +128,21 @@ fun VideoPlayerContent(
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 16.dp)
             )
-
-            ListMateriVideo(
-                modifier = modifier,
-                materi = relatedContents,
-                onNavigateToVideoContent = onNavigateToVideoContent,
-                isSearchBarVisible = false
-            )
+            if (contentVideo) {
+                ListMateriVideo(
+                    modifier = modifier,
+                    materi = relatedContents,
+                    onNavigateToVideoContent = onNavigateToVideoContent,
+                    isSearchBarVisible = false
+                )
+            } else {
+                ListMateriAudio(
+                    modifier = modifier,
+                    materi = relatedContents,
+                    onNavigateToMateriAudio = onNavigateToAudioContent,
+                    isSearchBarVisible = false,
+                )
+            }
         }
     }
 }
@@ -152,31 +161,31 @@ fun YouTubePlayer(
             YouTubePlayerView(ctx)
 
                 .apply {
-                lifecycleOwner.lifecycle.addObserver(this)
+                    lifecycleOwner.lifecycle.addObserver(this)
 
-                addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                    override fun onReady(youTubePlayer: YouTubePlayer) {
-                        youTubePlayer.loadVideo(videoId, 0f)
-                        youTubePlayer.play()
-                    }
-                })
+                    addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            youTubePlayer.loadVideo(videoId, 0f)
+                            youTubePlayer.play()
+                        }
+                    })
 
-                addFullScreenListener(object : YouTubePlayerFullScreenListener {
-                    override fun onYouTubePlayerEnterFullScreen() {
+                    addFullScreenListener(object : YouTubePlayerFullScreenListener {
+                        override fun onYouTubePlayerEnterFullScreen() {
+                            onFullScreenClick()
+                        }
+
+                        override fun onYouTubePlayerExitFullScreen() {
+                            onFullScreenClick()
+                        }
+
+                    })
+
+                    setOnTouchListener { _, _ ->
                         onFullScreenClick()
+                        true
                     }
-
-                    override fun onYouTubePlayerExitFullScreen() {
-                        onFullScreenClick()
-                    }
-
-                })
-
-                setOnTouchListener { _, _ ->
-                    onFullScreenClick()
-                    true
                 }
-            }
         },
 
         modifier = Modifier.fillMaxSize()
