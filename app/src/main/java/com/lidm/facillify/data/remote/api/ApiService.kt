@@ -9,6 +9,7 @@ import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.response.AllThreadResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
 import com.lidm.facillify.data.remote.response.QuizListResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
@@ -40,6 +41,12 @@ interface ApiService {
     suspend fun loginUser(
         @Body loginRequest: LoginRequest
     ) : UserModelResponse
+
+    // USER
+    @GET("api/v1/user")
+    suspend fun getUserProfile(
+        @Query("email") email: String,
+    ):ProfileResponse
 
 
     // QUIZ

@@ -39,8 +39,8 @@ class ApiConfig {
                         .addHeader("OpenAI-Organization", BuildConfig.OPENAI_ORGANIZATION)
                         .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
                 }
-
                 val request = requestBuilder.build()
+                Log.d("ChatbotInterceptor", "Token: ${BuildConfig.SECRET_KEY}")
                 chain.proceed(request)
             }
 
@@ -62,7 +62,7 @@ class ApiConfig {
         }
 
         fun getMainApiService(ctx: Context): ApiService {
-            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx.applicationContext)
+            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx)
             return retrofit.create(ApiService::class.java)
         }
 
