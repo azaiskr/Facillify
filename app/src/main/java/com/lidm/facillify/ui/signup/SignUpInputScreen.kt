@@ -96,7 +96,7 @@ fun SignUpInputScreen(
         val type = when (selectedRole) {
             Role.STUDENT -> "murid"
             Role.TEACHER -> "guru"
-            Role.PARENT -> "ortu"
+            Role.PARENT -> "orang tua"
         }
 
         fun rgMurid() {
