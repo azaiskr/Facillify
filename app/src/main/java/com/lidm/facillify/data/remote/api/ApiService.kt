@@ -14,16 +14,16 @@ import com.lidm.facillify.data.remote.response.QuizListResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
+import com.lidm.facillify.data.remote.response.UpdateImageResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -96,4 +96,17 @@ interface ApiService {
     suspend fun getThreadDetail(
         @Path("threadId") threadId: String
     ) : ThreadDetailResponse
+
+    //IMAGE PHOTO PROFILE
+    @Multipart
+    @PUT("api/v1/user-image")
+    suspend fun uploadImage(
+        @Part image: MultipartBody.Part,
+        @Part("email") email: RequestBody
+    ): UpdateImageResponse
+
+    @GET("api/v1/image/{profile_image_url}")
+    suspend fun getImage(
+        @Path("profile_image_url") profileImageUrl: String
+    ): UpdateImageResponse
 }

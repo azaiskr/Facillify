@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
@@ -70,8 +71,8 @@ import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun KonsultasiForumScreen(
-    context: Context,
-    onClickChat: () -> Unit
+    context: Context = LocalContext.current,
+    onClickDetailForum: () -> Unit
 ) {
     //viewmodel
     val threadViewModel: ThreadViewModel = viewModel(
@@ -174,7 +175,7 @@ fun KonsultasiForumScreen(
                                 description = item.content,
                                 totalComent = 0, //TODO: replace with total comment
                                 subject = item.subject,
-                                onClickChat = onClickChat
+                                onClickChat = onClickDetailForum
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                         }
@@ -187,23 +188,6 @@ fun KonsultasiForumScreen(
                     }
                 }
             }
-
-            /*LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-                items(filteredList.size) { index ->
-                    val item = filteredList[index]
-                    CardKonsultasi(
-                        imagePhotoProfile = painterResource(id = R.drawable.pp_deafult ), //TODO: replace with real image
-                        name = item.op_name,
-                        date = item.time,
-                        title = item.title,
-                        description = item.content,
-                        totalComent = 0, //TODO: replace with total comment
-                        subject = item.subject,
-                        onClickChat = onClickChat
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }*/
         }
 
         FloatingActionButton(onClick = { isDialogOpen = true },
@@ -219,8 +203,15 @@ fun KonsultasiForumScreen(
             DialogAddKonsultasi(
                 onDismiss = { isDialogOpen = false },
                 onConfirm = {
-                    // Lakukan aksi konfirmasi di sini
-                    //ADD LOGIC
+                        subject, title, description ->
+                    threadViewModel.createThread(
+                        CreateThreadRequest(
+                        op_email = "email", //TODO: replace with user email
+                        title = title,
+                        content = description,
+                        subject = subject
+                    )
+                    )
                     isDialogOpen = false
                 }
             )
@@ -321,7 +312,7 @@ fun CardKonsultasi(
 @Composable
 fun DialogAddKonsultasi(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: (String, String, String) -> Unit
 ) {
     var judulPertanyaan by remember { mutableStateOf("") }
     var deskripsiPertanyaan by remember { mutableStateOf("") }
@@ -337,7 +328,7 @@ fun DialogAddKonsultasi(
             }
         },
         confirmButton = {
-            Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = Blue)) {
+            Button(onClick = {onConfirm(subject, judulPertanyaan, deskripsiPertanyaan)}, colors = ButtonDefaults.buttonColors(containerColor = Blue)) {
                 Text("Kirim")
             }
         },
@@ -380,14 +371,5 @@ fun CardKonsultasiPreview() {
         totalComent = 10,
         subject = "IPA",
         onClickChat = {}
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DialogAddKonsultasiPreview() {
-    DialogAddKonsultasi(
-        onDismiss = { /*TODO*/ },
-        onConfirm = { /*TODO*/ }
     )
 }
