@@ -1,6 +1,7 @@
 package com.lidm.facillify.data.remote.api
 
 import android.content.Context
+import android.util.Log
 import com.lidm.facillify.BuildConfig
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import kotlinx.coroutines.flow.first
@@ -23,24 +24,26 @@ class ApiConfig {
                     val pref = UserPreferences.getInstance(context)
                     pref.getUserPref().first().token
                 }
+                Log.d("AuthInterceptor", "Token: $token")
                 val request = chain.request().newBuilder()
                     .addHeader("Authorization", "Bearer $token")
                     .build()
+                Log.d("AuthInterceptor", "Request Headers: ${request.headers}")
                 chain.proceed(request)
             }
-
             val chatbotInterceptor = Interceptor { chain ->
                 val original = chain.request()
                 val requestBuilder = original.newBuilder()
                     .header("Authorization", "Bearer ${BuildConfig.SECRET_KEY}")
                 val request = requestBuilder.build()
+                Log.d("ChatbotInterceptor", "Token: ${BuildConfig.SECRET_KEY}")
                 chain.proceed(request)
             }
 
             val client = OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
                 .addInterceptor(authInterceptor) // Combining headers carefully
-                .addInterceptor(chatbotInterceptor)
+//                .addInterceptor(chatbotInterceptor)
+                .addInterceptor(loggingInterceptor)
                 .build()
 
             return Retrofit.Builder()
@@ -51,7 +54,7 @@ class ApiConfig {
         }
 
         fun getMainApiService(ctx: Context): ApiService {
-            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx.applicationContext)
+            val retrofit = getRetrofit(BuildConfig.BASE_URL, ctx)
             return retrofit.create(ApiService::class.java)
         }
 

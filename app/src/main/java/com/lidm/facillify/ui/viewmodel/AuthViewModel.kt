@@ -3,14 +3,14 @@ package com.lidm.facillify.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lidm.facillify.data.remote.response.UserModelResponse
-import com.lidm.facillify.data.repository.AuthRepository
+import com.lidm.facillify.data.repository.UserRepository
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val authRepository: AuthRepository
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private val _loginState =
         MutableStateFlow<ResponseState<UserModelResponse>>(ResponseState.Loading)
@@ -21,7 +21,7 @@ class AuthViewModel(
         password: String,
     ) {
         viewModelScope.launch {
-            authRepository.loginUser(email, password)
+            userRepository.loginUser(email, password)
                 .collect { responseState ->
                     when (responseState) {
                         is ResponseState.Loading -> {
@@ -43,7 +43,7 @@ class AuthViewModel(
 
     private fun saveSession(user: UserModelResponse){
         viewModelScope.launch {
-            authRepository.saveSession(user)
+            userRepository.saveSession(user)
         }
     }
 

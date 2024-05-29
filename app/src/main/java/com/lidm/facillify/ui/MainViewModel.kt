@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.lidm.facillify.data.remote.response.UserModelResponse
-import com.lidm.facillify.data.repository.AuthRepository
+import com.lidm.facillify.data.repository.UserRepository
 
 class MainViewModel (
-    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ):ViewModel() {
     fun getSession(): LiveData<UserModelResponse> {
-        return authRepository.getSession().asLiveData()
+        return userRepository.getSession().asLiveData()
     }
 }

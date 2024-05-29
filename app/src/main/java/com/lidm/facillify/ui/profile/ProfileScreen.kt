@@ -5,6 +5,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -29,7 +30,10 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,7 +52,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberImagePainter
 import com.lidm.facillify.R
+import com.lidm.facillify.data.remote.response.ProfileResponse
+import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.SecondaryButton
@@ -57,6 +64,7 @@ import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
+import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
 
 data class Siswa(
@@ -84,63 +92,89 @@ fun ProfileScreen(
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
+    val profileResponse = profileViewModel.profileResponse.collectAsState()
+    val preferences by profileViewModel.getSession().observeAsState()
 
-    //TODO: dummy data, replace with real data
-    val siswa = Siswa(
-        imgProfile = R.drawable.ic_launcher_background,
-        name = "Siswa 1",
-        email = "a@a.com",
-        birthPlace = "Jakarta",
-        birthDate = "01/01/2000",
-        gender = "Laki-laki",
-        address = "Jl. Jalan Jalan",
-        phone = "08123456789",
-        religion = "Islam",
-        nisn = "1234567890",
-        role = Role.STUDENT
-    )
+    LaunchedEffect(preferences) {
+        preferences?.let {
+            profileViewModel.getUserProfile(it.email)
+        }
+    }
 
-    ProfileContent(
-        profileData = siswa,
-        modifier = modifier,
-        onClick = navigateToFormTambahDataOrtu,
-        role = role,
-        actionLogOut = {
-            profileViewModel.logOut()
-        },
-    )
+    when (profileResponse.value) {
+        is ResponseState.Loading -> {
+            //TODO: show loading
+
+        }
+        is ResponseState.Success -> {
+            val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+            ProfileContent(
+                profileData = profileData.result,
+                modifier = modifier,
+                actionLogOut = { profileViewModel.logOut() },
+            )
+        }
+        is ResponseState.Error -> {
+            //TODO: show error
+        }
+    }
+
+
 }
 
 @Composable
 fun ProfileContent(
-    profileData: Siswa,
+    profileData: UserProfile,
     modifier: Modifier,
     actionLogOut: () -> Unit = {},
     onClick: () -> Unit = {},
-    role: Role = Role.STUDENT,
 ) {
-    val dataLabel = listOf(
-        "Email",
-        "Tempat Lahir",
-        "Tanggal Lahir",
-        "Jenis Kelamin",
-        "Alamat",
-        "No. HP",
-        "Agama",
-        "NISN",
-        "Wali",
-    )
-    val dataValues = listOf(
-        profileData.email,
-        profileData.birthPlace,
-        profileData.birthDate,
-        profileData.gender,
-        profileData.address,
-        profileData.phone,
-        profileData.religion,
-        profileData.nisn,
-        profileData.parent
-    )
+    val dataLabel = mutableListOf<String>()
+    val dataValues = mutableListOf<String?>()
+
+    dataLabel.add("Email")
+    dataValues.add(profileData.email)
+
+    dataLabel.add("Nama")
+    dataValues.add(profileData.name)
+
+    dataLabel.add("Tempat Lahir")
+    dataValues.add(profileData.pob)
+
+    dataLabel.add("Tanggal Lahir")
+    dataValues.add(profileData.dob)
+
+    dataLabel.add("Jenis Kelamin")
+    dataValues.add(profileData.gender)
+
+    dataLabel.add("Alamat")
+    dataValues.add(profileData.address)
+
+    dataLabel.add("No. HP")
+    dataValues.add(profileData.phone_number)
+
+    dataLabel.add("Agama")
+    dataValues.add(profileData.religion)
+
+    if (profileData.nisn != null) {
+        dataLabel.add("NISN")
+        dataValues.add(profileData.nisn)
+    }
+
+    if (profileData.parent_email != null) {
+        dataLabel.add("Email Wali")
+        dataValues.add(profileData.parent_email)
+    }
+
+    if (profileData.job != null) {
+        dataLabel.add("Pekerjaan")
+        dataValues.add(profileData.job)
+    }
+
+    if (profileData.nip != null) {
+        dataLabel.add("NIP")
+        dataValues.add(profileData.nip)
+    }
 
     // State to hold the selected profile image URI
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -185,7 +219,7 @@ fun ProfileContent(
                 )
             } ?: run {
                 Image(
-                    painter = painterResource(id = profileData.imgProfile),
+                    painter = rememberImagePainter(data = profileData.profile_image_url),
                     contentDescription = null,
                     modifier = modifier
                         .size(96.dp)
@@ -229,7 +263,7 @@ fun ProfileContent(
                 modifier = modifier
             )
         }
-        if (role == Role.STUDENT && profileData.parent == null) {
+        if (profileData.type == "murid" && profileData.parent_email == null) {
             Spacer(modifier = modifier.height(24.dp))
             SecondaryButton(
                 modifier = modifier,
