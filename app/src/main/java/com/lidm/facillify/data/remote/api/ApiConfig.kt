@@ -40,7 +40,6 @@ class ApiConfig {
                         .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
                 }
                 val request = requestBuilder.build()
-                Log.d("ChatbotInterceptor", "Token: ${BuildConfig.OPENAI_SECRET_KEY}")
                 chain.proceed(request)
             }
 

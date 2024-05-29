@@ -2,6 +2,7 @@ package com.lidm.facillify.navigation
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -28,6 +29,8 @@ import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
 import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
+import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
@@ -332,17 +335,19 @@ fun SiswaNavigation(
                     }
                 )
             }
-
+            //KONSULTASI -> THREAD
             composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
-                )
+                KonsultasiForumScreen {
+                    navController.navigate(Screen.KonsultasiThread.createRoute(it))
+                }
             }
-
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
+            composable(
+                route = Screen.KonsultasiThread.route,
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("threadId") ?: ""
+                KonsultasiDetailScreen(
+                    threadID = id,
                 )
             }
 

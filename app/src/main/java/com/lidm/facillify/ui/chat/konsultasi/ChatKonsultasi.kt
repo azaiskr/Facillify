@@ -23,7 +23,5 @@ fun ChatKonsultasi(
 //                /*TODO*/
 //            }
 //        }
-
-    //viwmodel
-    KonsultasiDetailScreen(onBackClick = onBackClick)
+    //KonsultasiDetailScreen(onBackClick = onBackClick)
 }

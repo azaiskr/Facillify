@@ -2,9 +2,11 @@ package com.lidm.facillify.ui.konsultasi
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -53,11 +56,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.R
+import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
@@ -67,18 +72,32 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 import com.lidm.facillify.util.ResponseState
+import com.lidm.facillify.util.convertToReadableDate
 
 @Composable
 fun KonsultasiForumScreen(
-    context: Context,
-    onClickChat: () -> Unit
+    context: Context = LocalContext.current,
+    onClickDetailForum: (String) -> Unit,
 ) {
     //viewmodel
     val threadViewModel: ThreadViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
+    //STATE
     val threadsState by threadViewModel.threads.collectAsState()
+    val emailUserState by threadViewModel.emailUser.collectAsState()
+    val createThreadResult by threadViewModel.createThreadResult.collectAsState()
+    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
+    val totalComments by threadViewModel.totalComments.collectAsState()
+
+    val emailUser = if (emailUserState is ResponseState.Success) {
+        (emailUserState as ResponseState.Success).data
+    } else {
+        Log.e( "KonsultasiForumScreen", "Failed to fetch email user")// Default value or handle loading/error state
+    }
+
+    Log.d( "KonsultasiForumScreen", "emailUser: $emailUser")
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -103,7 +122,23 @@ fun KonsultasiForumScreen(
 
     LaunchedEffect(Unit) {
         threadViewModel.getAllThreads()
+        threadViewModel.getEmailUser()
         Log.d("KonsultasiForumScreen", "Fetching threads")
+    }
+
+    LaunchedEffect(createThreadResult) {
+        when (createThreadResult) {
+            is ResponseState.Success -> {
+                Toast.makeText(context, "Konsultasi berhasil dibuat", Toast.LENGTH_SHORT).show()
+                threadViewModel.resetCreateThreadResult()
+                threadViewModel.getAllThreads()
+            }
+            is ResponseState.Error -> {
+                Toast.makeText(context, "Gagal membuat Konsultasi: ${(createThreadResult as ResponseState.Error).error}", Toast.LENGTH_SHORT).show()
+                threadViewModel.resetCreateThreadResult()
+            }
+            else -> {}
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -135,8 +170,10 @@ fun KonsultasiForumScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+
             ) {
                 subjects.forEach { subject ->
                     FilterChip(
@@ -164,19 +201,26 @@ fun KonsultasiForumScreen(
                     }
                 }
                 is ResponseState.Success -> {
-                    LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        items(filteredList) { item ->
-                            CardKonsultasi(
-                                imagePhotoProfile = painterResource(id = R.drawable.pp_deafult), //TODO: replace with real image
-                                name = item.op_name,
-                                date = item.time,
-                                title = item.title,
-                                description = item.content,
-                                totalComent = 0, //TODO: replace with total comment
-                                subject = item.subject,
-                                onClickChat = onClickChat
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                    SwipeRefresh(state = swipeRefreshState, onRefresh = { threadViewModel.getAllThreads() }) {
+
+                        LazyColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp)) {
+                            items(filteredList) { item ->
+                                threadViewModel.getTotalComment(item._id)
+                                CardKonsultasi(
+                                    imagePhotoProfile = painterResource(id = R.drawable.pp_deafult), //TODO: replace with real image
+                                    name = item.op_name,
+                                    date = convertToReadableDate(item.time),
+                                    title = item.title,
+                                    description = item.content,
+                                    totalComent = totalComments.size, //TODO: replace with total comment
+                                    subject = item.subject,
+                                    onClickChat = {
+                                        onClickDetailForum(item._id)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
                         }
                     }
                 }
@@ -187,23 +231,6 @@ fun KonsultasiForumScreen(
                     }
                 }
             }
-
-            /*LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
-                items(filteredList.size) { index ->
-                    val item = filteredList[index]
-                    CardKonsultasi(
-                        imagePhotoProfile = painterResource(id = R.drawable.pp_deafult ), //TODO: replace with real image
-                        name = item.op_name,
-                        date = item.time,
-                        title = item.title,
-                        description = item.content,
-                        totalComent = 0, //TODO: replace with total comment
-                        subject = item.subject,
-                        onClickChat = onClickChat
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }*/
         }
 
         FloatingActionButton(onClick = { isDialogOpen = true },
@@ -219,8 +246,15 @@ fun KonsultasiForumScreen(
             DialogAddKonsultasi(
                 onDismiss = { isDialogOpen = false },
                 onConfirm = {
-                    // Lakukan aksi konfirmasi di sini
-                    //ADD LOGIC
+                        subject, title, description ->
+                    threadViewModel.createThread(
+                        CreateThreadRequest(
+                        op_email = emailUser.toString(), //TODO: replace with user email
+                        title = title,
+                        content = description,
+                        subject = subject
+                    )
+                    )
                     isDialogOpen = false
                 }
             )
@@ -304,14 +338,14 @@ fun CardKonsultasi(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {/*TODO*/}, enabled = false, colors = ButtonDefaults.buttonColors(disabledContainerColor = SecondaryBlue)) {
                     Text(text = subject, color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
-                Text(text = "$totalComent Jawaban", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                //Text(text = "$totalComent Jawaban", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -321,7 +355,7 @@ fun CardKonsultasi(
 @Composable
 fun DialogAddKonsultasi(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: (String, String, String) -> Unit
 ) {
     var judulPertanyaan by remember { mutableStateOf("") }
     var deskripsiPertanyaan by remember { mutableStateOf("") }
@@ -337,7 +371,7 @@ fun DialogAddKonsultasi(
             }
         },
         confirmButton = {
-            Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = Blue)) {
+            Button(onClick = {onConfirm(subject, judulPertanyaan, deskripsiPertanyaan)}, colors = ButtonDefaults.buttonColors(containerColor = Blue)) {
                 Text("Kirim")
             }
         },
@@ -356,38 +390,5 @@ fun DialogAddKonsultasi(
 
         }
 
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun KonsultasiForumScreenPreview() {
-    val context = LocalContext.current
-    KonsultasiForumScreen( context = context) {
-        
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun CardKonsultasiPreview() {
-    CardKonsultasi(
-        imagePhotoProfile = painterResource(id = R.drawable.pp_deafult),
-        name = "Nama",
-        date = "Date",
-        title = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        description = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-        totalComent = 10,
-        subject = "IPA",
-        onClickChat = {}
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DialogAddKonsultasiPreview() {
-    DialogAddKonsultasi(
-        onDismiss = { /*TODO*/ },
-        onConfirm = { /*TODO*/ }
     )
 }
