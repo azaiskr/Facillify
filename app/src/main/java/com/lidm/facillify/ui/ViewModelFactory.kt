@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.lidm.facillify.data.remote.api.ChatbotApiService
+import com.lidm.facillify.data.repository.SiswaRepository
 import com.lidm.facillify.data.repository.UserRepository
 import com.lidm.facillify.data.repository.ThreadRepository
 import com.lidm.facillify.di.Inject
@@ -14,6 +15,7 @@ import com.lidm.facillify.ui.viewmodel.ChatViewModel
 import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
+import com.lidm.facillify.ui.viewmodel.UpdateParentEmailViewModel
 
 class ViewModelFactory(
     private val repositories: Map<Class<*>, Any>
@@ -45,6 +47,10 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(LatihanSiswaViewModel::class.java) -> {
                 LatihanSiswaViewModel() as T
             }
+            modelClass.isAssignableFrom(UpdateParentEmailViewModel::class.java) -> {
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                UpdateParentEmailViewModel(siswaRepository) as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
@@ -58,8 +64,8 @@ class ViewModelFactory(
                     mapOf(
                         UserRepository::class.java to Inject.provideAuthRepo(context.applicationContext),
                         ChatbotApiService::class.java to Inject.privodeChatAPiService(context.applicationContext),
-                        ThreadRepository::class.java to Inject.provideThreadRepo(context.applicationContext)
-
+                        ThreadRepository::class.java to Inject.provideThreadRepo(context.applicationContext),
+                        SiswaRepository::class.java to Inject.provideSiswaRepo(context.applicationContext)
                         // Tambahkan repository lainnya di sini
                     )
                 ).also { instance = it }

@@ -6,6 +6,7 @@ import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
+import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.AllThreadResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
@@ -15,6 +16,7 @@ import com.lidm.facillify.data.remote.response.QuizListResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
+import com.lidm.facillify.data.remote.response.UpdateEmailParentResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
 import okhttp3.MultipartBody
@@ -25,6 +27,7 @@ import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -84,6 +87,12 @@ interface ApiService {
         @Part("description") description: RequestBody,
         @Part("category") category: RequestBody
     ) : MessageResponse
+
+    // UPDATE EMAIL
+    @PUT("api/v1/parent-email")
+    suspend fun updateEmail(
+        @Body request: UpdateParentEmailRequest
+    ) : UpdateEmailParentResponse
 
     //THREAD
     @POST("api/v1/thread")

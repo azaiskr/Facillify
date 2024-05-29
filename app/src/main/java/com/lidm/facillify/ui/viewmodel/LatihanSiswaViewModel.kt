@@ -1,16 +1,8 @@
 package com.lidm.facillify.ui.viewmodel
-
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.lidm.facillify.data.local.HasilLatihan
-import com.lidm.facillify.data.local.QuizResult
 
 class LatihanSiswaViewModel : ViewModel() {
-
-    private val _quizResult = MutableLiveData<HasilLatihan>()
-    val quizResult: LiveData<HasilLatihan> = _quizResult
-
     fun getGrade(
         latihanId: Int,
         answer: MutableList<String>,
