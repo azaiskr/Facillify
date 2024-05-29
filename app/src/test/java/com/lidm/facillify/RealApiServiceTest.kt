@@ -19,18 +19,21 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RealApiServiceTest {
 
     private lateinit var apiService: ApiService
-    private val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY4ODY3OTYsImV4cCI6MTcxNjg5NzU5Nn0.q3vp9syB9mCzXQRCVdV2divzG8DcDfaszwVENAc5k8w" // Ganti dengan token yang valid
+    private val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY5MTExNzcsImV4cCI6MTcxNjkyMTk3N30.P1Yohcbmsr28nuJbRzjmFAdeMp7hK6UDJhjHcS31M-o" // Ganti dengan token yang valid
 
     @Before
     fun setUp() {
-        //apiService = ApiConfig.getMainApiService()
+        apiService = ApiConfig.createApiServiceTest(
+            "https://lucky.widzzz.com/",
+            token
+        )
     }
     @Test
     fun `test getAllThread`() = runBlocking {
         try {
             val response = apiService.getAllThread()
             println(response)
-            assertEquals("success", response.msg)
+            assertEquals("Success", response.msg)
             assert(response.result.isNotEmpty())
         } catch (e: HttpException) {
             println("Error: ${e.response()?.errorBody()?.string()}")
@@ -42,14 +45,14 @@ class RealApiServiceTest {
     fun `test createThread`() = runBlocking {
         val request = CreateThreadRequest(
             op_email = "user@example.com",
-            title = "Thread 1",
+            title = "Thread 2",
             content = "This is a test thread",
-            subject = "Subject 1"
+            subject = "Subject 2"
         )
         try {
             val response = apiService.createThread(request)
             println(response)
-            assertEquals("Thread created successfully", response.msg)
+            assertEquals("Success", response.msg)
             assert(response.created_id.isNotEmpty())
         } catch (e: HttpException) {
             println("Error: ${e.response()?.errorBody()?.string()}")

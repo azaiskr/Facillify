@@ -3,8 +3,6 @@ package com.lidm.facillify.ui.chat.konsultasi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.lidm.facillify.R
-import com.lidm.facillify.ui.chat.ChatList
-import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 
 
 data class Konsultant(

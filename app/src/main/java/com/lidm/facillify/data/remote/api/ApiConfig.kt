@@ -1,6 +1,7 @@
 package com.lidm.facillify.data.remote.api
 
 import android.content.Context
+import android.util.Log
 import com.lidm.facillify.BuildConfig
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import kotlinx.coroutines.flow.first
@@ -31,8 +32,11 @@ class ApiConfig {
 
             val chatbotInterceptor = Interceptor { chain ->
                 val original = chain.request()
+
                 val requestBuilder = original.newBuilder()
-                    .header("Authorization", "Bearer ${BuildConfig.SECRET_KEY}")
+                    .header("Authorization", "Bearer ${BuildConfig.OPENAI_SECRET_KEY}")
+                    .addHeader("OpenAI-Organization", BuildConfig.OPENAI_ORGANIZATION)
+                    .addHeader("OpenAI-Project", BuildConfig.OPENAI_PROJECT)
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
@@ -58,6 +62,31 @@ class ApiConfig {
         fun getChatbotApiService(ctx: Context): ChatbotApiService {
             val retrofit = getRetrofit(BuildConfig.CHATBOT_URL, ctx.applicationContext)
             return retrofit.create(ChatbotApiService::class.java)
+        }
+
+        fun createApiServiceTest(baseUrl: String, token: String): ApiService {
+            val loggingInterceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+
+            val authInterceptor = Interceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+                chain.proceed(request)
+            }
+
+            val client = OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .addInterceptor(authInterceptor)
+                .build()
+
+            return Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService::class.java)
         }
     }
 }
