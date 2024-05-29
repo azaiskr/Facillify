@@ -71,6 +71,18 @@ class ThreadRepository(
         }
     }
 
+    suspend fun getEmailUser() : Flow<ResponseState<String>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = userPreferences.getUserPref().first().email
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.message()))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
+        }
+    }
+
     companion object {
         @Volatile
         private var instance:ThreadRepository? = null

@@ -8,7 +8,9 @@ import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
+import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.repository.ThreadRepository
+import com.lidm.facillify.data.repository.UserRepository
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +31,12 @@ class ThreadViewModel(
 
     private val _createCommentResult = MutableStateFlow<ResponseState<CreatedThreadCommentResponse>>(ResponseState.Loading)
     val createCommentResult: StateFlow<ResponseState<CreatedThreadCommentResponse>> get() = _createCommentResult
+
+    private val _imageProfileUser = MutableStateFlow<ResponseState<UserModelResponse>>(ResponseState.Loading)
+    val getImageProfile: StateFlow<ResponseState<UserModelResponse>> get() = _imageProfileUser
+
+    private val _emailUser = MutableStateFlow<ResponseState<String>>(ResponseState.Loading)
+    val emailUser: StateFlow<ResponseState<String>> get() = _emailUser
 
     fun createThread(request: CreateThreadRequest) {
         viewModelScope.launch {
@@ -58,6 +66,18 @@ class ThreadViewModel(
         viewModelScope.launch {
             repository.getThreadDetail(threadId).collect { responseState ->
                 _threadDetail.value = responseState
+            }
+        }
+    }
+
+    fun resetCreateThreadResult() {
+        _createThreadResult.value = ResponseState.Loading
+    }
+
+    fun getEmailUser() {
+        viewModelScope.launch {
+            repository.getEmailUser().collect { responseState ->
+                _emailUser.value = responseState
             }
         }
     }

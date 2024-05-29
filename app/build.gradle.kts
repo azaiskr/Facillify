@@ -143,5 +143,8 @@ dependencies {
     //COIL
     implementation("io.coil-kt:coil:2.6.0")
 
-
+    //SWIPE REFRESH
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.swiperefresh.v0263beta)
+    implementation(libs.google.accompanist.flowlayout)
 }
