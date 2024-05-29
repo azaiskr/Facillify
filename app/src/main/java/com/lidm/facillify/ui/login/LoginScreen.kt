@@ -81,7 +81,7 @@ fun LoginScreen(
                     (loginResultState.value as ResponseState.Error).error,
                     Toast.LENGTH_SHORT
                 ).show()
-                (loginResultState.value as ResponseState.Error).error.let { Log.d("UserLogin", it) }
+                (loginResultState.value as ResponseState.Error)
             }
         }
     }

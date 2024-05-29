@@ -239,7 +239,7 @@ fun HomeScreenContent(
                     onItemLatihanClick(selectedLatihanId!!)
                 },
                 title = "Kerjakan Latihan?",
-                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                msg = "Yakin ingin mengerjakan latihan ini? Kamu tidak akan dapat kembali ketika latihan dimulai. Pastikan kamu sudah siap ya!",
                 confirmLabel = "Kerjakan",
                 dismissLabel = "Kembali"
             )

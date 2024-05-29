@@ -49,7 +49,6 @@ class ProfileViewModel(
                 _profileResponse.value = ResponseState.Error(e.message)
                 Log.d("error", e.message.toString())
             }
-
         }
     }
 }

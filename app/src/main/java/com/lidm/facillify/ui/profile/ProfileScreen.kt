@@ -24,6 +24,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -58,6 +61,7 @@ import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.SecondaryButton
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
@@ -67,26 +71,10 @@ import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
 
-data class Siswa(
-    val imgProfile: Int,
-    val name: String,
-    val email: String,
-    val birthPlace: String,
-    val birthDate: String,
-    val gender: String,
-    val address: String,
-    val phone: String,
-    val religion: String,
-    val nisn: String,
-    val parent: String? = null,
-    val role: Role = Role.STUDENT,
-)
-
 @Composable
 fun ProfileScreen(
     modifier: Modifier,
     navigateToFormTambahDataOrtu: () -> Unit = {},
-    role: Role = Role.STUDENT,
     context: Context = LocalContext.current,
 ) {
     val profileViewModel: ProfileViewModel = viewModel(
@@ -94,6 +82,7 @@ fun ProfileScreen(
     )
     val profileResponse = profileViewModel.profileResponse.collectAsState()
     val preferences by profileViewModel.getSession().observeAsState()
+    var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(preferences) {
         preferences?.let {
@@ -111,7 +100,8 @@ fun ProfileScreen(
             ProfileContent(
                 profileData = profileData.result,
                 modifier = modifier,
-                actionLogOut = { profileViewModel.logOut() },
+                actionLogOut = { showDialog = true},
+                onClick = navigateToFormTambahDataOrtu
             )
         }
         is ResponseState.Error -> {
@@ -119,7 +109,21 @@ fun ProfileScreen(
         }
     }
 
-
+    if (showDialog) {
+        DialogConfirm(
+            title = "Keluar Aplikasi?",
+            msg = "Apakah anda yakin ingin keluar?",
+            onConfirm = {
+                profileViewModel.logOut()
+                showDialog = false
+            },
+            onDismiss = {
+                showDialog = false
+            },
+            confirmLabel = "Ya",
+            dismissLabel = "Tidak",
+        )
+    }
 }
 
 @Composable
@@ -161,7 +165,7 @@ fun ProfileContent(
         dataValues.add(profileData.nisn)
     }
 
-    if (profileData.parent_email != null) {
+    if (profileData.type == "murid") {
         dataLabel.add("Email Wali")
         dataValues.add(profileData.parent_email)
     }
@@ -250,10 +254,8 @@ fun ProfileContent(
             text = profileData.name,
             modifier = modifier
                 .padding(vertical = 16.dp),
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-            )
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
         )
         Spacer(modifier = modifier.height(24.dp))
         dataLabel.mapIndexed { index, label ->
@@ -273,20 +275,21 @@ fun ProfileContent(
             )
         }
         Spacer(modifier = modifier.height(24.dp))
-        OutlinedButton(
+        Button(
             modifier = modifier
                 .fillMaxWidth()
                 .height(40.dp),
             onClick = { actionLogOut() },
-            border = BorderStroke(2.dp, AlertRed),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AlertRed,
+                contentColor = Color.White
+            ),
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
                 text = "Keluar",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    color = AlertRed,
-                ),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
         }
@@ -307,24 +310,20 @@ fun DetailProfileData(
     ) {
         Text(
             text = label,
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = OnBlueSecondary,
-            ),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = OnBlueSecondary,
             modifier = modifier
-                .weight(0.5f)
+                .weight(0.25f)
         )
         Text(
             text = data ?: "Tidak ada data",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = DarkBlue,
-                textAlign = TextAlign.End,
-            ),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = DarkBlue,
+            textAlign = TextAlign.End,
             modifier = modifier
-                .weight(0.5f)
+                .weight(0.75f)
         )
     }
 }

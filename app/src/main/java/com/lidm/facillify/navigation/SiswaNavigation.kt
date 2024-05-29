@@ -36,6 +36,7 @@ import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
+import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaScoreScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
@@ -101,7 +102,7 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.SiswaLatihanResult.route,
             )
         },
     ) { innerPadding ->
@@ -254,7 +255,19 @@ fun SiswaNavigation(
                 val id = it.arguments?.getInt("latihanId") ?: 0
                 LatihanScreen(
                     modifier = modifier,
-                    latihanId = id
+                    latihanId = id,
+                    onNavigateToTestresult = { navController.navigate(Screen.SiswaLatihanResult.createRoute(id)) }
+                )
+            }
+
+            composable(
+                route = Screen.SiswaLatihanResult.route,
+                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
+            ){
+                val id = it.arguments?.getInt("latihanId") ?: 0
+                LatihanSiswaScoreScreen(
+                    idLatihan = id,
+                    onBackClicked = {navController.popBackStack(Screen.SiswaLatihanForm.route, inclusive = true)}
                 )
             }
 

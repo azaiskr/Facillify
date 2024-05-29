@@ -11,6 +11,7 @@ import com.lidm.facillify.data.repository.ThreadRepository
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.viewmodel.AuthViewModel
 import com.lidm.facillify.ui.viewmodel.ChatViewModel
+import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 
@@ -40,6 +41,9 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
                 ProfileViewModel(userRepository) as T
+            }
+            modelClass.isAssignableFrom(LatihanSiswaViewModel::class.java) -> {
+                LatihanSiswaViewModel() as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }

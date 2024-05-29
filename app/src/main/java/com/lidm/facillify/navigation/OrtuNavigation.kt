@@ -142,7 +142,6 @@ fun OrtuNavigation(
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     modifier = modifier,
-                    role = role,
                 )
             }
         }

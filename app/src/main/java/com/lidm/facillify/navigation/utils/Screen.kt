@@ -49,6 +49,9 @@ sealed class Screen (
     data object SiswaLatihanForm: Screen("latihan/{latihanId}"){
         fun createRoute(latihanId: Int) = "latihan/$latihanId"
     }
+    data object SiswaLatihanResult: Screen("latihan/{latihanId}/result") {
+        fun createRoute(latihanId: Int) = "latihan/$latihanId/result"
+    }
     data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
 
 

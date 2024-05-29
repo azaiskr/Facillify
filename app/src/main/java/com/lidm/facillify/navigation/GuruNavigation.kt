@@ -191,7 +191,7 @@ fun GuruNavigation(
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(modifier = modifier, role = role)
+                ProfileScreen(modifier = modifier)
             }
         }
     }

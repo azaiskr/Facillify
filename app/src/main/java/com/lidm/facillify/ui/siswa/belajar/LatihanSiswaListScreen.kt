@@ -24,37 +24,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lidm.facillify.data.local.Filter
 import com.lidm.facillify.data.local.LatihanItem
 import com.lidm.facillify.data.local.dataLatihan
+import com.lidm.facillify.data.local.dummyDataFilter
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
-
-data class Filter(
-    val id: Int,
-    val name: String
-)
-
-val dummyDataFilter = listOf(
-    Filter(
-        id = 1,
-        name = "Selesai"
-    ),
-    Filter(
-        id = 2,
-        name = "Bangun Ruang"
-    ),
-    Filter(
-        id = 3,
-        name = "Statistika"
-    ),
-    Filter(
-        id = 4,
-        name = "SPLDV"
-    ),
-)
 
 @Composable
 fun LatihanSiswaListScreen(
@@ -171,7 +149,7 @@ fun ListLatihan(
                     onNavigateToLatihanForm(selectedLatihanId!!)
                 },
                 title = "Kerjakan Latihan?",
-                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                msg = "Yakin ingin mengerjakan latihan ini? Kamu tidak akan dapat kembali ketika latihan dimulai. Pastikan kamu sudah siap ya!",
                 confirmLabel = "Kerjakan",
                 dismissLabel = "Kembali"
             )
