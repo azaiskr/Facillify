@@ -1,6 +1,7 @@
-package com.lidm.facillify.ui.guru.materi
+package com.lidm.facillify.ui.guru.materibelajar
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,45 +17,75 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import com.lidm.facillify.R
-import com.lidm.facillify.data.local.VideoItem
+import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.ui.components.SearchAppBar
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun MateriBelajarGuruScreen(
-
+    onItemMateriBelajarClicked : (Int) -> Unit
 ) {
-    Box(
-
+    Column(
     ) {
+        var query by rememberSaveable { mutableStateOf("") }
+        var active by rememberSaveable { mutableStateOf(false) }
+
+        SearchAppBar(
+            query = query,
+            onQueryChange = { query = it },
+            onSearch = {active = false},
+            active = active,
+            onActiveChange = {active = false} ,
+            label = "Cari materi" ,
+            modifier = Modifier
+        )
+
+        val filteredMateri =if (query != ""){
+            listMateri.filter {
+                it.title.contains(query, ignoreCase = true)
+            }
+        } else {
+            listMateri
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(bottom = 16.dp, start = 16.dp, end = 16.dp)
         ) {
-            items(listMateri[0].materiVideo.size) {
-                MateriBelajarGuruItem(listMateri[0].materiVideo[it])
+            items(filteredMateri.size) {
+                MateriBelajarGuruItem(
+                    materi = filteredMateri[it],
+                    onItemClicked = onItemMateriBelajarClicked
+                )
             }
         }
     }
 }
 
 @Composable
-fun MateriBelajarGuruItem(video: VideoItem) {
+fun MateriBelajarGuruItem(
+    materi: MateriBelajar,
+    onItemClicked: (Int) -> Unit,
+) {
     Card(
+        modifier = Modifier.clickable { onItemClicked(materi.id) },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = SecondaryBlue,
@@ -65,7 +96,7 @@ fun MateriBelajarGuruItem(video: VideoItem) {
             modifier = Modifier.padding(8.dp)
         ) {
             Image(
-                painter = rememberAsyncImagePainter(model = "https://cdn.wccftech.com/wp-content/uploads/2016/08/YouTube.png"),
+                painter = rememberAsyncImagePainter(model = materi.image),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,13 +105,13 @@ fun MateriBelajarGuruItem(video: VideoItem) {
                 contentScale = ContentScale.Crop
             )
             Text(
-                text = video.title,
+                text = materi.title,
                 modifier = Modifier.padding(vertical = 8.dp),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = video.desc,
+                text = materi.desc,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 4,
                 textAlign = TextAlign.Justify
@@ -92,5 +123,7 @@ fun MateriBelajarGuruItem(video: VideoItem) {
 @Preview(showBackground = true)
 @Composable
 fun MateriBelajarGuruScreenPreview() {
-    MateriBelajarGuruScreen()
+    MateriBelajarGuruScreen(
+        onItemMateriBelajarClicked = {}
+    )
 }
