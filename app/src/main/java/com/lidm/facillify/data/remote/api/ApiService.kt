@@ -1,5 +1,6 @@
 package com.lidm.facillify.data.remote.api
 
+import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
@@ -8,11 +9,13 @@ import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.AllThreadResponse
+import com.lidm.facillify.data.remote.response.CreatedAssessmentForSiswaResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
 import com.lidm.facillify.data.remote.response.QuizListResponse
+import com.lidm.facillify.data.remote.response.SiswaAssessmentResponse
 import com.lidm.facillify.data.remote.response.SubmitQuizResponse
 import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
@@ -124,4 +127,15 @@ interface ApiService {
     suspend fun getImage(
         @Path("profile_image_url") profileImageUrl: String
     ): UpdateImageResponse
+
+    //ASSESMENT
+    @GET("api/v1/assesment")
+    suspend fun getSiswaAssement(
+        @Query("email") email: String
+    ): SiswaAssessmentResponse
+
+    @POST("api/v1/assesment")
+    suspend fun createAssesmentForSiswa(
+        @Body request: CreateAssessmentForSiswaRequest
+    ): CreatedAssessmentForSiswaResponse
 }

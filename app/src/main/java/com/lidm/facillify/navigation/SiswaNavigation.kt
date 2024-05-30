@@ -45,6 +45,7 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -356,7 +357,8 @@ fun SiswaNavigation(
             }
 
             composable(Screen.Riwayat.route) {
-                SiswaRiwayatScreen()
+                //SiswaRiwayatScreen()
+                RiwayatScreen()
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(

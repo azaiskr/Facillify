@@ -17,10 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
@@ -32,6 +34,8 @@ import com.lidm.facillify.ui.guru.latihansoal.BaseLatihanSoalGuruScreen
 import com.lidm.facillify.ui.guru.latihansoal.TambahLatianSoalGuruScreen
 import com.lidm.facillify.ui.guru.materi.MateriBelajarGuruScreen
 import com.lidm.facillify.ui.guru.materibelajar.TambahMateriBelajarScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.tracking.DetailTrackingScreen
@@ -168,7 +172,7 @@ fun GuruNavigation(
             composable(Screen.TambahLatihan.route) {
                 TambahLatianSoalGuruScreen()
             }
-            composable(Screen.Konsultasi.route) {
+            /*composable(Screen.Konsultasi.route) {
                 ListKonsultasi(
                     modifier = modifier,
                     onNavigateToChat = { navController.navigate(Screen.Chat.route) }
@@ -177,6 +181,21 @@ fun GuruNavigation(
             composable(Screen.Chat.route) {
                 ChatKonsultasi(
                     onBackClick = { navController.popBackStack() }
+                )
+            }*/
+            //KONSULTASI -> THREAD
+            composable(Screen.Konsultasi.route) {
+                KonsultasiForumScreen {
+                    navController.navigate(Screen.KonsultasiThread.createRoute(it))
+                }
+            }
+            composable(
+                route = Screen.KonsultasiThread.route,
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("threadId") ?: ""
+                KonsultasiDetailScreen(
+                    threadID = id,
                 )
             }
             composable(Screen.TrackingList.route) {
