@@ -11,6 +11,7 @@ import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.AllThreadResponse
 import com.lidm.facillify.data.remote.response.CreatedAssessmentForSiswaResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
+import com.lidm.facillify.data.remote.response.GetAllStudentResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
@@ -138,4 +139,8 @@ interface ApiService {
     suspend fun createAssesmentForSiswa(
         @Body request: CreateAssessmentForSiswaRequest
     ): CreatedAssessmentForSiswaResponse
+
+    //GET ALL STUDENT
+    @GET("api/v1/students")
+    suspend fun getAllStudent() : GetAllStudentResponse
 }

@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
@@ -25,17 +24,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
 import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.theme.DarkBlue
-import com.lidm.facillify.ui.tracking.DetailTrackingScreen
-import com.lidm.facillify.ui.tracking.ListTrackingScreen
+import com.lidm.facillify.ui.tracking.DetailTrackingAnakScreen
+import com.lidm.facillify.ui.tracking.TrackingAnakScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -148,14 +144,16 @@ fun OrtuNavigation(
                 )
             }
             composable(Screen.TrackingList.route) {
-                ListTrackingScreen(
-                    onDetailClick = { navController.navigate(Screen.TrackingDetail.route) }
-                )
+                TrackingAnakScreen(onDetailClick = {
+                    navController.navigate(Screen.TrackingDetail.createRoute(it))
+                }, role = role)
             }
             composable(Screen.TrackingDetail.route) {
-                DetailTrackingScreen(
+                val email: String = it.arguments?.getString("studentEmail") ?: ""
+                DetailTrackingAnakScreen(
                     onClickBack = { navController.popBackStack() },
-                    role = role
+                    emailStudent = email,
+                    userRole = role
                 )
             }
             composable(Screen.Profile.route) {

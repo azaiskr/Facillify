@@ -6,6 +6,7 @@ import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
+import com.lidm.facillify.data.remote.response.GetStudentResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.util.ResponseState
@@ -170,6 +171,19 @@ class UserRepository (
         try {
             val response = apiService.createAssesmentForSiswa(request)
             emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //GET ALL STUDENT FOR TEACHER ONLY
+    suspend fun getAllStudent(): Flow<ResponseState<List<GetStudentResponse>>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getAllStudent()
+            emit(ResponseState.Success(response.result))
         } catch (e: HttpException) {
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         } catch (e: Exception) {

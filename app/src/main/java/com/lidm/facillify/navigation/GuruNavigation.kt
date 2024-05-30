@@ -24,9 +24,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainFab
 import com.lidm.facillify.ui.components.MainTopAppBar
@@ -38,8 +35,8 @@ import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
 import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
-import com.lidm.facillify.ui.tracking.DetailTrackingScreen
-import com.lidm.facillify.ui.tracking.ListTrackingScreen
+import com.lidm.facillify.ui.tracking.DetailTrackingAnakScreen
+import com.lidm.facillify.ui.tracking.TrackingAnakScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -172,17 +169,6 @@ fun GuruNavigation(
             composable(Screen.TambahLatihan.route) {
                 TambahLatianSoalGuruScreen()
             }
-            /*composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
-                )
-            }
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
-                )
-            }*/
             //KONSULTASI -> THREAD
             composable(Screen.Konsultasi.route) {
                 KonsultasiForumScreen {
@@ -199,14 +185,16 @@ fun GuruNavigation(
                 )
             }
             composable(Screen.TrackingList.route) {
-                ListTrackingScreen(
-                    onDetailClick = { navController.navigate(Screen.TrackingDetail.route) }
-                )
+                TrackingAnakScreen(onDetailClick = {
+                    navController.navigate(Screen.TrackingDetail.createRoute(it))
+                }, role = role)
             }
             composable(Screen.TrackingDetail.route) {
-                DetailTrackingScreen(
+                val email: String = it.arguments?.getString("studentEmail") ?: ""
+                DetailTrackingAnakScreen(
                     onClickBack = { navController.popBackStack() },
-                    role = role
+                    emailStudent = email,
+                    userRole = role
                 )
             }
             composable(Screen.Profile.route) {
