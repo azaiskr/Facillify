@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.components.ShowToast
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
@@ -69,24 +70,18 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    LaunchedEffect (loginResultState){
-        when(loginResultState.value) {
-            is ResponseState.Loading -> {}
-            is ResponseState.Success -> {
-                onLogin()
-            }
-            is ResponseState.Error -> {
-                Toast.makeText(
-                    context,
-                    (loginResultState.value as ResponseState.Error).error,
-                    Toast.LENGTH_SHORT
-                ).show()
-                (loginResultState.value as ResponseState.Error)
-            }
+    when (loginResultState.value) {
+        is ResponseState.Loading -> {}
+        is ResponseState.Success -> {
+            ShowToast(message = "Login Berhasil")
+            onLogin()
+        }
+        is ResponseState.Error -> {
+            (loginResultState.value as ResponseState.Error).error?.let { ShowToast(message = it) }
         }
     }
 
-    Surface(color = Color.White){
+    Surface(color = Color.White) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -131,7 +126,7 @@ fun LoginScreen(
                     CustomButton(
                         text = "Masuk",
                         onClick = {
-                            authViewModel.login(email,password)
+                            authViewModel.login(email, password)
                         }
                     )
                     SignUpText(
@@ -149,7 +144,7 @@ fun TopSection() {
         modifier = Modifier
             .size(350.dp)
             .fillMaxWidth(),
-            //.offset { IntOffset(0, -100.dp.roundToPx()) },
+        //.offset { IntOffset(0, -100.dp.roundToPx()) },
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier
@@ -191,7 +186,8 @@ fun InputBox(
                 Text(
                     text = insideField,
                     color = SecondaryBlue,
-                ) },
+                )
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Blue,
                 unfocusedBorderColor = SecondaryBlue,
@@ -228,7 +224,7 @@ fun CustomButton(
 @Composable
 fun SignUpText(
     onClick: () -> Unit
-){
+) {
     Row {
         Text(
             text = "Belum punya akun?",
@@ -263,7 +259,7 @@ fun InputBoxPreview() {
         topText = "Email",
         insideField = "Masukkan email",
         valueText = teks,
-        onValueChange = { teks = it}
+        onValueChange = { teks = it }
     )
 }
 

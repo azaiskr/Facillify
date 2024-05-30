@@ -66,6 +66,7 @@ import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -196,9 +197,7 @@ fun KonsultasiForumScreen(
             when (threadsState) {
                 is ResponseState.Loading -> {
                     // Show loading indicator
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LoadingScreen()
                 }
                 is ResponseState.Success -> {
                     SwipeRefresh(state = swipeRefreshState, onRefresh = { threadViewModel.getAllThreads() }) {

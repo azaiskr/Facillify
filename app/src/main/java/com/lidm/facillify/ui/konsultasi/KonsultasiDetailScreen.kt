@@ -49,6 +49,7 @@ import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatInputField
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
@@ -126,9 +127,10 @@ fun KonsultasiDetailScreen(
         when (threadDetailState) {
             is ResponseState.Loading -> {
                 //Loading Indicator
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+//                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                    CircularProgressIndicator()
+//                }
+                LoadingScreen()
             }
 
             is ResponseState.Error -> {
@@ -171,7 +173,9 @@ fun KonsultasiDetailScreen(
                                         Log.d("KonsultasiDetailScreen", "comment index: ${comments.size}")
                                         Log.d("KonsultasiDetailScreen", "Total comment: $comment")
                                         if (comment.email == null && comment.content == null && comment.time == null && comments.size == 1){
-                                            Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
+                                            Box(modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(32.dp), contentAlignment = Alignment.Center) {
                                                 Text(text = "Tidak Ada Komentar")
                                             }
                                         } else {
