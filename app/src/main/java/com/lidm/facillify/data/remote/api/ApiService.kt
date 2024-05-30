@@ -54,7 +54,6 @@ interface ApiService {
         @Query("email") email: String,
     ):ProfileResponse
 
-
     // QUIZ
     @POST("api/v1/quiz")
     suspend fun createQuiz(

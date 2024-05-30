@@ -2,6 +2,7 @@ package com.lidm.facillify.ui.tracking
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,7 +53,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.data.RiwayatLatihanSoal
+import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
 import com.lidm.facillify.ui.theme.AlertRed
@@ -61,6 +64,7 @@ import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkGreen
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.YellowOrange
+import com.lidm.facillify.ui.viewmodel.DetailTrackingAnakViewModel
 import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
 import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
@@ -77,20 +81,26 @@ fun DetailTrackingAnakScreen(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
+    val detailTrackingAnakViewModel: DetailTrackingAnakViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(context.applicationContext)
+    )
+
+
 
     //state
     val assessmentState by siswaRiwayatViewModel.assessment.collectAsState()
+    val profileState by siswaRiwayatViewModel.profileSiswa.collectAsState()
+    val createdAssessmentState by detailTrackingAnakViewModel.createdAssessment.collectAsState()
 
     //launchedeffect
-    LaunchedEffect(userRole == Role.PARENT) {
+    LaunchedEffect(Unit) {
         siswaRiwayatViewModel.getAssessment(emailStudent)
+        siswaRiwayatViewModel.getProfileSiswa(emailStudent)
     }
 
 
     //TODO GET PROFILE
     val imagePainter: Painter = painterResource(id = R.drawable.pp_deafult)
-    val name: String = "Winko Adi"
-    val number: String = "310128"
     val listRiwayat: List<RiwayatLatihanSoal> = listOf(
         RiwayatLatihanSoal(
             nilai = 90,
@@ -101,239 +111,314 @@ fun DetailTrackingAnakScreen(
         )
     )
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    //CEK STATE IS LOADING OR NOT
+    // Check if any state is loading
+    val isLoading = assessmentState is ResponseState.Loading || profileState is ResponseState.Loading
 
-        Box(
-            modifier = Modifier.background(Blue)
-        ) {
-            // Top bar in the foreground
-            TopBarDetailAnak(
-                onClickBack = { onClickBack() },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .fillMaxWidth(),
-                titleBar = if (userRole == Role.PARENT) "Perkembangan Anak" else "Perkembangan Siswa"
-            )
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
-
+    } else {
+        // Do something while loading
         Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
-            Box{
-                // Draw the circle in the background
-                Canvas(modifier = Modifier
-                    .size(20.dp)
-                    .align(Alignment.TopCenter)
-                    .offset { IntOffset(215.dp.roundToPx(), -120.dp.roundToPx()) }
-                ) {
-                    drawCircle(color = Blue, radius = 300.dp.toPx())
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+
+            Box(
+                modifier = Modifier.background(Blue)
             ) {
-                Image(
-                    painter = imagePainter,
-                    contentDescription = "photo profile",
-                    modifier = Modifier.size(96.dp)
+                // Top bar in the foreground
+                TopBarDetailAnak(
+                    onClickBack = { onClickBack() },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth(),
+                    titleBar = if (userRole == Role.PARENT) "Perkembangan Anak" else "Perkembangan Siswa"
                 )
-                Column {
-                    Text(
-                        text = "Nama Anak",
-                        fontSize = 12.sp,
-                        color = YellowOrange,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = name, fontSize = 16.sp, color = Color.White, maxLines = 1)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "NISN",
-                        fontSize = 12.sp,
-                        color = YellowOrange,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = number, fontSize = 16.sp, color = Color.White, maxLines = 1)
-                }
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = "Riwayat Nilai Siswa",
-                fontSize = 16.sp,
-                color = Blue,
-                fontWeight = FontWeight.SemiBold
-            )
-            LazyRow {
-                items(listRiwayat.size) { index ->
-                    AbilityCard(
-                        title = listRiwayat[index].mapel,
-                        score = listRiwayat[index].nilai,
-                        description = listRiwayat[index].deskripsi,
-                        totalSoal = listRiwayat[index].totalSoal,
-                        totalSoalBenar = listRiwayat[index].totalSoalBenar,
-                        color = when (listRiwayat[index].nilai) {
-                            in 0..50 -> AlertRed
-                            in 51..70 -> YellowOrange
-                            else -> DarkGreen
-                        }
-                    )
-                }
-
             }
 
-            //FOR PARENT GET ASSESSMENT SISWA
-            if (userRole == Role.PARENT){
-                when (assessmentState) {
+            //TODO MEMBUAT GET ACCOUNT
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+            ) {
+
+                when (profileState) {
                     is ResponseState.Loading -> {
-                        // Show loading state
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
-                        }
+
                     }
                     is ResponseState.Error -> {
-                        val error = (assessmentState as ResponseState.Error).error
-                        Log.e("DetailTrackingAnakSreen", "Error: $error")
+
                     }
                     is ResponseState.Success -> {
-                        val data = (assessmentState as ResponseState.Success<DetailAssesment>).data
-                        val evaluasi = data.evaluation
-                        val saranPendidik = data.suggestion
+                        val profile = (profileState as ResponseState.Success<UserProfile>).data
 
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp),
-                            text = "Evaluasi Siswa",
-                            fontSize = 16.sp,
-                            color = Blue,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
+                        Box{
+                            // Draw the circle in the background
+                            Canvas(modifier = Modifier
+                                .size(20.dp)
+                                .align(Alignment.TopCenter)
+                                .offset { IntOffset(215.dp.roundToPx(), -120.dp.roundToPx()) }
+                            ) {
+                                drawCircle(color = Blue, radius = 300.dp.toPx())
+                            }
+                        }
+                        Row(
                             modifier = Modifier
-                                .padding(start = 16.dp, end = 16.dp)
-                                .fillMaxWidth(),
-                            text = evaluasi,
-                            fontSize = 12.sp,
-                            color = Black
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp),
-                            text = "Saran Pendidik",
-                            fontSize = 16.sp,
-                            color = Blue,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 16.dp, end = 16.dp)
-                                .fillMaxWidth(),
-                            text = saranPendidik,
-                            fontSize = 12.sp,
-                            color = Black
-                        )
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = imagePainter,
+                                contentDescription = "photo profile", //TODO USING COIL FOR IMAGE PASS profile.photo_url
+                                modifier = Modifier.size(96.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "Nama Anak",
+                                    fontSize = 12.sp,
+                                    color = YellowOrange,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = profile.name, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "NISN",
+                                    fontSize = 12.sp,
+                                    color = YellowOrange,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = profile.nisn.toString(), fontSize = 16.sp, color = Color.White, maxLines = 1)
+                            }
+                        }
                     }
                 }
-            }
-
-            //FOR TEACHER CREATE ASSESSMENT FOR SISWA
-            if (userRole == Role.TEACHER){
-
-                var evaluasiguru by remember { mutableStateOf("") }
-                var saranguru by remember { mutableStateOf("") }
 
 
+                Spacer(modifier = Modifier.height(32.dp))
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
-                    text = "Evaluasi Siswa",
+                    text = "Riwayat Nilai Siswa",
                     fontSize = 16.sp,
                     color = Blue,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    value = evaluasiguru,
-                    onValueChange = { evaluasiguru = it },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = SecondaryBlue,
-                        focusedBorderColor = Blue,
-                        focusedTextColor = Blue,
-                        unfocusedTextColor = Blue,
-                    ),
-                    placeholder = {
-                        Text(
-                            text = "Evaluasi perkembangan siswa",
-                            color = SecondaryBlue,
-                            fontSize = 12.sp
+                LazyRow {
+                    items(listRiwayat.size) { index ->
+                        AbilityCard(
+                            title = listRiwayat[index].mapel,
+                            score = listRiwayat[index].nilai,
+                            description = listRiwayat[index].deskripsi,
+                            totalSoal = listRiwayat[index].totalSoal,
+                            totalSoalBenar = listRiwayat[index].totalSoalBenar,
+                            color = when (listRiwayat[index].nilai) {
+                                in 0..50 -> AlertRed
+                                in 51..70 -> YellowOrange
+                                else -> DarkGreen
+                            }
                         )
                     }
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    modifier = Modifier.padding(start = 16.dp),
-                    text = "Saran Pendidik",
-                    fontSize = 16.sp,
-                    color = Blue,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    value = saranguru,
-                    onValueChange = { saranguru = it },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = SecondaryBlue,
-                        focusedBorderColor = Blue,
-                        focusedTextColor = Blue,
-                        unfocusedTextColor = Blue,
-                    ),
-                    placeholder = {
-                        Text(
-                            text = "Saran pemaksimalan potensi dan perkembangan siswa",
-                            color = SecondaryBlue,
-                            fontSize = 12.sp
-                        )
-                    }
-                )
-
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    ButtonDefault(modifier = Modifier, text = "Simpan", onClick = {
-                        //TODO: LOGIC FOR SAVE SARAN DAN EVALUASI
-                    })
                 }
 
+                //FOR PARENT GET ASSESSMENT SISWA
+                if (userRole == Role.PARENT){
+                    when (assessmentState) {
+                        is ResponseState.Loading -> {
+                            // Show loading state
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        is ResponseState.Error -> {
+                            val error = (assessmentState as ResponseState.Error).error
+                            Log.e("DetailTrackingAnakSreen", "Error: $error")
+                        }
+                        is ResponseState.Success -> {
+                            val data = (assessmentState as ResponseState.Success<DetailAssesment>).data
+                            val evaluasi = data.evaluation
+                            val saranPendidik = data.suggestion
+
+                            Text(
+                                modifier = Modifier.padding(start = 16.dp),
+                                text = "Evaluasi Siswa",
+                                fontSize = 16.sp,
+                                color = Blue,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 16.dp)
+                                    .fillMaxWidth(),
+                                text = evaluasi,
+                                fontSize = 12.sp,
+                                color = Black
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                modifier = Modifier.padding(start = 16.dp),
+                                text = "Saran Pendidik",
+                                fontSize = 16.sp,
+                                color = Blue,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 16.dp)
+                                    .fillMaxWidth(),
+                                text = saranPendidik,
+                                fontSize = 12.sp,
+                                color = Black
+                            )
+                        }
+                    }
+                }
+
+                //FOR TEACHER CREATE ASSESSMENT FOR SISWA
+                if (userRole == Role.TEACHER){
+
+                    when (assessmentState) {
+                        is ResponseState.Loading -> {
+                            Log.d("DetailTrackingAnakSreen", "Loading")
+                        }
+                        is ResponseState.Error -> {
+                            Log.d("DetailTrackingAnakSreen", "Error")
+                        }
+                        is  ResponseState.Success -> {
+                            val data = (assessmentState as ResponseState.Success<DetailAssesment>).data
+                            val evaluasi = data.evaluation
+                            val saranPendidik = data.suggestion
+
+                            var evaluasiguru by remember { mutableStateOf(evaluasi) }
+                            var saranguru by remember { mutableStateOf(saranPendidik) }
+
+                            when (profileState) {
+                                is ResponseState.Loading -> {
+
+                                }
+                                is ResponseState.Error -> {
+
+                                }
+                                is ResponseState.Success -> {
+
+                                    val emailSiswa = (profileState as ResponseState.Success<UserProfile>).data.email
+
+                                    Text(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        text = "Evaluasi Siswa",
+                                        fontSize = 16.sp,
+                                        color = Blue,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        value = evaluasiguru,
+                                        onValueChange = { evaluasiguru = it },
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            unfocusedBorderColor = SecondaryBlue,
+                                            focusedBorderColor = Blue,
+                                            focusedTextColor = Blue,
+                                            unfocusedTextColor = Blue,
+                                        ),
+                                        placeholder = {
+                                            Text(
+                                                text = "Evaluasi perkembangan siswa",
+                                                color = SecondaryBlue,
+                                                fontSize = 12.sp
+                                            )
+                                        }
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Text(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        text = "Saran Pendidik",
+                                        fontSize = 16.sp,
+                                        color = Blue,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedTextField(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        value = saranguru,
+                                        onValueChange = { saranguru = it },
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            unfocusedBorderColor = SecondaryBlue,
+                                            focusedBorderColor = Blue,
+                                            focusedTextColor = Blue,
+                                            unfocusedTextColor = Blue,
+                                        ),
+                                        placeholder = {
+                                            Text(
+                                                text = "Saran pemaksimalan potensi dan perkembangan siswa",
+                                                color = SecondaryBlue,
+                                                fontSize = 12.sp
+                                            )
+                                        }
+                                    )
+
+                                    //data want to create
+                                    val createdAssessment = CreateAssessmentForSiswaRequest(
+                                        email = emailSiswa,
+                                        evaluation = evaluasiguru,
+                                        suggestion = saranguru
+                                    )
+
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        ButtonDefault(modifier = Modifier, text = "Simpan", onClick = {
+                                            //TODO: LOGIC FOR SAVE SARAN DAN EVALUASI
+
+                                            detailTrackingAnakViewModel.createAssessment(createdAssessment)
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
+        }
+    }
+
+
+    when (createdAssessmentState) {
+        is ResponseState.Loading -> {
+            Log.d("DetailTrackingAnakSreen", "Loading")
+        }
+        is ResponseState.Error -> {
+            Log.d("DetailTrackingAnakSreen", "Error")
+            Toast.makeText(context, "Gagal Menyimpan", Toast.LENGTH_LONG).show()
+        }
+        is ResponseState.Success -> {
+            Log.d("DetailTrackingAnakSreen", "Success")
+            Toast.makeText(context, "Berhasil Menyimpan", Toast.LENGTH_SHORT).show()
         }
     }
 }

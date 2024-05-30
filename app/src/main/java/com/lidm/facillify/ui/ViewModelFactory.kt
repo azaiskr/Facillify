@@ -69,8 +69,7 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(DetailTrackingAnakViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
-                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
-                DetailTrackingAnakViewModel(userRepository, siswaRepository) as T
+                DetailTrackingAnakViewModel(userRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }

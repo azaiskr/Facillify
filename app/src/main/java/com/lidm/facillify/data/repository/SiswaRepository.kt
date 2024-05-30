@@ -6,8 +6,10 @@ import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
+import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -56,16 +58,6 @@ class SiswaRepository(
     //ASSESSMENT
 
     suspend fun getAssessment(email: String): Flow<ResponseState<DetailAssesment>> = flow {
-        /*emit(ResponseState.Loading)
-        try {
-            val response = apiService.getSiswaAssement(email)
-            emit(ResponseState.Success(response.result))
-        } catch (e: HttpException) {
-            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
-        } catch (e: Exception) {
-            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
-        }*/
-
         emit(ResponseState.Loading)
         try {
             val response = apiService.getSiswaAssement(email)
@@ -93,6 +85,20 @@ class SiswaRepository(
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
 
+    }
+
+    //GET PROFILE DATA
+    suspend fun getProfileData(email: String
+    ): Flow<ResponseState<UserProfile>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getUserProfile(email)
+            emit(ResponseState.Success(response.result))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.message()))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
+        }
     }
 
     companion object {
