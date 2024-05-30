@@ -42,7 +42,7 @@ val latihan_br_paket1 = LatihanItem(
         ),
         Question(
             id = 7,
-            questionText = "Sebuah rumah yang berbentuk seperti bangun ruang balok dengan limas segiempat di atasnya memiliki panjang dinding 10 m dengan lebar 6 m. Tinggi segitiga pada atap rumah adalah 4 m. Berapakah volume atap rumah tersebut?",
+            questionText = "Sebuah rumah yang terbentuk dari bangun ruang balok dengan atap berbentuk prisma segitiga. Rumah tersebut memiliki panjang dinding 10 m dengan lebar 6 m. Tinggi segitiga pada atap rumah adalah 4 m. Berapakah volume atap rumah tersebut?",
             answer = listOf("120 cm³", "240 cm³", "180 cm³", "60 cm³")
         ),
         Question(
