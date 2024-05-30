@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.ProfileResponse
+import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.data.repository.SiswaRepository
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,9 @@ class SiswaRiwayatViewModel(
 
     private val _emailUser = MutableStateFlow<ResponseState<String>>(ResponseState.Loading)
     val emailUser: StateFlow<ResponseState<String>> get() = _emailUser
+
+    private val _profileSiswa = MutableStateFlow<ResponseState<UserProfile>>(ResponseState.Loading)
+    val profileSiswa: StateFlow<ResponseState<UserProfile>> get() = _profileSiswa
 
     init {
         getEmailUser()
@@ -35,6 +40,14 @@ class SiswaRiwayatViewModel(
             siswaRepository.getEmailUser().collect { responseState ->
                 _emailUser.value = responseState
                 Log.d("SiswaRiwayatViewModel", "getEmailUser: ${_emailUser.value}")
+            }
+        }
+    }
+
+    fun getProfileSiswa(email: String) {
+        viewModelScope.launch {
+            siswaRepository.getProfileData(email).collect {
+                _profileSiswa.value = it
             }
         }
     }
