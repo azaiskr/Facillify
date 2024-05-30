@@ -1,5 +1,7 @@
 package com.lidm.facillify.ui.tracking
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +29,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,8 +49,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.data.RiwayatLatihanSoal
+import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Black
@@ -51,233 +61,279 @@ import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkGreen
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.YellowOrange
+import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
+import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
-
-@Composable
-fun DetailTrackingScreen(
-    onClickBack: () -> Unit,
-    role: Role,
-) {
-    //viewModel
-    //state
-
-    DetailTrackingAnakScreen(
-        onClickBack = onClickBack,
-        userRole = role,
-        imagePainter = painterResource(id = R.drawable.pp_deafult),
-        name = "Winko Adi",
-        number = "310128",
-        saranPendidik = "Anu anu aja",
-        evalusiSiswa = "Nuna hinu",
-        listRiwayat = listOf(
-            RiwayatLatihanSoal(
-                nilai = 90,
-                deskripsi = "Kemampuan membaca anak sudah sangat baik",
-                mapel = "Kemampuan Baca",
-                totalSoal = 100,
-                totalSoalBenar = 70
-            )
-        )
-    )
-}
 
 @Composable
 fun DetailTrackingAnakScreen(
     onClickBack: () -> Unit,
+    emailStudent: String,
     userRole: Role,
-    imagePainter: Painter,
-    name: String,
-    number: String,
-    saranPendidik: String,
-    evalusiSiswa: String,
-    listRiwayat: List<RiwayatLatihanSoal>
+    context: Context = LocalContext.current
 ) {
+    //viewmodel
+    val siswaRiwayatViewModel: SiswaRiwayatViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(context.applicationContext)
+    )
+
+
+    //state
+    val assessmentState by siswaRiwayatViewModel.assessment.collectAsState()
+
+    //launchedeffect
+    LaunchedEffect(userRole == Role.PARENT) {
+        siswaRiwayatViewModel.getAssessment(emailStudent)
+    }
+
+
+    //TODO GET PROFILE
+    val imagePainter: Painter = painterResource(id = R.drawable.pp_deafult)
+    val name: String = "Winko Adi"
+    val number: String = "310128"
+    val listRiwayat: List<RiwayatLatihanSoal> = listOf(
+        RiwayatLatihanSoal(
+            nilai = 90,
+            deskripsi = "Kemampuan membaca anak sudah sangat baik",
+            mapel = "Kemampuan Baca",
+            totalSoal = 100,
+            totalSoalBenar = 70
+        )
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        var evaluasi by remember { mutableStateOf("") }
-        var saran by remember { mutableStateOf("") }
 
-        Box {
-            // Draw the circle in the background
-            Canvas(modifier = Modifier
-                .size(20.dp)
-                .align(Alignment.TopCenter)
-                .offset { IntOffset(0, -300.dp.roundToPx()) }
-            ) {
-                drawCircle(color = Blue, radius = 500.dp.toPx())
-            }
-
+        Box(
+            modifier = Modifier.background(Blue)
+        ) {
             // Top bar in the foreground
             TopBarDetailAnak(
-                onClickBack = onClickBack,
+                onClickBack = { onClickBack() },
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .fillMaxWidth(),
                 titleBar = if (userRole == Role.PARENT) "Perkembangan Anak" else "Perkembangan Siswa"
             )
         }
-        Row(
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
         ) {
-            Image(
-                painter = imagePainter,
-                contentDescription = "photo profile",
-                modifier = Modifier.size(96.dp)
-            )
-            Column {
-                Text(
-                    text = "Nama Anak",
-                    fontSize = 12.sp,
-                    color = YellowOrange,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = name, fontSize = 16.sp, color = Color.White, maxLines = 1)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "NISN",
-                    fontSize = 12.sp,
-                    color = YellowOrange,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = number, fontSize = 16.sp, color = Color.White, maxLines = 1)
+            Box{
+                // Draw the circle in the background
+                Canvas(modifier = Modifier
+                    .size(20.dp)
+                    .align(Alignment.TopCenter)
+                    .offset { IntOffset(215.dp.roundToPx(), -120.dp.roundToPx()) }
+                ) {
+                    drawCircle(color = Blue, radius = 300.dp.toPx())
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = "Riwayat Nilai Siswa",
-            fontSize = 16.sp,
-            color = Blue,
-            fontWeight = FontWeight.SemiBold
-        )
-        LazyRow {
-            items(listRiwayat.size) { index ->
-                AbilityCard(
-                    title = listRiwayat[index].mapel,
-                    score = listRiwayat[index].nilai,
-                    description = listRiwayat[index].deskripsi,
-                    totalSoal = listRiwayat[index].totalSoal,
-                    totalSoalBenar = listRiwayat[index].totalSoalBenar,
-                    color = when (listRiwayat[index].nilai) {
-                        in 0..50 -> AlertRed
-                        in 51..70 -> YellowOrange
-                        else -> DarkGreen
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = imagePainter,
+                    contentDescription = "photo profile",
+                    modifier = Modifier.size(96.dp)
+                )
+                Column {
+                    Text(
+                        text = "Nama Anak",
+                        fontSize = 12.sp,
+                        color = YellowOrange,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = name, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "NISN",
+                        fontSize = 12.sp,
+                        color = YellowOrange,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = number, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                modifier = Modifier.padding(start = 16.dp),
+                text = "Riwayat Nilai Siswa",
+                fontSize = 16.sp,
+                color = Blue,
+                fontWeight = FontWeight.SemiBold
+            )
+            LazyRow {
+                items(listRiwayat.size) { index ->
+                    AbilityCard(
+                        title = listRiwayat[index].mapel,
+                        score = listRiwayat[index].nilai,
+                        description = listRiwayat[index].deskripsi,
+                        totalSoal = listRiwayat[index].totalSoal,
+                        totalSoalBenar = listRiwayat[index].totalSoalBenar,
+                        color = when (listRiwayat[index].nilai) {
+                            in 0..50 -> AlertRed
+                            in 51..70 -> YellowOrange
+                            else -> DarkGreen
+                        }
+                    )
+                }
+
+            }
+
+            //FOR PARENT GET ASSESSMENT SISWA
+            if (userRole == Role.PARENT){
+                when (assessmentState) {
+                    is ResponseState.Loading -> {
+                        // Show loading state
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is ResponseState.Error -> {
+                        val error = (assessmentState as ResponseState.Error).error
+                        Log.e("DetailTrackingAnakSreen", "Error: $error")
+                    }
+                    is ResponseState.Success -> {
+                        val data = (assessmentState as ResponseState.Success<DetailAssesment>).data
+                        val evaluasi = data.evaluation
+                        val saranPendidik = data.suggestion
+
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = "Evaluasi Siswa",
+                            fontSize = 16.sp,
+                            color = Blue,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp)
+                                .fillMaxWidth(),
+                            text = evaluasi,
+                            fontSize = 12.sp,
+                            color = Black
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = "Saran Pendidik",
+                            fontSize = 16.sp,
+                            color = Blue,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp)
+                                .fillMaxWidth(),
+                            text = saranPendidik,
+                            fontSize = 12.sp,
+                            color = Black
+                        )
+                    }
+                }
+            }
+
+            //FOR TEACHER CREATE ASSESSMENT FOR SISWA
+            if (userRole == Role.TEACHER){
+
+                var evaluasiguru by remember { mutableStateOf("") }
+                var saranguru by remember { mutableStateOf("") }
+
+
+                Text(
+                    modifier = Modifier.padding(start = 16.dp),
+                    text = "Evaluasi Siswa",
+                    fontSize = 16.sp,
+                    color = Blue,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    value = evaluasiguru,
+                    onValueChange = { evaluasiguru = it },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = SecondaryBlue,
+                        focusedBorderColor = Blue,
+                        focusedTextColor = Blue,
+                        unfocusedTextColor = Blue,
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "Evaluasi perkembangan siswa",
+                            color = SecondaryBlue,
+                            fontSize = 12.sp
+                        )
                     }
                 )
-            }
 
-        }
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = "Evaluasi Siswa",
-            fontSize = 16.sp,
-            color = Blue,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        //PARENT
-        if (userRole == Role.PARENT) {
-            Text(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth(),
-                text = evalusiSiswa.ifEmpty { "Belum ada evaluasi" },
-                fontSize = 12.sp,
-                color = Black
-            )
-        }
+                Text(
+                    modifier = Modifier.padding(start = 16.dp),
+                    text = "Saran Pendidik",
+                    fontSize = 16.sp,
+                    color = Blue,
+                    fontWeight = FontWeight.SemiBold
+                )
 
-        //TEACHER
-        if (userRole == Role.TEACHER) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                value = evaluasi,
-                onValueChange = { evaluasi = it },
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = SecondaryBlue,
-                    focusedBorderColor = Blue,
-                    focusedTextColor = Blue,
-                    unfocusedTextColor = Blue,
-                ),
-                placeholder = {
-                    Text(
-                        text = "Evaluasi perkembangan siswa",
-                        color = SecondaryBlue,
-                        fontSize = 12.sp
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    value = saranguru,
+                    onValueChange = { saranguru = it },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = SecondaryBlue,
+                        focusedBorderColor = Blue,
+                        focusedTextColor = Blue,
+                        unfocusedTextColor = Blue,
+                    ),
+                    placeholder = {
+                        Text(
+                            text = "Saran pemaksimalan potensi dan perkembangan siswa",
+                            color = SecondaryBlue,
+                            fontSize = 12.sp
+                        )
+                    }
+                )
+
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    ButtonDefault(modifier = Modifier, text = "Simpan", onClick = {
+                        //TODO: LOGIC FOR SAVE SARAN DAN EVALUASI
+                    })
                 }
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = "Saran Pendidik",
-            fontSize = 16.sp,
-            color = Blue,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        //PARENNT
-        if (userRole == Role.PARENT) {
-            Text(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth(),
-                text = saranPendidik.ifEmpty { "Belum ada saran pendidik" },
-                fontSize = 12.sp,
-                color = Black
-            )
-        }
-
-        //TEACHER
-        if (userRole == Role.TEACHER) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                value = saran,
-                onValueChange = { saran = it },
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = SecondaryBlue,
-                    focusedBorderColor = Blue,
-                    focusedTextColor = Blue,
-                    unfocusedTextColor = Blue,
-                ),
-                placeholder = {
-                    Text(
-                        text = "Saran pemaksimalan potensi dan perkembangan siswa",
-                        color = SecondaryBlue,
-                        fontSize = 12.sp
-                    )
-                }
-            )
-
-            //Button
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                ButtonDefault(modifier = Modifier, text = "Simpan", onClick = {
-                    //TODO: LOGIC FOR SAVE SARAN DAN EVALUASI
-
-                })
             }
-
         }
     }
 }
@@ -374,36 +430,6 @@ fun AbilityCard(
             )
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DetailTrackingAnakScreenPreview() {
-    DetailTrackingAnakScreen(
-        onClickBack = {},
-        userRole = Role.TEACHER,
-        imagePainter = painterResource(id = R.drawable.pp_deafult),
-        name = "Rizky Wirawan Sedoyo",
-        number = "1",
-        saranPendidik = "Anak sudah sangat baik dalam belajar",
-        evalusiSiswa = "Anak sudah sangat baik dalam belajar",
-        listRiwayat = listOf(
-            RiwayatLatihanSoal(
-                nilai = 90,
-                deskripsi = "Kemampuan membaca anak sudah sangat baik",
-                mapel = "Kemampuan Baca",
-                totalSoal = 100,
-                totalSoalBenar = 90
-            ),
-            RiwayatLatihanSoal(
-                nilai = 80,
-                deskripsi = "Kemampuan menulis anak sudah sangat baik",
-                mapel = "Kemampuan Tulis",
-                totalSoal = 100,
-                totalSoalBenar = 80
-            ),
-        )
-    )
 }
 
 @Composable

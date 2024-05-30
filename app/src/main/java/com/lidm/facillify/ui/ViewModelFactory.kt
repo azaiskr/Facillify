@@ -12,11 +12,13 @@ import com.lidm.facillify.data.repository.ThreadRepository
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.viewmodel.AuthViewModel
 import com.lidm.facillify.ui.viewmodel.ChatViewModel
+import com.lidm.facillify.ui.viewmodel.DetailTrackingAnakViewModel
 import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.RegisterViewModel
 import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
+import com.lidm.facillify.ui.viewmodel.TrackingAnakViewModel
 import com.lidm.facillify.ui.viewmodel.UpdateParentEmailViewModel
 
 class ViewModelFactory(
@@ -60,6 +62,15 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(SiswaRiwayatViewModel::class.java) -> {
                 val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
                 SiswaRiwayatViewModel(siswaRepository) as T
+            }
+            modelClass.isAssignableFrom(TrackingAnakViewModel::class.java) -> {
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                TrackingAnakViewModel(userRepository) as T
+            }
+            modelClass.isAssignableFrom(DetailTrackingAnakViewModel::class.java) -> {
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                DetailTrackingAnakViewModel(userRepository, siswaRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }

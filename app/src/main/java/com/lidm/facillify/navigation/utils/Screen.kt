@@ -25,7 +25,9 @@ sealed class Screen (
     data object Profile: Screen("profile")
 
     data object TrackingList: Screen("tracking_list")
-    data object TrackingDetail: Screen("tracking_detail")
+    data object TrackingDetail: Screen("tracking_detail/{studentEmail}") {
+        fun createRoute(studentEmail: String) = "tracking_detail/$studentEmail"
+    }
 
 
 
