@@ -144,11 +144,16 @@ class UserRepository (
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
-    suspend fun getUserProfile(email: String) :Flow<ProfileResponse> {
+    suspend fun getUserProfile(email: String) :Flow<ResponseState<ProfileResponse>> {
         return flow {
             try {
-                emit(apiService.getUserProfile(email))
-            } catch (e:Exception){
+                val response = apiService.getUserProfile(email)
+                emit(ResponseState.Success(response))
+            } catch (e: HttpException){
+                emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+            }
+            catch (e:Exception){
+                emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
                 Log.d("User Repository", "getUserProfile: ${e.localizedMessage}" )
                 e.printStackTrace()
             }

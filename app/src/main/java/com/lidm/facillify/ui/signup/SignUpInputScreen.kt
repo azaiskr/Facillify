@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -55,6 +56,8 @@ import com.lidm.facillify.R
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
 import com.lidm.facillify.ui.components.InputTextFieldDefault
+import com.lidm.facillify.ui.components.ShowToast
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.viewmodel.RegisterViewModel
@@ -110,11 +113,16 @@ fun SignUpInputScreen(
         }
 
         val rgResponse by rgViewModel.registerResponse.collectAsState()
-        LaunchedEffect(rgResponse) {
-            when(rgResponse){
-                is ResponseState.Loading ->{}
-                is ResponseState.Success -> {onSignUp()}
-                is ResponseState.Error -> {}
+        when(rgResponse){
+            is ResponseState.Loading ->{
+                LoadingScreen()
+            }
+            is ResponseState.Success -> {
+                ShowToast(message = "Register Berhasil")
+                onSignUp()
+            }
+            is ResponseState.Error -> {
+                (rgResponse as ResponseState.Error).error?.let { ShowToast(message = it) }
             }
         }
 

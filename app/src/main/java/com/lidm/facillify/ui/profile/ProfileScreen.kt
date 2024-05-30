@@ -62,7 +62,12 @@ import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.components.SecondaryButton
+import com.lidm.facillify.ui.components.ShowToast
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
+
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
@@ -90,23 +95,35 @@ fun ProfileScreen(
         }
     }
 
-    when (profileResponse.value) {
-        is ResponseState.Loading -> {
-            //TODO: show loading
-
+    Column {
+        when (profileResponse.value) {
+            is ResponseState.Loading -> {
+                LoadingScreen()
+            }
+            is ResponseState.Success -> {
+                val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+                ProfileContent(
+                    profileData = profileData.result,
+                    modifier = modifier,
+                    actionLogOut = { showDialog = true},
+                    onClick = navigateToFormTambahDataOrtu
+                )
+            }
+            is ResponseState.Error -> {
+                (profileResponse.value as ResponseState.Error).error?.let { ShowToast(message = it) }
+                ErrorScreen(
+                    onTryAgain = {
+                        preferences?.email?.let { profileViewModel.getUserProfile(it) }
+                    }
+                )
+                MainButton(
+                    modifier = Modifier.padding(48.dp),
+                    onClick = { profileViewModel.logOut() },
+                    labelText = "Keluar"
+                )
+            }
         }
-        is ResponseState.Success -> {
-            val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
-            ProfileContent(
-                profileData = profileData.result,
-                modifier = modifier,
-                actionLogOut = { showDialog = true},
-                onClick = navigateToFormTambahDataOrtu
-            )
-        }
-        is ResponseState.Error -> {
-            //TODO: show error
-        }
+        Spacer(modifier = modifier.height(24.dp))
     }
 
     if (showDialog) {
@@ -274,7 +291,6 @@ fun ProfileContent(
                 label = "Edit Email Orang Tua"
             )
         }
-        Spacer(modifier = modifier.height(24.dp))
         Button(
             modifier = modifier
                 .fillMaxWidth()

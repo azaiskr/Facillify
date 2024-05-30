@@ -29,7 +29,9 @@ import com.lidm.facillify.ui.components.MainFab
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.guru.latihansoal.BaseLatihanSoalGuruScreen
 import com.lidm.facillify.ui.guru.latihansoal.TambahLatianSoalGuruScreen
-import com.lidm.facillify.ui.guru.materi.MateriBelajarGuruScreen
+import com.lidm.facillify.ui.guru.materibelajar.DetailMateriBelajarGuruScreen
+import com.lidm.facillify.ui.guru.materibelajar.DetailMateriGuru
+import com.lidm.facillify.ui.guru.materibelajar.MateriBelajarGuruScreen
 import com.lidm.facillify.ui.guru.materibelajar.TambahMateriBelajarScreen
 import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
 import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
@@ -68,6 +70,7 @@ fun GuruNavigation(
                 sectionTitle = when (currentRoute) {
                     Screen.Belajar.route -> "Halo, ${email}"
                     Screen.MateriBelajar.route -> "Materi Belajar"
+                    Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.TambahMateri.route -> "Upload Materi"
                     Screen.Latihan.route -> "Latihan Siswa"
                     Screen.TambahLatihan.route -> "Upload Latihan"
@@ -160,7 +163,19 @@ fun GuruNavigation(
                 BaseLatihanSoalGuruScreen()
             }
             composable(Screen.MateriBelajar.route) {
-                MateriBelajarGuruScreen()
+                MateriBelajarGuruScreen(
+                    onItemMateriBelajarClicked = {
+                        navController.navigate(Screen.SiswaMateriBelajarDetail.createRoute(it))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.SiswaMateriBelajarDetail.route,
+                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+            ){
+                val id = it.arguments?.getInt("materiId") ?: 0
+                DetailMateriBelajarGuruScreen(materiId = id, modifier = modifier)
             }
 
             composable(Screen.TambahMateri.route) {
