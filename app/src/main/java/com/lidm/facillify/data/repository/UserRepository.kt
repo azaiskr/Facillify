@@ -3,6 +3,7 @@ package com.lidm.facillify.data.repository
 import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
+import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.response.ProfileResponse
@@ -162,6 +163,19 @@ class UserRepository (
     }
 
     fun getSession(): Flow<UserModelResponse> = userPreferences.getUserPref()
+
+    //ASSESSMENT FOR TEACHER ONLY
+    suspend fun createAssessment(request: CreateAssessmentForSiswaRequest) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.createAssesmentForSiswa(request)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
 
     companion object {
         private var instance:UserRepository? = null
