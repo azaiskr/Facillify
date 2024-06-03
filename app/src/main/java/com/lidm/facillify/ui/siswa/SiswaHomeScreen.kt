@@ -23,6 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,31 +33,65 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
 import com.lidm.facillify.data.local.dataLatihan
 import com.lidm.facillify.data.local.listMateri
-import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
+import com.lidm.facillify.data.remote.response.QuizListItem
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
+import com.lidm.facillify.ui.viewmodel.HomeSiswaViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun SiswaHomeScreen(
     modifier: Modifier = Modifier,
     onItemBelajarClick: (Int) -> Unit,
-    onItemLatihanClick: (Int) -> Unit,
+    onItemLatihanClick: (String) -> Unit,
     onNavigateToBelajar: () -> Unit,
     onNavigateToLatihan: () -> Unit,
     onNavigateToChatbot: () -> Unit,
 ) {
-    //viewModel
     //state
+    val viewModel: HomeSiswaViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(
+            LocalContext.current)
+    )
+    val quizList by viewModel.quizList.collectAsState()
+    var listOfQuiz by rememberSaveable {
+        mutableStateOf<List<QuizListItem>>(emptyList())
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getQuizList()
+    }
+
+    when (quizList) {
+        is ResponseState.Loading -> {
+            LoadingScreen()
+        }
+        is ResponseState.Success -> {
+            val quizResponse = (quizList as ResponseState.Success).data
+            listOfQuiz = quizResponse.result
+        }
+        is ResponseState.Error -> {
+            ErrorScreen (
+                onTryAgain = { viewModel.getQuizList() }
+            )
+        }
+
+    }
 
     HomeScreenContent(
         modifier = modifier,
@@ -64,6 +100,7 @@ fun SiswaHomeScreen(
         onNavigateToBelajar = onNavigateToBelajar,
         onNavigateToLatihan = onNavigateToLatihan,
         onNavigateToChatbot = onNavigateToChatbot,
+        listQuiz = listOfQuiz
     )
 }
 
@@ -71,17 +108,18 @@ fun SiswaHomeScreen(
 fun HomeScreenContent(
     modifier: Modifier,
     onItemBelajarClick: (Int) -> Unit = {},
-    onItemLatihanClick: (Int) -> Unit = {},
+    onItemLatihanClick: (String) -> Unit = {},
     onNavigateToBelajar: () -> Unit = {},
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
+    listQuiz: List<QuizListItem>
 ) {
     var showDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
     var selectedLatihanId by rememberSaveable {
-        mutableStateOf<Int?>(null)
+        mutableStateOf<String?>(null)
     }
 
     Column(
@@ -217,13 +255,13 @@ fun HomeScreenContent(
                     }
                 }
             }
-            items(dataLatihan.size) {
+            items(listQuiz.size) {
                 Box(modifier = modifier.padding(horizontal = 16.dp)) {
                     CardLatihanItem(
-                        latihan = dataLatihan[it],
+                        latihan = listQuiz[it],
                         modifier = modifier,
                         onCLick = {
-                            selectedLatihanId = dataLatihan[it].id
+                            selectedLatihanId = listQuiz[it].id
                             showDialog = true
                         }
                     )
@@ -246,12 +284,4 @@ fun HomeScreenContent(
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreenContent(
-        modifier = Modifier
-    )
 }

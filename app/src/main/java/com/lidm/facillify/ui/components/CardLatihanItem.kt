@@ -24,18 +24,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.R
-import com.lidm.facillify.data.local.LatihanItem
+import com.lidm.facillify.data.remote.response.QuizListItem
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.Yellow
 
 @Composable
 fun CardLatihanItem(
-    latihan: LatihanItem,
+    latihan: QuizListItem,
     modifier: Modifier,
     onCLick: () -> Unit,
 ) {
@@ -62,13 +61,13 @@ fun CardLatihanItem(
                     .fillMaxWidth(),
             ) {
                 Image(
-                    painter = if (latihan.done) painterResource(id = R.drawable.donebadge) else painterResource(id = R.drawable.undonedadge) ,
+                    painter = painterResource(id = R.drawable.donebadge) ,
                     contentDescription = null,
                     modifier = modifier
                         .size(40.dp)
                 )
                 Text(
-                    text = "${latihan.jmlSoal}\nSoal",
+                    text = "${latihan.numQuestions}\nSoal",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Yellow,
                     lineHeight = 16.sp,
@@ -77,7 +76,7 @@ fun CardLatihanItem(
                         .offset(45.dp, (6).dp)
                 )
                 Text(
-                    text = "${latihan.waktu} Menit",
+                    text = "${latihan.time} Menit",
                     style = MaterialTheme.typography.bodyMedium,
                     color = OnBlueSecondary,
                     fontWeight = FontWeight.SemiBold,
@@ -87,21 +86,23 @@ fun CardLatihanItem(
             }
             Spacer(modifier = modifier.height(8.dp))
             Text(
-                text = latihan.judul,
+                text = latihan.title,
                 fontSize = 20.sp,
                 color = DarkBlue,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = latihan.deskripsi,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 16.sp,
-                maxLines = 2,
-                textAlign = TextAlign.Justify
-            )
+            latihan.description?.let {
+                Text(
+                    text = it,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 16.sp,
+                    maxLines = 2,
+                    textAlign = TextAlign.Justify
+                )
+            }
         }
     }
 }

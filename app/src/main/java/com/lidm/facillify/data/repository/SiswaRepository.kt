@@ -4,6 +4,7 @@ import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
+import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
 import com.lidm.facillify.data.remote.response.GradeHistory
@@ -101,13 +102,48 @@ class SiswaRepository(
             emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
-
     //GET HISTORY STUDENT
     suspend fun getHistoryStudent(email: String): Flow<ResponseState<List<GradeHistory>>> = flow {
         emit(ResponseState.Loading)
         try {
             val response = apiService.getSiswaGrade(email)
             emit(ResponseState.Success(response.result))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+    //QUIZ
+    suspend fun getQuizList() = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getQuizList()
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    suspend fun getQuizDetail(id: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getQuiz(id)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    suspend fun submitQuiz(quizId: String, request: SubmitQuizAnswerRequest) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.submitQuizAnswer(quizId, request)
+            emit(ResponseState.Success(response))
         } catch (e: HttpException) {
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         } catch (e: Exception) {
