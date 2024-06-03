@@ -238,6 +238,38 @@ class UserRepository (
         }
     }
 
+    // GET QUIZ LIST FOR TEACHER
+    suspend fun getQuizList() = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getQuizList()
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //DELETE QUIZ FOR TEACHER
+    suspend fun deleteQuiz(quizId: String) = flow {
+        emit(ResponseState.Loading)
+        try{
+            val response = apiService.deleteQuiz(quizId)
+            if (response.isSuccessful) {
+                emit(ResponseState.Success(Unit))
+            } else {
+                emit(ResponseState.Error("Delete failed with response code ${response.code()}"))
+            }
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+
+        }
+    }
+
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         private var instance:UserRepository? = null
