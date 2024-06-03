@@ -7,12 +7,30 @@ data class SubmitQuizResponse(
 	@field:SerializedName("msg")
 	val msg: String,
 
+	@field:SerializedName("data")
+	val data: Data
+)
+
+data class Data(
+
 	@field:SerializedName("quiz_id")
-	val quizId: String? = null,
+	val quizId: String,
+
+	@field:SerializedName("submit_time")
+	val submitTime: String,
+
+	@field:SerializedName("num_questions")
+	val numQuestions: Int,
 
 	@field:SerializedName("grade")
-	val grade: Number? = null,
+	val grade: Int,
 
-	@field:SerializedName("email")
-	val email: String? = null
+	@field:SerializedName("correct_answers")
+	val correctAnswers: Int,
+
+	@field:SerializedName("student_email")
+	val studentEmail: String,
+
+	@field:SerializedName("_id")
+	val id: String
 )

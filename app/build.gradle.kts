@@ -115,7 +115,7 @@ dependencies {
 
     //Coil
     //implementation(libs.accompanist.coil)
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.compose)
 
     //lifecycle
     //liveCycle

@@ -1,16 +1,18 @@
 package com.lidm.facillify.ui.siswa.belajar
 
-import android.app.Activity
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,97 +20,121 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.lidm.facillify.data.local.LatihanItem
-import com.lidm.facillify.data.local.dataLatihan
-import com.lidm.facillify.data.local.hasilLatihan
+import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
+import com.lidm.facillify.data.remote.response.Quiz
+import com.lidm.facillify.data.remote.response.QuizDetailResponse
+import com.lidm.facillify.data.remote.response.SubmitQuizResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.CountDownTimer
 import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.siswa.FormSoal
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
+import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.delay
+import java.time.Instant
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LatihanScreen(
     modifier: Modifier,
-    latihanId: Int,
-    onNavigateToTestresult: (Int) -> Unit,
+    latihanId: String,
+    onBackClicked: () -> Unit,
 ) {
-    val latihan = dataLatihan.find { it.id == latihanId } !!
-    val answer = remember { mutableStateListOf<String>() }
-
     val latihanSiswaViewModel: LatihanSiswaViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context = LocalContext.current)
     )
-    var showDialog by remember { mutableStateOf(false) }
-    var elapsedTime by remember { mutableStateOf(0) }
-    var isRunning by remember { mutableStateOf(false) }
+    val quizResponse by latihanSiswaViewModel.quiz.collectAsState()
+    val emailResponse by latihanSiswaViewModel.emailUser.collectAsState()
+    val quizResultResponse by latihanSiswaViewModel.quizResult.collectAsState()
+    val answer = remember { mutableStateListOf<String>() }
 
-    fun onSubmit () {
+    var timeStamp by remember { mutableStateOf(Instant.now()) }
+    var showDialog by remember { mutableStateOf(false) }
+    var elapsedTime by remember { mutableIntStateOf(0) }
+    var isRunning by remember { mutableStateOf(false) }
+    var emailUser by remember { mutableStateOf("") }
+    var quizTitle by remember { mutableStateOf("") }
+
+    if (emailResponse is ResponseState.Success) {
+        emailUser = (emailResponse as ResponseState.Success<String>).data
+    }
+
+    val dataRequested = SubmitQuizAnswerRequest(
+        email = emailUser,
+        answers = answer,
+    )
+
+    LaunchedEffect(Unit) {
+        latihanSiswaViewModel.getQuiz(latihanId)
+        latihanSiswaViewModel.getEmailuser()
+    }
+
+    fun onSubmit() {
         showDialog = true
     }
 
     fun submitAnswer() {
         isRunning = false
-        val result = latihanSiswaViewModel.getGrade(
-            latihanId = latihanId,
-            answer = answer,
-            keys = latihan.answeKey,
-            timetaken = elapsedTime,
-        )
-        if (hasilLatihan.find { it.idLatihan == latihanId } == null) {
-            hasilLatihan.add(result)
-        } else {
-            hasilLatihan.find { it.idLatihan == latihanId }?.let {
-                it.grade = result.grade
-                it.correctAnswer = result.correctAnswer
-                it.timeTaken = result.timeTaken
+        latihanSiswaViewModel.submitQuiz(latihanId, dataRequested)
+        Log.d("Latihan Screen", "Quiz Result: $quizResultResponse")
+    }
+
+
+    when (quizResultResponse) {
+        is ResponseState.Loading -> {
+            when(quizResponse) {
+                is ResponseState.Loading -> LoadingScreen()
+                is ResponseState.Success -> {
+                    val quizDetail = (quizResponse as ResponseState.Success<QuizDetailResponse>).data
+                    val quiz = quizDetail.result
+                    quizTitle = quiz.title
+                    timeStamp = Instant.now()
+                    FormLatihan(
+                        latihanItem = quiz,
+                        answer = answer,
+                        onSubmit = ::onSubmit,
+                        submitAnswer = ::submitAnswer,
+                        totalTimeMinutes = quiz.time,
+                    )
+                    LaunchedEffect(key1 = isRunning) {
+                        if (isRunning) {
+                            delay(1000L)
+                            elapsedTime++
+                        }
+
+                    }
+                }
+                is ResponseState.Error -> {
+                    ErrorScreen(
+                        onTryAgain = { latihanSiswaViewModel.getQuiz(quizId = latihanId) }
+                    )
+                }
             }
         }
-        onNavigateToTestresult(latihanId)
-        Log.d("grade", "LatihanScreen: ${result.grade} > correct : ${result.correctAnswer} > time : ${result.timeTaken} > ${hasilLatihan.size}" )
-    }
-
-
-
-
-    //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
-
-    FormLatihan(
-        latihanItem = latihan,
-        answer = answer,
-        onSubmit = ::onSubmit,
-        submitAnswer = ::submitAnswer,
-        totalTimeMinutes = latihan.waktu,
-
-    )
-
-    LaunchedEffect (key1 = isRunning) {
-        if (isRunning) {
-            delay(1000L)
-            elapsedTime++
+        is ResponseState.Success -> {
+            val quizResult = (quizResultResponse as ResponseState.Success<SubmitQuizResponse>).data
+            Log.d("LatihanScreen", "Quiz Result: $quizResult")
+            LatihanResultScreen(
+                quizResult = quizResult.data,
+                quizdata = quizTitle,
+                onBackClicked = onBackClicked
+            )
         }
-
+        is ResponseState.Error -> {
+            ErrorScreen(
+                onTryAgain = { latihanSiswaViewModel.getQuiz(quizId = latihanId) }
+            )
+        }
     }
+
 
     if (showDialog) {
         DialogConfirm(
@@ -118,33 +144,19 @@ fun LatihanScreen(
                 submitAnswer()
             },
             title = "Kumpulkan Jawaban?",
-            msg ="Apakah kamu sudah yakin dengan semua jawabanmu? Pastikan semua soal telah terjawab ya.",
+            msg = "Apakah kamu sudah yakin dengan semua jawabanmu? Pastikan semua soal telah terjawab ya.",
             confirmLabel = "Kumpulkan",
             dismissLabel = "Batal"
         )
     }
 
-    androidx.activity.compose.BackHandler (enabled = true) {
-
+    androidx.activity.compose.BackHandler(enabled = true) {
     }
-//    val context = LocalContext.current
-//    val lifecycleOwner = LocalLifecycleOwner.current
-//    DisposableEffect(lifecycleOwner) {
-//        val observer = LifecycleEventObserver { _, _ ->
-//            val activity = context as? Activity
-//            activity?.moveTaskToBack(false)
-//        }
-//        lifecycleOwner.lifecycle.addObserver(observer)
-//        onDispose {
-//            lifecycleOwner.lifecycle.removeObserver(observer)
-//        }
-//    }
-
 }
 
 @Composable
 fun FormLatihan(
-    latihanItem: LatihanItem,
+    latihanItem: Quiz,
     modifier: Modifier = Modifier,
     answer: MutableList<String>,
     onSubmit: () -> Unit,
@@ -160,7 +172,7 @@ fun FormLatihan(
             .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = latihanItem.judul,
+            text = latihanItem.title,
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
@@ -180,7 +192,6 @@ fun FormLatihan(
             item = latihanItem.questions,
             answer = answer,
             onSubmit = onSubmit,
-            totalTimeMinutes = totalTimeMinutes
         )
     }
 }

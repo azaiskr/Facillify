@@ -13,6 +13,7 @@ import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.viewmodel.AuthViewModel
 import com.lidm.facillify.ui.viewmodel.ChatViewModel
 import com.lidm.facillify.ui.viewmodel.DetailTrackingAnakViewModel
+import com.lidm.facillify.ui.viewmodel.HomeSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.RegisterViewModel
@@ -49,7 +50,8 @@ class ViewModelFactory(
                 ProfileViewModel(userRepository) as T
             }
             modelClass.isAssignableFrom(LatihanSiswaViewModel::class.java) -> {
-                LatihanSiswaViewModel() as T
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                LatihanSiswaViewModel(siswaRepository) as T
             }
             modelClass.isAssignableFrom(UpdateParentEmailViewModel::class.java) -> {
                 val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
@@ -70,6 +72,10 @@ class ViewModelFactory(
             modelClass.isAssignableFrom(DetailTrackingAnakViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
                 DetailTrackingAnakViewModel(userRepository) as T
+            }
+            modelClass.isAssignableFrom(HomeSiswaViewModel::class.java) -> {
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                HomeSiswaViewModel(siswaRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
