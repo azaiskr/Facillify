@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,9 +56,12 @@ import com.lidm.facillify.R
 import com.lidm.facillify.data.RiwayatLatihanSoal
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.GradeHistory
 import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
+import com.lidm.facillify.ui.components.DynamicSizeImage
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
@@ -68,6 +72,8 @@ import com.lidm.facillify.ui.viewmodel.DetailTrackingAnakViewModel
 import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
 import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
+import com.lidm.facillify.util.convertToReadableDate
+import kotlin.math.roundToInt
 
 @Composable
 fun DetailTrackingAnakScreen(
@@ -85,39 +91,27 @@ fun DetailTrackingAnakScreen(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
 
-
-
     //state
+    val preferences by detailTrackingAnakViewModel.getSession().observeAsState()
     val assessmentState by siswaRiwayatViewModel.assessment.collectAsState()
     val profileState by siswaRiwayatViewModel.profileSiswa.collectAsState()
     val createdAssessmentState by detailTrackingAnakViewModel.createdAssessment.collectAsState()
+    val gradeHistoryState by detailTrackingAnakViewModel.gradeSiswa.collectAsState()
 
     //launchedeffect
     LaunchedEffect(Unit) {
         siswaRiwayatViewModel.getAssessment(emailStudent)
         siswaRiwayatViewModel.getProfileSiswa(emailStudent)
+        detailTrackingAnakViewModel.getGradeHistoryStudent(emailStudent)
     }
-
-
-    //TODO GET PROFILE
-    val imagePainter: Painter = painterResource(id = R.drawable.pp_deafult)
-    val listRiwayat: List<RiwayatLatihanSoal> = listOf(
-        RiwayatLatihanSoal(
-            nilai = 90,
-            deskripsi = "Kemampuan membaca anak sudah sangat baik",
-            mapel = "Kemampuan Baca",
-            totalSoal = 100,
-            totalSoalBenar = 70
-        )
-    )
 
     //CEK STATE IS LOADING OR NOT
     // Check if any state is loading
-    val isLoading = assessmentState is ResponseState.Loading || profileState is ResponseState.Loading
+    val isLoading = assessmentState is ResponseState.Loading || profileState is ResponseState.Loading || gradeHistoryState is ResponseState.Loading
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            LoadingScreen()
         }
     } else {
         // Do something while loading
@@ -172,11 +166,9 @@ fun DetailTrackingAnakScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(
-                                painter = imagePainter,
-                                contentDescription = "photo profile", //TODO USING COIL FOR IMAGE PASS profile.photo_url
-                                modifier = Modifier.size(96.dp)
-                            )
+                            DynamicSizeImage(
+                                modifier = Modifier.size(96.dp), imageUrl = profile.profile_image_url.toString(),
+                                bearerToken = preferences?.token.toString())
                             Column {
                                 Text(
                                     text = "Nama Anak",
@@ -200,29 +192,62 @@ fun DetailTrackingAnakScreen(
                     }
                 }
 
+                when (gradeHistoryState) {
+                    is ResponseState.Loading -> {
 
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    modifier = Modifier.padding(start = 16.dp),
-                    text = "Riwayat Nilai Siswa",
-                    fontSize = 16.sp,
-                    color = Blue,
-                    fontWeight = FontWeight.SemiBold
-                )
-                LazyRow {
-                    items(listRiwayat.size) { index ->
-                        AbilityCard(
-                            title = listRiwayat[index].mapel,
-                            score = listRiwayat[index].nilai,
-                            description = listRiwayat[index].deskripsi,
-                            totalSoal = listRiwayat[index].totalSoal,
-                            totalSoalBenar = listRiwayat[index].totalSoalBenar,
-                            color = when (listRiwayat[index].nilai) {
-                                in 0..50 -> AlertRed
-                                in 51..70 -> YellowOrange
-                                else -> DarkGreen
-                            }
+                    }
+                    is ResponseState.Error -> {
+
+                    }
+                    is ResponseState.Success -> {
+                        val gradeHistory = (gradeHistoryState as ResponseState.Success<List<GradeHistory>>).data
+
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = "Riwayat Nilai Siswa",
+                            fontSize = 16.sp,
+                            color = Blue,
+                            fontWeight = FontWeight.SemiBold
                         )
+
+                        LazyRow {
+                            items(gradeHistory.size) { index ->
+                                if (gradeHistory[index].quiz_title.isEmpty() && gradeHistory.isEmpty()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillParentMaxHeight()
+                                            .padding(16.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(text = "Belum ada Riwayat")
+                                    }
+                                } else {
+                                    AbilityCard(
+                                        title = gradeHistory[index].quiz_title,
+                                        score = gradeHistory[index].grade.roundToInt(),
+                                        description = convertToReadableDate(gradeHistory[index].submit_time) ,
+                                        totalSoal = gradeHistory[index].num_questions,
+                                        totalSoalBenar = gradeHistory[index].correct_answers,
+                                        color =
+                                        when (gradeHistory[index].grade) {
+                                            in 0f..50f -> {
+                                                AlertRed
+                                            }
+                                            in 51f..70f -> {
+                                                YellowOrange
+                                            }
+                                            else -> {
+                                                DarkGreen
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+
+                        }
+
                     }
 
                 }
@@ -522,7 +547,7 @@ fun AbilityCard(
 fun AbilityCardPreview() {
     AbilityCard(
         title = "Kemampuan Baca",
-        score = 90,
+        score = 12.312f.roundToInt(),
         description = "Kemampuan membaca anak sudah sangat baik",
         totalSoal = 100,
         totalSoalBenar = 90

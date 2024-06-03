@@ -1,5 +1,6 @@
 package com.lidm.facillify.ui.konsultasi
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -26,9 +27,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,9 +51,11 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.R
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatInputField
+import com.lidm.facillify.ui.components.DynamicSizeImage
 import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
@@ -57,6 +64,7 @@ import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.convertToReadableDate
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun KonsultasiDetailScreen(
     threadID: String,
@@ -73,6 +81,7 @@ fun KonsultasiDetailScreen(
     val createdCommentResult by threadViewModel.createCommentResult.collectAsState()
     val dateThread by threadViewModel.dateThread.collectAsState()
     val subjectThread by threadViewModel.subjectThread.collectAsState()
+    val preferences by threadViewModel.getSession().observeAsState()
 
     var jawaban by remember { mutableStateOf("") }
 
@@ -120,16 +129,11 @@ fun KonsultasiDetailScreen(
         }
     }
 
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         when (threadDetailState) {
             is ResponseState.Loading -> {
-                //Loading Indicator
-//                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                    CircularProgressIndicator()
-//                }
                 LoadingScreen()
             }
 
@@ -143,6 +147,17 @@ fun KonsultasiDetailScreen(
             is ResponseState.Success -> {
                 val threadDetail = (threadDetailState as ResponseState.Success<ThreadDetailResponse>).data
 
+                // Load the profile URL once and cache it
+                val profileUrl by rememberUpdatedState(
+                    threadViewModel.profileImageUrlMap.collectAsState().value[threadDetail.op_email] ?: ""
+                )
+
+                if (profileUrl.isEmpty()) {
+                    LaunchedEffect(threadDetail.op_email) {
+                        threadViewModel.getUserProfile(threadDetail.op_email)
+                    }
+                }
+
                 SwipeRefresh(state = swipeRefreshState, onRefresh = { threadViewModel.getThreadDetail(threadID) }) {
                     Column(
                         modifier = Modifier.fillMaxSize()
@@ -155,9 +170,11 @@ fun KonsultasiDetailScreen(
                             item {
                                 val readbleDateMainContent = convertToReadableDate(currentDate.toString())
                                 Log.d("KonsultasiDetailScreen", "readbleDateMainContent: $readbleDateMainContent")
+                                Log.d("KonsultasiDetailScreen", "Profile Url: ${profileUrl}")
                                 // Main Content
                                 MainContentKonsulDetail(
-                                    photoProfil = painterResource(id = R.drawable.pp_deafult), //TODO: change with real data
+                                    photoProfilUrl = profileUrl ?: "", //TODO: change with real data
+                                    bearerToken = preferences?.token.toString(),
                                     name = threadDetail.op_name,
                                     date = readbleDateMainContent ,
                                     title = threadDetail.title,
@@ -179,10 +196,24 @@ fun KonsultasiDetailScreen(
                                                 Text(text = "Tidak Ada Komentar")
                                             }
                                         } else {
+
                                             val readableDate = comment.time?.let { convertToReadableDate(it) } ?: "Invalid date"
                                             Log.d("KonsultasiDetailScreen", "readableDate: $readableDate")
+
+                                            // Load the profile URL once and cache it
+                                            val commentProfileUrl by rememberUpdatedState(
+                                                threadViewModel.profileImageUrlMap.collectAsState().value[comment.email] ?: ""
+                                            )
+
+                                            if (commentProfileUrl.isEmpty()) {
+                                                LaunchedEffect(comment.email) {
+                                                    threadViewModel.getUserProfile(comment.email)
+                                                }
+                                            }
+
                                             CommentSection(
-                                                imageUserComment = painterResource(id = R.drawable.pp_deafult), //TODO: replace with actual image data if available
+                                                profileUserCommentUrl = commentProfileUrl ?:"", //TODO: replace with actual image data if available
+                                                bearerToken = preferences?.token.toString(),
                                                 nameUser = comment.email ?: "Unknown",
                                                 date = readableDate,
                                                 comment = comment.content ?: "No comment"
@@ -218,7 +249,8 @@ fun KonsultasiDetailScreen(
 
 @Composable
 fun MainContentKonsulDetail(
-    photoProfil: Painter,
+    photoProfilUrl: String,
+    bearerToken: String,
     name: String,
     date: String,
     title: String,
@@ -234,14 +266,7 @@ fun MainContentKonsulDetail(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = photoProfil,
-                contentDescription = "Photo Profile",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(48.dp),
-            )
+            DynamicSizeImage(imageUrl = photoProfilUrl, bearerToken = bearerToken, modifier = Modifier.size(48.dp))
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -285,7 +310,8 @@ fun MainContentKonsulDetail(
 
 @Composable
 fun CommentSection(
-    imageUserComment: Painter,
+    profileUserCommentUrl: String,
+    bearerToken: String,
     nameUser: String,
     date: String,
     comment: String
@@ -296,10 +322,8 @@ fun CommentSection(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            Image(painter = imageUserComment, contentDescription = "pp", modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape), contentScale = ContentScale.Crop)
 
+            DynamicSizeImage(imageUrl = profileUserCommentUrl, bearerToken = bearerToken, modifier = Modifier.size(32.dp))
             Spacer(modifier = Modifier.width(8.dp))
 
             Column {

@@ -17,6 +17,7 @@ import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.ui.viewmodel.RegisterViewModel
 import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
+import com.lidm.facillify.ui.viewmodel.TambahLatianSoalGuruViewModel
 import com.lidm.facillify.ui.viewmodel.ThreadViewModel
 import com.lidm.facillify.ui.viewmodel.TrackingAnakViewModel
 import com.lidm.facillify.ui.viewmodel.UpdateParentEmailViewModel
@@ -42,7 +43,8 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(ThreadViewModel::class.java) -> {
                 val threadRepository = repositories[ThreadRepository::class.java] as ThreadRepository
-                ThreadViewModel(threadRepository) as T
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                ThreadViewModel(threadRepository, userRepository) as T
             }
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
@@ -69,7 +71,12 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(DetailTrackingAnakViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
-                DetailTrackingAnakViewModel(userRepository) as T
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                DetailTrackingAnakViewModel(userRepository, siswaRepository) as T
+            }
+            modelClass.isAssignableFrom(TambahLatianSoalGuruViewModel::class.java) -> {
+                val userRepository = repositories[UserRepository::class.java] as UserRepository
+                TambahLatianSoalGuruViewModel(userRepository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }

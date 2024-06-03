@@ -2,6 +2,7 @@ package com.lidm.facillify.ui.siswa.riwayat
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +27,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.data.RiwayatLatihanSoal
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.GradeHistory
 import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
@@ -35,6 +38,8 @@ import com.lidm.facillify.ui.theme.YellowOrange
 import com.lidm.facillify.ui.tracking.AbilityCard
 import com.lidm.facillify.ui.viewmodel.SiswaRiwayatViewModel
 import com.lidm.facillify.util.ResponseState
+import com.lidm.facillify.util.convertToReadableDate
+import kotlin.math.roundToInt
 
 @Composable
 fun RiwayatScreen(
@@ -48,6 +53,7 @@ fun RiwayatScreen(
     //state
     val emailState by siswaRiwayatViewModel.emailUser.collectAsState()
     val assessmentState by siswaRiwayatViewModel.assessment.collectAsState()
+    val gradeHistoryState by siswaRiwayatViewModel.gradeSiswa.collectAsState()
 
     //data
     val emailUser = if (emailState is ResponseState.Success) {
@@ -58,64 +64,61 @@ fun RiwayatScreen(
 
     //launched Effect
     LaunchedEffect(emailUser) {
-        if (emailUser != null) {
-            Log.d("RiwayatScreen", "Email user: $emailUser")
-            siswaRiwayatViewModel.getAssessment(emailUser.toString())
-        }
+        Log.d("RiwayatScreen", "Email user: $emailUser")
+        siswaRiwayatViewModel.getAssessment(emailUser.toString())
+        siswaRiwayatViewModel.getGradeHistoryStudent(emailUser.toString())
     }
-
-    //dummy data
-    var listRiwayat: List<RiwayatLatihanSoal> = listOf(
-        RiwayatLatihanSoal(
-            mapel = "Matematika",
-            deskripsi = "Latihan soal matematika",
-            nilai = 90,
-            totalSoal = 100,
-            totalSoalBenar = 90
-        ),
-        RiwayatLatihanSoal(
-            mapel = "Bahasa Indonesia",
-            deskripsi = "Latihan soal bahasa indonesia",
-            nilai = 70,
-            totalSoal = 100,
-            totalSoalBenar = 70
-        ),
-        RiwayatLatihanSoal(
-            mapel = "IPA",
-            deskripsi = "Latihan soal IPA",
-            nilai = 40,
-            totalSoal = 100,
-            totalSoalBenar = 40
-        )
-    )
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        LazyRow {
-            items(listRiwayat.size) { index ->
-                AbilityCard(
-                    title = listRiwayat[index].mapel,
-                    score = listRiwayat[index].nilai,
-                    description = listRiwayat[index].deskripsi,
-                    totalSoal = listRiwayat[index].totalSoal,
-                    totalSoalBenar = listRiwayat[index].totalSoalBenar,
-                    color = when (listRiwayat[index].nilai) {
-                        in 0..50 -> AlertRed
-                        in 51..70 -> YellowOrange
-                        else -> DarkGreen
-                    }
-                )
+        when (gradeHistoryState) {
+            is ResponseState.Loading -> {
+
+            }
+            is ResponseState.Error -> {
+
             }
 
+            is ResponseState.Success -> {
+                val gradeHistory = (gradeHistoryState as ResponseState.Success<List<GradeHistory>>).data
+
+                LazyRow {
+                    items(gradeHistory.size) { index ->
+                        if (gradeHistory.isEmpty()){
+                            Column(
+                                modifier = Modifier
+                                    .fillParentMaxHeight()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "Belum ada Riwayat")
+                            }
+                        } else {
+                            AbilityCard(
+                                title = gradeHistory[index].quiz_title,
+                                score = gradeHistory[index].grade.roundToInt(),
+                                description = convertToReadableDate(gradeHistory[index].submit_time),
+                                totalSoal = gradeHistory[index].num_questions,
+                                totalSoalBenar = gradeHistory[index].correct_answers,
+                                color = when (gradeHistory[index].grade.roundToInt()) {
+                                    in 0..50 -> AlertRed
+                                    in 51..70 -> YellowOrange
+                                    else -> DarkGreen
+                                }
+                            )
+                        }
+                    }
+
+                }
+            }
         }
 
         when (assessmentState) {
             is ResponseState.Loading -> {
                 // Show loading state
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                LoadingScreen()
             }
             is ResponseState.Error -> {
                 // Show error state
@@ -143,12 +146,4 @@ fun RiwayatScreen(
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun RiwayatScreenPreview() {
-    RiwayatScreen(
-
-    )
 }

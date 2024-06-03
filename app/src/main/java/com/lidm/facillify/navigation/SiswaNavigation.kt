@@ -52,7 +52,6 @@ import com.lidm.facillify.util.Role
 //@Preview
 @Composable
 fun SiswaNavigation(
-    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
@@ -77,7 +76,7 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Hallo, ${email}"
+                    //Screen.SiswaHome.route -> "Home"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
@@ -110,6 +109,7 @@ fun SiswaNavigation(
                     else -> false
                 },
                 isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.SiswaLatihanResult.route,
+                isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
     ) { innerPadding ->

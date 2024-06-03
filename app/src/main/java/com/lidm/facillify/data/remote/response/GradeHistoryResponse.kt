@@ -10,6 +10,8 @@ data class GradeHistory(
     val submit_time: String,
     val quiz_id: String,
     val student_email: String,
+    val num_questions: Int,
+    val correct_answers: Int,
     val grade: Double,
     val quiz_title: String
 )

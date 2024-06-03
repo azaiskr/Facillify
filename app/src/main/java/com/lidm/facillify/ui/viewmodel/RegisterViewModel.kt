@@ -50,7 +50,7 @@ class RegisterViewModel (
 
     fun registerGuru(type: String, email: String, name: String, password: String, pod: String, dob: String, gender: String, address: String, phone_number: String, religion: String, nip: String) {
         viewModelScope.launch {
-            userRepository.registerGuru(type = type, email = email, password = name, name = password, pod = pod, dob = dob, gender = gender, address = address, phone_number = phone_number, religion = religion, nip = nip).collect { responseState ->
+            userRepository.registerGuru(type = type, email = email, password = password, name = name, pod = pod, dob = dob, gender = gender, address = address, phone_number = phone_number, religion = religion, nip = nip).collect { responseState ->
                 when (responseState) {
                     is ResponseState.Loading -> {
                         _registerResponse.value = ResponseState.Loading

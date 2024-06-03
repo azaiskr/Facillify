@@ -43,8 +43,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,8 +66,10 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.R
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.components.DynamicSizeImage
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Blue
@@ -91,6 +96,7 @@ fun KonsultasiForumScreen(
     val createThreadResult by threadViewModel.createThreadResult.collectAsState()
     val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
     val totalComments by threadViewModel.totalComments.collectAsState()
+    val preferences by threadViewModel.getSession().observeAsState()
 
     val emailUser = if (emailUserState is ResponseState.Success) {
         (emailUserState as ResponseState.Success).data
@@ -205,9 +211,22 @@ fun KonsultasiForumScreen(
                         LazyColumn(
                             modifier = Modifier.padding(horizontal = 16.dp)) {
                             items(filteredList) { item ->
+
+                                val profileUrl by rememberUpdatedState(
+                                    threadViewModel.profileImageUrlMap.collectAsState().value[item.op_email] ?: ""
+                                )
+
+                                if (profileUrl.isEmpty()) {
+                                    LaunchedEffect(item.op_email) {
+                                        threadViewModel.getUserProfile(item.op_email)
+                                    }
+                                }
+
+
                                 threadViewModel.getTotalComment(item._id)
                                 CardKonsultasi(
-                                    imagePhotoProfile = painterResource(id = R.drawable.pp_deafult), //TODO: replace with real image
+                                    photoProfileUrl = profileUrl ?: "",
+                                    bearerToken = preferences?.token.toString(),
                                     name = item.op_name,
                                     date = convertToReadableDate(item.time),
                                     title = item.title,
@@ -264,7 +283,8 @@ fun KonsultasiForumScreen(
 
 @Composable
 fun CardKonsultasi(
-    imagePhotoProfile: Painter,
+    photoProfileUrl: String,
+    bearerToken: String,
     name: String,
     date: String,
     title: String,
@@ -291,14 +311,7 @@ fun CardKonsultasi(
                 verticalAlignment = Alignment.CenterVertically
 
             ) {
-                Image(
-                    painter = imagePhotoProfile,
-                    contentDescription = "Photo Profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(48.dp),
-                )
+                DynamicSizeImage(imageUrl = photoProfileUrl, bearerToken = bearerToken, modifier = Modifier.size(48.dp))
 
                 Spacer(modifier = Modifier.width(16.dp))
 

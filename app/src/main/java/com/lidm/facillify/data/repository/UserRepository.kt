@@ -1,24 +1,33 @@
 package com.lidm.facillify.data.repository
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
+import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.response.GetStudentResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
+import com.lidm.facillify.data.remote.response.SubmitQuizResponse
+import com.lidm.facillify.data.remote.response.UpdateImageResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.util.ResponseState
+import com.lidm.facillify.util.createPartFromString
+import com.lidm.facillify.util.getFilePartFromUri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 
+
 class UserRepository (
     private val apiService: ApiService,
     private val userPreferences: UserPreferences,
+    private val context: Context
 ) {
-
     suspend fun loginUser(
         email: String,
         password: String
@@ -196,11 +205,45 @@ class UserRepository (
         }
     }
 
+    //UPDATE PHOTO PROFILE
+    suspend fun uploadNewPhotoProfile(imageUri: Uri, email: String): Flow<ResponseState<UpdateImageResponse>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val imagePart = getFilePartFromUri(context, imageUri, "image")
+            val emailPart = createPartFromString(email)
+
+            if (imagePart != null) {
+                val response = apiService.uploadImage(imagePart, emailPart)
+                emit(ResponseState.Success(response))
+            } else {
+                emit(ResponseState.Error("Failed to create image part"))
+            }
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //CREATE QUIZ FOR TEACHER
+    suspend fun createQuizFromTeacher(quiz: CreateQuizRequest): Flow<ResponseState<SubmitQuizResponse>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.createQuiz(quiz)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private var instance:UserRepository? = null
-        fun getInstance(apiService: ApiService, userPreferences: UserPreferences): UserRepository =
+        fun getInstance(apiService: ApiService, userPreferences: UserPreferences, context: Context): UserRepository =
             instance ?: synchronized(this) {
-                instance ?: UserRepository(apiService, userPreferences).also { instance = it }
+                instance ?: UserRepository(apiService, userPreferences, context).also { instance = it }
             }
     }
 }

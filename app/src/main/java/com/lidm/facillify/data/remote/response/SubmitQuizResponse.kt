@@ -3,16 +3,16 @@ package com.lidm.facillify.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class SubmitQuizResponse(
-
-	@field:SerializedName("msg")
 	val msg: String,
+	val data: DataQuiz
+)
 
-	@field:SerializedName("quiz_id")
-	val quizId: String? = null,
-
-	@field:SerializedName("grade")
-	val grade: Number? = null,
-
-	@field:SerializedName("email")
-	val email: String? = null
+data class DataQuiz(
+	val submit_time: String,
+	val quiz_id: String,
+	val student_email: String,
+	val num_questions: Int,
+	val correct_answers: Int,
+	val grade: Double,
+	val _id: String
 )

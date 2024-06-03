@@ -15,13 +15,10 @@ fun getCurrentDateTime(): String {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun getCurrentDate(): LocalDate {
-    return LocalDate.now()
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun getYesterdayDate(): LocalDate {
-    return LocalDate.now().minusDays(1)
+fun getYesterdayDateString(): String {
+    val yesterdayDate = LocalDate.now().minusDays(1)
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
+    return yesterdayDate.format(formatter)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

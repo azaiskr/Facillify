@@ -68,7 +68,7 @@ fun GuruNavigation(
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = { navController.navigate(Screen.Profile.route) },
                 sectionTitle = when (currentRoute) {
-                    Screen.Belajar.route -> "Halo, ${email}"
+                    //Screen.Belajar.route -> "Halo, ${email}"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.TambahMateri.route -> "Upload Materi"
@@ -93,7 +93,8 @@ fun GuruNavigation(
                     Screen.TrackingList.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route
+                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route,
+                isHome = currentRoute == Screen.Belajar.route
             )
         },
         floatingActionButton = {
@@ -182,7 +183,9 @@ fun GuruNavigation(
                 TambahMateriBelajarScreen()
             }
             composable(Screen.TambahLatihan.route) {
-                TambahLatianSoalGuruScreen()
+                TambahLatianSoalGuruScreen(
+                    onBackClick = {navController.popBackStack()}
+                )
             }
             //KONSULTASI -> THREAD
             composable(Screen.Konsultasi.route) {

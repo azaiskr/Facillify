@@ -59,7 +59,7 @@ fun OrtuNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.Konsultasi.route -> "Halo, ${email}"
+                    //Screen.Konsultasi.route -> "Halo, ${email}"
                     Screen.TrackingList.route -> "Tracking Anak"
                     Screen.TrackingDetail.route -> "Perkembangan Anak"
                     Screen.Profile.route -> "Profile"
@@ -78,7 +78,8 @@ fun OrtuNavigation(
                     Screen.Profile.route -> false
                     else -> true
                 },
-                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route
+                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route,
+                isHome = currentRoute == Screen.Konsultasi.route
             )
         }
     ) { innerPadding ->

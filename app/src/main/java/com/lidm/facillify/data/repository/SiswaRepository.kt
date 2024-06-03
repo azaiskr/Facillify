@@ -6,6 +6,7 @@ import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
+import com.lidm.facillify.data.remote.response.GradeHistory
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
@@ -98,6 +99,19 @@ class SiswaRepository(
             emit(ResponseState.Error(e.message()))
         } catch (e: Exception) {
             emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
+        }
+    }
+
+    //GET HISTORY STUDENT
+    suspend fun getHistoryStudent(email: String): Flow<ResponseState<List<GradeHistory>>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getSiswaGrade(email)
+            emit(ResponseState.Success(response.result))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
 

@@ -2,7 +2,6 @@ package com.lidm.facillify.ui.chat
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,21 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.lidm.facillify.data.remote.api.ApiConfig
-import com.lidm.facillify.data.repository.ThreadRepository
-import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ChatBubble
 import com.lidm.facillify.ui.components.ChatInputField
 import com.lidm.facillify.ui.components.DateHeader
 import com.lidm.facillify.ui.viewmodel.ChatViewModel
-import com.lidm.facillify.util.formatDate
-import com.lidm.facillify.util.getCurrentDate
-import com.lidm.facillify.util.getYesterdayDate
-import com.lidm.facillify.util.parseDate
-import java.time.LocalDate
+import com.lidm.facillify.util.getCurrentDateTime
+import com.lidm.facillify.util.getYesterdayDateString
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,15 +55,16 @@ fun ChatScreen(
                 .padding(8.dp),
             state = listState
         ) {
-            var lastDate: LocalDate? = null
+            //var lastDate: LocalDate? = null
+            var lastDate: String? = null
             items(messages) { message ->
-                val messageDate = parseDate(message.timestamp)
+                val messageDate = message.timestamp
                 if (messageDate != lastDate) {
                     lastDate = messageDate
                     val headerText = when (messageDate) {
-                        getCurrentDate() -> "Hari Ini"
-                        getYesterdayDate() -> "Kemarin"
-                        else -> formatDate(messageDate)
+                        getCurrentDateTime() -> "Hari Ini"
+                        getYesterdayDateString() -> "Kemarin"
+                        else -> messageDate
                     }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -107,11 +100,6 @@ fun ChatScreen(
 @Preview(showBackground = true)
 fun ChatScreenPreview() {
     val context = LocalContext.current
-//    val viewModelFactory = ViewModelFactory(apiServiceChatBot, threadRepository)
-//    val chatViewModel = ViewModelProvider(
-//        LocalContext.current as androidx.activity.ComponentActivity,
-//        viewModelFactory
-//    )[ChatViewModel::class.java]
     val chatViewModel: ChatViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )

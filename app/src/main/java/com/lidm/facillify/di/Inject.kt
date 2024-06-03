@@ -22,7 +22,7 @@ object Inject {
     fun provideAuthRepo(context: Context): UserRepository {
         val apiService = ApiConfig.getMainApiService(context.applicationContext)
         val userPref = UserPreferences.getInstance(context.applicationContext)
-        return UserRepository.getInstance(apiService, userPref)
+        return UserRepository.getInstance(apiService, userPref, context)
     }
 
     fun provideSiswaRepo(context: Context): SiswaRepository{

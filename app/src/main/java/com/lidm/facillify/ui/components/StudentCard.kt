@@ -35,7 +35,8 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 
 @Composable
 fun StudentCard(
-    imageStudent: Painter,
+    linkImage: String,
+    bearerToken: String,
     nameStudent: String,
     numberStudent: Long,
     onClick: () -> Unit
@@ -49,15 +50,17 @@ fun StudentCard(
             .fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             //Image
-            Image(
+            DynamicSizeImage(
+                imageUrl = linkImage,
                 modifier = Modifier.size(96.dp),
-                painter = imageStudent ,
-                contentDescription = "photo profile",
-                )
+                bearerToken = bearerToken
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
             //Details
@@ -125,16 +128,5 @@ fun MiniButton(
                 fontSize = 8.sp,
             )
         }
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun StudentCardPreview() {
-    StudentCard(
-        imageStudent = painterResource(id = R.drawable.pp_deafult),
-        nameStudent = "Nama Siswa",
-        numberStudent = 1234567890,
-        onClick = {}
     )
 }
