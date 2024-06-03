@@ -47,7 +47,6 @@ import com.lidm.facillify.util.Role
 //@Preview
 @Composable
 fun SiswaNavigation(
-    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
@@ -72,7 +71,7 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Hallo, ${email}"
+                    //Screen.SiswaHome.route -> "Home"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
@@ -105,6 +104,7 @@ fun SiswaNavigation(
                     else -> false
                 },
                 isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
     ) { innerPadding ->
@@ -311,22 +311,7 @@ fun SiswaNavigation(
                     }
                 )
             }
-
-//            composable(
-//                route = Screen.SiswaLatihanResult.route,
-//                arguments = listOf(navArgument("quizTitle") { type = NavType.StringType })
-//            ) {
-//                val title = it.arguments?.getString("quizTitle") ?: ""
-//                LatihanSiswaScoreScreen(
-//                    quizTitle = title,
-//                    onBackClicked = {
-//                        navController.popBackStack(
-//                            Screen.SiswaLatihanForm.route,
-//                            inclusive = true
-//                        )
-//                    },
-//                )
-//            }
+            
             //CONSULTATION -> THREAD
             composable(Screen.Konsultasi.route) {
                 KonsultasiForumScreen {

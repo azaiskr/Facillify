@@ -12,6 +12,7 @@ import com.lidm.facillify.data.remote.response.AllThreadResponse
 import com.lidm.facillify.data.remote.response.CreatedAssessmentForSiswaResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.GetAllStudentResponse
+import com.lidm.facillify.data.remote.response.GradeHistoryResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
@@ -58,7 +59,7 @@ interface ApiService {
     @POST("api/v1/quiz")
     suspend fun createQuiz(
         @Body createQuizRequest: CreateQuizRequest
-    ) : MessageResponse
+    ) : SubmitQuizResponse
 
     @GET("api/v1/quiz")
     suspend fun getQuizList() : QuizListResponse
@@ -142,4 +143,10 @@ interface ApiService {
     //GET ALL STUDENT
     @GET("api/v1/students")
     suspend fun getAllStudent() : GetAllStudentResponse
+
+    //GET GRADE HISTORY
+    @GET("api/v1/grade")
+    suspend fun getSiswaGrade(
+        @Query("email") email: String
+    ): GradeHistoryResponse
 }

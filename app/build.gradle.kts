@@ -145,7 +145,7 @@ dependencies {
     implementation(libs.dotenv.kotlin)
 
     //COIL
-    implementation("io.coil-kt:coil:2.6.0")
+    implementation(libs.coil.kt.coil)
 
     //SWIPE REFRESH
     implementation(libs.accompanist.swiperefresh)

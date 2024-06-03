@@ -1,7 +1,11 @@
 package com.lidm.facillify.ui.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
@@ -11,6 +15,7 @@ import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.repository.ThreadRepository
+import com.lidm.facillify.data.repository.UserRepository
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +23,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ThreadViewModel(
-    private val repository: ThreadRepository
+    private val repository: ThreadRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _threads = MutableStateFlow<ResponseState<List<ThreadResponse>>>(ResponseState.Loading)
@@ -47,6 +53,9 @@ class ThreadViewModel(
 
     private val _totalComments = MutableStateFlow<Map<String, Int>>(emptyMap())
     val totalComments: StateFlow<Map<String, Int>> get() = _totalComments
+
+    private val _profileImageUrlMap = MutableStateFlow<Map<String, String>>(emptyMap())
+    val profileImageUrlMap: StateFlow<Map<String, String>> get() = _profileImageUrlMap
 
     init {
         getAllThreads()
@@ -133,6 +142,22 @@ class ThreadViewModel(
                     totalCommentsMap[id] = thread.comments.size
                     _totalComments.value = totalCommentsMap
                     Log.d("ThreadViewModel", "getTotalComment: ${_totalComments.value}")
+                }
+            }
+        }
+    }
+
+    fun getSession(): LiveData<UserModelResponse> {
+        return userRepository.getSession().asLiveData()
+    }
+
+    fun getUserProfile(email: String) {
+        viewModelScope.launch {
+            userRepository.getUserProfile(email).collect { responseState ->
+                if (responseState is ResponseState.Success) {
+                    val updatedMap = _profileImageUrlMap.value.toMutableMap()
+                    updatedMap[email] = responseState.data.result.profile_image_url.toString()
+                    _profileImageUrlMap.value = updatedMap
                 }
             }
         }

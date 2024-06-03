@@ -4,6 +4,7 @@ accompanistFlowlayout = "0.26.3-beta"
 accompanistSwiperefresh = "0.26.2"
 accompanistSwiperefreshVersion = "0.26.3-beta"
 agp = "8.4.0"
+coil = "2.6.0"
 coilCompose = "2.6.0"
 core = "11.1.0"
 datastorePreferences = "1.1.1"
@@ -36,6 +37,7 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-ui-text-google-fonts-v161 = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFontsVersion" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-kt-coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 core = { module = "com.pierfrancescosoffritti.androidyoutubeplayer:core", version.ref = "core" }
 dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvKotlin" }
 google-accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }

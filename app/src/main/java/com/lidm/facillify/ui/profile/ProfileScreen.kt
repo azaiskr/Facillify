@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -56,12 +57,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.R
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserProfile
 import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.components.DynamicSizeImage
 import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.components.SecondaryButton
 import com.lidm.facillify.ui.components.ShowToast
@@ -86,8 +90,11 @@ fun ProfileScreen(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
     val profileResponse = profileViewModel.profileResponse.collectAsState()
+    val uploadImageState = profileViewModel.uploadImageState.collectAsState()
     val preferences by profileViewModel.getSession().observeAsState()
     var showDialog by remember { mutableStateOf(false) }
+
+    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
 
     LaunchedEffect(preferences) {
         preferences?.let {
@@ -95,52 +102,81 @@ fun ProfileScreen(
         }
     }
 
-    Column {
-        when (profileResponse.value) {
-            is ResponseState.Loading -> {
-                LoadingScreen()
-            }
+    LaunchedEffect(uploadImageState.value) {
+        when (uploadImageState.value) {
             is ResponseState.Success -> {
-                val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
-                ProfileContent(
-                    profileData = profileData.result,
-                    modifier = modifier,
-                    actionLogOut = { showDialog = true},
-                    onClick = navigateToFormTambahDataOrtu
-                )
+                Toast.makeText(context, "Foto profil berhasil diunggah", Toast.LENGTH_SHORT).show()
+                profileViewModel.getUserProfile(preferences?.email.toString())
             }
             is ResponseState.Error -> {
-                (profileResponse.value as ResponseState.Error).error?.let { ShowToast(message = it) }
-                ErrorScreen(
-                    onTryAgain = {
-                        preferences?.email?.let { profileViewModel.getUserProfile(it) }
-                    }
-                )
-                MainButton(
-                    modifier = Modifier.padding(48.dp),
-                    onClick = { profileViewModel.logOut() },
-                    labelText = "Keluar"
-                )
+                Toast.makeText(context, "Gagal mengunggah foto profil", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                // Do nothing for Loading state
             }
         }
-        Spacer(modifier = modifier.height(24.dp))
+        profileViewModel.getUserProfile(preferences?.email.toString())
     }
 
-    if (showDialog) {
-        DialogConfirm(
-            title = "Keluar Aplikasi?",
-            msg = "Apakah anda yakin ingin keluar?",
-            onConfirm = {
-                profileViewModel.logOut()
-                showDialog = false
-            },
-            onDismiss = {
-                showDialog = false
-            },
-            confirmLabel = "Ya",
-            dismissLabel = "Tidak",
+    SwipeRefresh(state = swipeRefreshState, onRefresh = { preferences?.let {
+        profileViewModel.getUserProfile(
+            it.email
         )
+    } }){
+        Column {
+            when (profileResponse.value) {
+                is ResponseState.Loading -> {
+                    LoadingScreen()
+                }
+                is ResponseState.Success -> {
+                    val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+                    ProfileContent(
+                        profileData = profileData.result,
+                        modifier = modifier,
+                        actionLogOut = { showDialog = true},
+                        onClick = navigateToFormTambahDataOrtu,
+                        onImageSelected = { uri ->
+                            preferences?.email?.let { email ->
+                                profileViewModel.uploadNewProfilePhoto(uri, email)
+                            }
+                        },
+                        bearerToken = preferences?.token.toString()
+                    )
+                }
+                is ResponseState.Error -> {
+                    (profileResponse.value as ResponseState.Error).error?.let { ShowToast(message = it) }
+                    ErrorScreen(
+                        onTryAgain = {
+                            preferences?.email?.let { profileViewModel.getUserProfile(it) }
+                        }
+                    )
+                    MainButton(
+                        modifier = Modifier.padding(48.dp),
+                        onClick = { profileViewModel.logOut() },
+                        labelText = "Keluar"
+                    )
+                }
+            }
+            Spacer(modifier = modifier.height(24.dp))
+        }
+
+        if (showDialog) {
+            DialogConfirm(
+                title = "Keluar Aplikasi?",
+                msg = "Apakah anda yakin ingin keluar?",
+                onConfirm = {
+                    profileViewModel.logOut()
+                    showDialog = false
+                },
+                onDismiss = {
+                    showDialog = false
+                },
+                confirmLabel = "Ya",
+                dismissLabel = "Tidak",
+            )
+        }
     }
+
 }
 
 @Composable
@@ -149,6 +185,8 @@ fun ProfileContent(
     modifier: Modifier,
     actionLogOut: () -> Unit = {},
     onClick: () -> Unit = {},
+    onImageSelected: (Uri) -> Unit = {},
+    bearerToken: String
 ) {
     val dataLabel = mutableListOf<String>()
     val dataValues = mutableListOf<String?>()
@@ -176,6 +214,7 @@ fun ProfileContent(
 
     dataLabel.add("Agama")
     dataValues.add(profileData.religion)
+
 
     if (profileData.nisn != null) {
         dataLabel.add("NISN")
@@ -207,6 +246,7 @@ fun ProfileContent(
         onResult = { uri: Uri? ->
             if (uri != null) {
                 profileImageUri = uri
+                onImageSelected(uri)
             }
         }
     )
@@ -229,7 +269,7 @@ fun ProfileContent(
                     val source = ImageDecoder.createSource(context.contentResolver, uri)
                     ImageDecoder.decodeBitmap(source)
                 }
-                Image(
+                /*Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = null,
                     modifier = modifier
@@ -237,17 +277,27 @@ fun ProfileContent(
                         .clip(CircleShape)
                         .background(Color.Gray),
                     contentScale = ContentScale.Crop,
-                )
+                )*/
+                DynamicSizeImage(
+                    modifier = modifier.size(96.dp)
+                    , imageUrl = profileData.profile_image_url.toString()?:"",
+                    bearerToken = bearerToken )
+
             } ?: run {
-                Image(
+                /*Image(
                     painter = rememberImagePainter(data = profileData.profile_image_url),
                     contentDescription = null,
                     modifier = modifier
                         .size(96.dp)
                         .clip(CircleShape)
                         .background(Color.Gray),
-                    contentScale = ContentScale.Crop,
-                )
+                    contentScale = ContentScale.Fit,
+                )*/
+                DynamicSizeImage(
+                    modifier = modifier.size(96.dp)
+                    , imageUrl = profileData.profile_image_url.toString()?:"",
+                    bearerToken = bearerToken)
+                Log.d("ProfileContent", "ProfileContent: ${profileData.profile_image_url}")
             }
             IconButton(
                 onClick = { launcher.launch("image/*") },

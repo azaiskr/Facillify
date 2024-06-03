@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -32,7 +31,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +55,6 @@ import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.components.ShowToast
-import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.viewmodel.RegisterViewModel
@@ -115,7 +112,7 @@ fun SignUpInputScreen(
         val rgResponse by rgViewModel.registerResponse.collectAsState()
         when(rgResponse){
             is ResponseState.Loading ->{
-                LoadingScreen()
+                //LoadingScreen()
             }
             is ResponseState.Success -> {
                 ShowToast(message = "Register Berhasil")
@@ -430,33 +427,4 @@ fun SpinnerTemplate(
         //Debug
         //Text(text = "Selected Item : $selectedItem")
     }
-}
-
-
-@Composable
-@Preview(showBackground = true)
-fun SignUpInputScreenPreview() {
-    SignUpInputScreen(
-        selectedRole = Role.STUDENT
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun TopSectionSignUpPreview() {
-    TopSectionSignUp()
-}
-
-@Composable
-@Preview(showBackground = true)
-fun SpinnerTemplatePreview() {
-    val genderList = listOf("Laki-laki", "Perempuan", "Genderuwo", "Siluman Gondrong")
-    var selectedGender by rememberSaveable { mutableStateOf("") }
-    SpinnerTemplate(
-        topText = "Jenis Kelamin",
-        listItem = genderList,
-        selectedItem = selectedGender,
-        onItemSelected = { selectedGender = it },
-        placeholder = "Pilih Jenis Kelamin"
-    )
 }

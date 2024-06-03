@@ -1,6 +1,7 @@
 package com.lidm.facillify.ui.tracking
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.StudentCard
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.viewmodel.TrackingAnakViewModel
 import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
@@ -42,6 +45,7 @@ fun TrackingAnakScreen(
 
     //state
     val listStudentState by trackingViewModel.listStudent.collectAsState()
+    val preferences by trackingViewModel.getSession().observeAsState()
 
     //launchedeffect
     LaunchedEffect(role == Role.TEACHER) {
@@ -56,7 +60,7 @@ fun TrackingAnakScreen(
                 is ResponseState.Loading -> {
                     //Loading
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        LoadingScreen()
                     }
                 }
                 is ResponseState.Error -> {
@@ -77,14 +81,47 @@ fun TrackingAnakScreen(
                             .padding(horizontal = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        //TODO GET PROFILE BY EMAIL STUDENT
+
                         items(listStudentData) { student ->
-                            StudentCard(
-                                imageStudent = painterResource(id = R.drawable.pp_deafult), //TODO CHANGE WITH REAL IMAGE
-                                nameStudent = student.name,
-                                numberStudent = student.nisn.toLong(),
-                                onClick = { onDetailClick(student.email) }
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            //state
+                            //val profileState by trackingViewModel.getProfileUrl.collectAsState()
+                            val profileState by trackingViewModel.getProfileUrlFlow(student.email).collectAsState()
+
+                            LaunchedEffect(student.email) {
+                                trackingViewModel.getProfileUrl(student.email)
+                            }
+                            //trackingViewModel.getProfileUrl(student.email)
+                            when (profileState) {
+                                is ResponseState.Success -> {
+                                    val tempProfileUrl = (profileState as ResponseState.Success).data.result.profile_image_url
+
+                                    Log.d("TrackingAnakScreen", "tempProfileUrl: $tempProfileUrl")
+
+                                    StudentCard(
+                                        linkImage = tempProfileUrl?.toString() ?: "",
+                                        nameStudent = student.name,
+                                        numberStudent = student.nisn.toLong(),
+                                        onClick = { onDetailClick(student.email) },
+                                        bearerToken = preferences?.token.toString()
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                                is ResponseState.Error -> {
+                                    //Error
+                                    StudentCard(
+                                        linkImage = "", // Use a placeholder image or empty string
+                                        nameStudent = student.name,
+                                        numberStudent = student.nisn.toLong(),
+                                        onClick = { onDetailClick(student.email) },
+                                        bearerToken = preferences?.token.toString()
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                                is ResponseState.Loading -> {
+                                    //Loading
+                                }
+                            }
                         }
                     }
                 }

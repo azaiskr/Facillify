@@ -3,10 +3,8 @@ package com.lidm.facillify.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class SubmitQuizResponse(
-
-	@field:SerializedName("msg")
 	val msg: String,
-
+  
 	@field:SerializedName("data")
 	val data: Data
 )
