@@ -83,12 +83,12 @@ fun GayaBelajarTest(
                 }
                 is ResponseState.Success -> {
                     Log.d("GayaBelajarTest", "Success")
-                    onNavigateToTestResult()
                 }
                 is ResponseState.Error -> {
                     Log.d("GayaBelajarTest", "Error")
                 }
             }
+            onNavigateToTestResult()
         }
     }
 
