@@ -238,6 +238,19 @@ class UserRepository (
         }
     }
 
+    //GET CHILD BY PARENT
+    suspend fun getChildByParent(): Flow<ResponseState<List<GetStudentResponse>>> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getChild()
+            emit(ResponseState.Success(response.result))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
     companion object {
         @SuppressLint("StaticFieldLeak")
         private var instance:UserRepository? = null

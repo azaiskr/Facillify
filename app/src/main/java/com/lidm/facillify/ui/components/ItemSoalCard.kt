@@ -33,7 +33,7 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 @Composable
 fun ItemSoalCard(
     soal: String,
-    jawaban: List<String?>,
+    jawaban: List<String>,
     jawabanBenar: String,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
@@ -50,10 +50,14 @@ fun ItemSoalCard(
         ) {
             Text(text = soal, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Black)
             Spacer(modifier = Modifier.height(8.dp))
-            for (jawaban in jawaban) {
+            /*for (jawaban in jawaban) {
                 jawaban?.let {
                     AnswerOption(answer = it, isTrue = it == jawabanBenar)
                 }
+            }*/
+            jawaban.forEachIndexed { index, answer ->
+                val isCorrect = jawabanBenar == listOf("a", "b", "c", "d", "e")[index]
+                AnswerOption(answer = answer, isTrue = isCorrect)
             }
             Spacer(modifier = Modifier.height(8.dp))
             EditAndDelete(onEditClick = { onEditClick() }, onDeleteClick = { onDeleteClick() })

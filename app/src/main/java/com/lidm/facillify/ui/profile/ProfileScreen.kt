@@ -236,6 +236,11 @@ fun ProfileContent(
         dataValues.add(profileData.nip)
     }
 
+    if (profileData.learning_style != null) {
+        dataLabel.add("Gaya Belajar")
+        dataValues.add(profileData.learning_style)
+    }
+
     // State to hold the selected profile image URI
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current

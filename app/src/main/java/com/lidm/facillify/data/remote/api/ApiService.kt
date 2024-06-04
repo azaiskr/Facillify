@@ -149,4 +149,8 @@ interface ApiService {
     suspend fun getSiswaGrade(
         @Query("email") email: String
     ): GradeHistoryResponse
+
+    //CHILD GET
+    @GET("api/v1/child")
+    suspend fun getChild(): GetAllStudentResponse
 }
