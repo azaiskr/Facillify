@@ -29,7 +29,9 @@ import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -78,6 +80,12 @@ interface ApiService {
         @Body submitQuizAnswerRequest: SubmitQuizAnswerRequest
     ) : SubmitQuizResponse
 
+
+    // TEACHER - DELETE QUIZ
+    @DELETE(value = "api/v1/quiz/{quizId}")
+    suspend fun deleteQuiz(
+        @Path("quizId") quizId: String
+    ) : Response<Unit>
 
     // VIDEO
     @GET("api/v1/content")

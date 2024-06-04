@@ -9,8 +9,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,26 +39,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberImagePainter
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
-import com.lidm.facillify.R
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserProfile
-import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.DynamicSizeImage
@@ -71,14 +59,12 @@ import com.lidm.facillify.ui.components.SecondaryButton
 import com.lidm.facillify.ui.components.ShowToast
 import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
 import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
-
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.util.ResponseState
-import com.lidm.facillify.util.Role
 
 @Composable
 fun ProfileScreen(
@@ -89,51 +75,56 @@ fun ProfileScreen(
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
-    val profileResponse = profileViewModel.profileResponse.collectAsState()
     val uploadImageState = profileViewModel.uploadImageState.collectAsState()
+    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
+    val profileResponse = profileViewModel.profileResponse.collectAsState()
     val preferences by profileViewModel.getSession().observeAsState()
+    val email = preferences?.email
+
     var showDialog by remember { mutableStateOf(false) }
 
-    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
-
-    LaunchedEffect(preferences) {
-        preferences?.let {
-            profileViewModel.getUserProfile(it.email)
+    LaunchedEffect (email) {
+        if (email != null) {
+            profileViewModel.getUserProfile(email)
         }
     }
 
     LaunchedEffect(uploadImageState.value) {
         when (uploadImageState.value) {
             is ResponseState.Success -> {
-                Toast.makeText(context, "Foto profil berhasil diunggah", Toast.LENGTH_SHORT).show()
-                profileViewModel.getUserProfile(preferences?.email.toString())
+                Toast.makeText(context, "Foto profil berhasil diunggah", Toast.LENGTH_SHORT)
+                    .show()
             }
+
             is ResponseState.Error -> {
-                Toast.makeText(context, "Gagal mengunggah foto profil", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal mengunggah foto profil", Toast.LENGTH_SHORT)
+                    .show()
             }
+
             else -> {
-                // Do nothing for Loading state
             }
         }
-        profileViewModel.getUserProfile(preferences?.email.toString())
     }
 
-    SwipeRefresh(state = swipeRefreshState, onRefresh = { preferences?.let {
-        profileViewModel.getUserProfile(
-            it.email
-        )
-    } }){
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = {
+            profileViewModel.getUserProfile(email ?: "")
+        }
+    ) {
         Column {
             when (profileResponse.value) {
                 is ResponseState.Loading -> {
                     LoadingScreen()
                 }
+
                 is ResponseState.Success -> {
-                    val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+                    val profileData =
+                        (profileResponse.value as ResponseState.Success<ProfileResponse>).data
                     ProfileContent(
                         profileData = profileData.result,
                         modifier = modifier,
-                        actionLogOut = { showDialog = true},
+                        actionLogOut = { showDialog = true },
                         onClick = navigateToFormTambahDataOrtu,
                         onImageSelected = { uri ->
                             preferences?.email?.let { email ->
@@ -143,11 +134,16 @@ fun ProfileScreen(
                         bearerToken = preferences?.token.toString()
                     )
                 }
+
                 is ResponseState.Error -> {
-                    (profileResponse.value as ResponseState.Error).error?.let { ShowToast(message = it) }
+                    (profileResponse.value as ResponseState.Error).error?.let {
+                        ShowToast(
+                            message = it
+                        )
+                    }
                     ErrorScreen(
                         onTryAgain = {
-                            preferences?.email?.let { profileViewModel.getUserProfile(it) }
+                            profileViewModel.getUserProfile(email ?: "")
                         }
                     )
                     MainButton(
@@ -284,9 +280,10 @@ fun ProfileContent(
                     contentScale = ContentScale.Crop,
                 )*/
                 DynamicSizeImage(
-                    modifier = modifier.size(96.dp)
-                    , imageUrl = profileData.profile_image_url.toString()?:"",
-                    bearerToken = bearerToken )
+                    modifier = modifier.size(96.dp),
+                    imageUrl = profileData.profile_image_url.toString() ?: "",
+                    bearerToken = bearerToken
+                )
 
             } ?: run {
                 /*Image(
@@ -299,9 +296,10 @@ fun ProfileContent(
                     contentScale = ContentScale.Fit,
                 )*/
                 DynamicSizeImage(
-                    modifier = modifier.size(96.dp)
-                    , imageUrl = profileData.profile_image_url.toString()?:"",
-                    bearerToken = bearerToken)
+                    modifier = modifier.size(96.dp),
+                    imageUrl = profileData.profile_image_url.toString() ?: "",
+                    bearerToken = bearerToken
+                )
                 Log.d("ProfileContent", "ProfileContent: ${profileData.profile_image_url}")
             }
             IconButton(
