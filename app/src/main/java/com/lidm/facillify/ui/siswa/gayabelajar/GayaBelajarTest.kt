@@ -18,6 +18,7 @@ import com.lidm.facillify.data.local.gayaBelajarTestQuestions
 import com.lidm.facillify.ui.siswa.FormSoal
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.data.local.Question
+import com.lidm.facillify.data.remote.response.QuestionsItem
 
 @Preview
 @Composable
@@ -43,17 +44,17 @@ fun GayaBelajarTest(
 //            }
 //        }
 
-    FormTest(
-        questions = gayaBelajarTestQuestions,
-        onSubmit = ::onSubmit,
-        answer = answer,
-        modifier = modifier,
-    )
+//    FormTest(
+//        questions = ,
+//        onSubmit = ::onSubmit,
+//        answer = answer,
+//        modifier = modifier,
+//    )
 }
 
 @Composable
 fun FormTest(
-    questions: List<Question>,
+    questions: List<QuestionsItem>,
     onSubmit: () -> Unit,
     answer: MutableList<String>,
     modifier: Modifier,

@@ -8,37 +8,37 @@ data class QuizDetailResponse(
 	val msg: String,
 
 	@field:SerializedName("result")
-	val result: Quiz? = null
+	val result: Quiz
 )
 
 data class Quiz(
 
 	@field:SerializedName("questions")
-	val questions: List<QuestionsItem?>? = null,
+	val questions: List<QuestionsItem>,
 
 	@field:SerializedName("_id")
-	val id: String? = null,
+	val id: String,
 
 	@field:SerializedName("time")
-	val time: Int? = null,
+	val time: Int,
 
 	@field:SerializedName("title")
-	val title: String? = null,
+	val title: String,
 
 	@field:SerializedName("descripton")
-	val descripton: String? = null
+	val descripton: String,
 )
 
 data class QuestionsItem(
 
 	@field:SerializedName("correct_option_key")
-	val correctOptionKey: String? = null,
+	val correctOptionKey: String,
 
 	@field:SerializedName("question")
-	val question: String? = null,
+	val question: String,
 
 	@field:SerializedName("options")
-	val options: List<OptionsItem?>? = null
+	val options: List<String>
 )
 
 data class OptionsItem(

@@ -4,15 +4,31 @@ import com.google.gson.annotations.SerializedName
 
 data class SubmitQuizResponse(
 	val msg: String,
-	val data: DataQuiz
+  
+	@field:SerializedName("data")
+	val data: Data
 )
 
-data class DataQuiz(
-	val submit_time: String,
-	val quiz_id: String,
-	val student_email: String,
-	val num_questions: Int,
-	val correct_answers: Int,
-	val grade: Double,
-	val _id: String
+data class Data(
+
+	@field:SerializedName("quiz_id")
+	val quizId: String,
+
+	@field:SerializedName("submit_time")
+	val submitTime: String,
+
+	@field:SerializedName("num_questions")
+	val numQuestions: Int,
+
+	@field:SerializedName("grade")
+	val grade: Int,
+
+	@field:SerializedName("correct_answers")
+	val correctAnswers: Int,
+
+	@field:SerializedName("student_email")
+	val studentEmail: String,
+
+	@field:SerializedName("_id")
+	val id: String
 )

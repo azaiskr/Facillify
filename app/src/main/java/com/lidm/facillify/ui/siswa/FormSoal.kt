@@ -4,27 +4,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lidm.facillify.data.remote.response.QuestionsItem
 import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.components.QuestionItem
-import com.lidm.facillify.data.local.Question
 
 @Composable
 fun FormSoal(
-    modifier : Modifier,
-    item: List<Question>,
+    modifier: Modifier,
+    item: List<QuestionsItem>,
     onSubmit: () -> Unit,
     answer: MutableList<String>,
-    totalTimeMinutes: Int = 60,
-){
-    val remainingTime = remember { mutableIntStateOf(totalTimeMinutes * 60) }
-    val minutes = remainingTime.intValue / 60
-    val seconds = remainingTime.intValue % 60
+) {
     if (answer.isEmpty()) {
         repeat(item.size) {
             answer.add("")
@@ -32,7 +26,7 @@ fun FormSoal(
     }
 
     fun mapIndexToAnswer(index: Int): String {
-        return ('A' + index).toString()
+        return ('a' + index).toString()
     }
 
     LazyColumn(
@@ -56,7 +50,7 @@ fun FormSoal(
             MainButton(
                 modifier = modifier
                     .padding(bottom = 8.dp),
-                onClick = {onSubmit()},
+                onClick = { onSubmit() },
                 labelText = "Selesai"
             )
         }

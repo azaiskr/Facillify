@@ -1,5 +1,7 @@
 package com.lidm.facillify.ui.siswa.belajar
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -26,12 +27,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lidm.facillify.data.local.HasilLatihan
-import com.lidm.facillify.data.local.LatihanItem
-import com.lidm.facillify.data.local.dataLatihan
-import com.lidm.facillify.data.local.hasilLatihan
+import com.lidm.facillify.data.remote.response.Data
 import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Blue
@@ -39,31 +36,16 @@ import com.lidm.facillify.ui.theme.Green
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.Yellow
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LatihanSiswaScoreScreen(
-    idLatihan: Int,
+fun LatihanResultScreen(
+    quizResult: Data,
+    quizdata: String,
     onBackClicked: () -> Unit,
 ) {
-    val quizResult = hasilLatihan.find { it.idLatihan == idLatihan }!!
-    val quizdata = dataLatihan.find { it.id == idLatihan }!!
 
-    androidx.activity.compose.BackHandler (enabled = true) {
-        onBackClicked()
-    }
-
-    LatihanResult(
-        quizResult,
-        quizdata,
-        onBackClicked
-    )
-}
-
-@Composable
-fun LatihanResult(
-    quizResult: HasilLatihan,
-    quizdata: LatihanItem,
-    onBackClicked: () -> Unit
-) {
+//    val _submitTime = Instant.parse(quizResult.submitTime)
+//    val duration = Duration.between(timeStamp, _submitTime)
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier.fillMaxSize()
@@ -101,7 +83,7 @@ fun LatihanResult(
                 color = SecondaryBlue,
             )
             Text(
-                text = quizdata.judul,
+                text = quizdata,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = SecondaryBlue,
@@ -161,7 +143,7 @@ fun LatihanResult(
                         color = Blue,
                     )
                     Text(
-                        text = quizResult.correctAnswer.toString() + " soal",
+                        text = quizResult.correctAnswers.toString() + " soal",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = Blue,
@@ -170,13 +152,13 @@ fun LatihanResult(
                 Column(
                 ) {
                     Text(
-                        text = "Akurasi",
+                        text = "Total Questions",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = Blue,
                     )
                     Text(
-                        text = "${quizResult.grade} %",
+                        text = "${quizResult.numQuestions} soal",
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         color = Blue,
@@ -187,18 +169,18 @@ fun LatihanResult(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Text(
-                    text = "Waktu pengerjaan",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = Blue,
-                )
-                Text(
-                    text = "${quizResult.timeTaken} mnt",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = Blue,
-                )
+//                Text(
+//                    text = "Waktu pengerjaan",
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    fontWeight = FontWeight.Medium,
+//                    color = Blue,
+//                )
+//                Text(
+//                    text = duration.toMinutes().toString() + " menit",
+//                    style = MaterialTheme.typography.displaySmall,
+//                    fontWeight = FontWeight.Bold,
+//                    color = Blue,
+//                )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -217,13 +199,3 @@ fun LatihanResult(
 
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun LatihanSiswaScoreScreenPreview() {
-//    LatihanResult(
-//        quizResult = hasilLatihan[0],
-//        quizdata = dataLatihan[0],
-//        onBackClicked = {}
-//    )
-//}

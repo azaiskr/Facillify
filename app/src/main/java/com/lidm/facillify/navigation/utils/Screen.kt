@@ -58,11 +58,11 @@ sealed class Screen (
     }
 
     data object SiswaLatihanForm: Screen("latihan/{latihanId}"){
-        fun createRoute(latihanId: Int) = "latihan/$latihanId"
+        fun createRoute(latihanId: String) = "latihan/$latihanId"
     }
-    data object SiswaLatihanResult: Screen("latihan/{latihanId}/result") {
-        fun createRoute(latihanId: Int) = "latihan/$latihanId/result"
-    }
+//    data object SiswaLatihanResult: Screen("latihan/{quizTitle}/result") {
+//        fun createRoute(quizTitle: String) = "latihan/$quizTitle/result"
+//    }
     data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
 
     data object KonsultasiThread: Screen("konsultasi_thread/{threadId}"){

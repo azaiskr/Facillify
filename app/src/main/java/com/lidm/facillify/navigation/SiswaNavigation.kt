@@ -2,7 +2,6 @@ package com.lidm.facillify.navigation
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,8 +24,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
 import com.lidm.facillify.ui.chat.ChatbotScreen
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
@@ -34,12 +31,10 @@ import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
-import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
 import com.lidm.facillify.ui.siswa.belajar.AudioPlayerScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
-import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaScoreScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarAudioScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
@@ -108,7 +103,7 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.SiswaLatihanResult.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
                 isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
@@ -305,38 +300,19 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaLatihanForm.route,
-                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
+                arguments = listOf(navArgument("latihanId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("latihanId") ?: 0
+                val id = it.arguments?.getString("latihanId") ?: ""
                 LatihanScreen(
                     modifier = modifier,
                     latihanId = id,
-                    onNavigateToTestresult = {
-                        navController.navigate(
-                            Screen.SiswaLatihanResult.createRoute(
-                                id
-                            )
-                        )
-                    }
-                )
-            }
-
-            composable(
-                route = Screen.SiswaLatihanResult.route,
-                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
-            ) {
-                val id = it.arguments?.getInt("latihanId") ?: 0
-                LatihanSiswaScoreScreen(
-                    idLatihan = id,
                     onBackClicked = {
-                        navController.popBackStack(
-                            Screen.SiswaLatihanForm.route,
-                            inclusive = true
-                        )
+                        navController.popBackStack()
                     }
                 )
             }
-            //KONSULTASI -> THREAD
+            
+            //CONSULTATION -> THREAD
             composable(Screen.Konsultasi.route) {
                 KonsultasiForumScreen {
                     navController.navigate(Screen.KonsultasiThread.createRoute(it))
