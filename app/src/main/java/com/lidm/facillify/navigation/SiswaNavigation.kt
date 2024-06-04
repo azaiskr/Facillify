@@ -40,6 +40,8 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 import com.lidm.facillify.util.Role
 
@@ -169,6 +171,22 @@ fun SiswaNavigation(
 
                 )
             }
+
+            // GAYA BELAJAR INTERFACE
+            composable(Screen.GayaBelajarInterface.route) {
+                GayaBelajarOnBoardScreen(
+                    onNavigateToTestForm = { navController.navigate(Screen.GayaBelajarTest.route) }
+                )
+            }
+
+            //GAYA BELAJAR TEST
+            composable(Screen.GayaBelajarTest.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.GayaBelajarTestResult.route) }
+                )
+            }
+
 
 
             // BELAJAR

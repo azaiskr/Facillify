@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.lidm.facillify.ui.theme.Orange
 import com.lidm.facillify.data.local.Question
 import com.lidm.facillify.data.remote.response.QuestionsItem
+import com.lidm.facillify.model.QuizGayaBelajar
 
 @Composable
 fun QuestionItem(
@@ -96,3 +97,31 @@ fun AnswerItem(
 //        selectedAnswer = ""
 //    )
 //}
+
+@Composable
+fun QuestionItemGayaBelajar(
+    modifier: Modifier,
+    question: QuizGayaBelajar,
+    onAnswerSelected: (Int, String) -> Unit,
+    selectedAnswer: String,
+){
+    Column (
+        modifier = modifier
+            .padding(bottom = 16.dp)
+    ){
+        Text(
+            text = question.question,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
+        question.options?.forEachIndexed { index, answer ->
+            AnswerItem(
+                answer = answer,
+                onAnswerSelected = {onAnswerSelected(index, answer)},
+                modifier = modifier,
+                selectedAnswer = selectedAnswer,
+            )
+        }
+    }
+}
