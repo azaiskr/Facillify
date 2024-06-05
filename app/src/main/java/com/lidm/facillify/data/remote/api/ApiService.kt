@@ -15,6 +15,7 @@ import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.GetAllStudentResponse
 import com.lidm.facillify.data.remote.response.GradeHistoryResponse
 import com.lidm.facillify.data.remote.response.LearningStyleRespons
+import com.lidm.facillify.data.remote.response.MaterialListResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
@@ -86,6 +87,10 @@ interface ApiService {
     suspend fun deleteQuiz(
         @Path("quizId") quizId: String
     ) : Response<Unit>
+
+    // MATERIALS
+    @GET("api/v1/material")
+    suspend fun getMaterialList() : MaterialListResponse
 
     // VIDEO
     @GET("api/v1/content")

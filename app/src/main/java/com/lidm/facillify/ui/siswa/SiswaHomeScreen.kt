@@ -37,14 +37,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
-import com.lidm.facillify.data.local.dataLatihan
-import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.data.remote.response.MaterialList
 import com.lidm.facillify.data.remote.response.QuizListItem
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
@@ -58,41 +57,66 @@ import com.lidm.facillify.util.ResponseState
 @Composable
 fun SiswaHomeScreen(
     modifier: Modifier = Modifier,
-    onItemBelajarClick: (Int) -> Unit,
+    onItemBelajarClick: (String) -> Unit,
     onItemLatihanClick: (String) -> Unit,
     onNavigateToBelajar: () -> Unit,
     onNavigateToLatihan: () -> Unit,
     onNavigateToChatbot: () -> Unit,
     onNavigateToTestGayaBelajar: () -> Unit
 ) {
-    //state
     val viewModel: HomeSiswaViewModel = viewModel(
         factory = ViewModelFactory.getInstance(
             LocalContext.current)
     )
     val quizList by viewModel.quizList.collectAsState()
+    val materialResponse by viewModel.materialResponse.collectAsState()
     var listOfQuiz by rememberSaveable {
         mutableStateOf<List<QuizListItem>>(emptyList())
     }
 
     LaunchedEffect(Unit) {
         viewModel.getQuizList()
+        viewModel.getMaterial()
     }
 
     when (quizList) {
         is ResponseState.Loading -> {
             LoadingScreen()
+
         }
         is ResponseState.Success -> {
             val quizResponse = (quizList as ResponseState.Success).data
             listOfQuiz = quizResponse.result
+
+            when(materialResponse){
+                is ResponseState.Loading -> {
+                    LoadingScreen()
+                }
+                is ResponseState.Success -> {
+                    val materialList = (materialResponse as ResponseState.Success).data
+                    HomeScreenContent(
+                        modifier = modifier,
+                        onItemBelajarClick = onItemBelajarClick,
+                        onItemLatihanClick = onItemLatihanClick,
+                        onNavigateToBelajar = onNavigateToBelajar,
+                        onNavigateToLatihan = onNavigateToLatihan,
+                        onNavigateToChatbot = onNavigateToChatbot,
+                        listQuiz = listOfQuiz,
+                        listMaterial = materialList
+                    )
+                }
+                is ResponseState.Error -> {
+                    ErrorScreen (
+                        onTryAgain = { viewModel.getMaterial() }
+                    )
+                }
+            }
         }
         is ResponseState.Error -> {
             ErrorScreen (
                 onTryAgain = { viewModel.getQuizList() }
             )
         }
-
     }
 
     HomeScreenContent(
@@ -110,13 +134,14 @@ fun SiswaHomeScreen(
 @Composable
 fun HomeScreenContent(
     modifier: Modifier,
-    onItemBelajarClick: (Int) -> Unit = {},
+    onItemBelajarClick: (String) -> Unit = {},
     onItemLatihanClick: (String) -> Unit = {},
     onNavigateToBelajar: () -> Unit = {},
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
     onNavigateToTestGayaBelajar: () -> Unit = {},
     listQuiz: List<QuizListItem>
+    listMaterial: List<MateriBelajar>
 ) {
     var showDialog by rememberSaveable {
         mutableStateOf(false)
@@ -241,11 +266,11 @@ fun HomeScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(listMateri.size) {index ->
+                        items(listMaterial.size) { index ->
                             MateriBelajarItem(
                                 modifier = modifier,
-                                onClick = { onItemBelajarClick(listMateri[index].id) },
-                                materi = listMateri[index]
+                                onClick = { onItemBelajarClick(listMaterial[index].id) },
+                                materi = listMaterial[index]
                             )
                         }
                     }

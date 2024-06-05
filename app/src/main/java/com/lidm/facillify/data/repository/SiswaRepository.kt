@@ -2,6 +2,7 @@ package com.lidm.facillify.data.repository
 
 import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
+import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.LearningStyleRequest
@@ -9,15 +10,13 @@ import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
 import com.lidm.facillify.data.remote.response.GradeHistory
-import com.lidm.facillify.data.remote.response.ProfileResponse
-import com.lidm.facillify.data.remote.response.ThreadResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import com.lidm.facillify.data.remote.response.UserProfile
+import com.lidm.facillify.data.remote.response.convertMaterialListToMateriBelajar
 import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.last
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -26,7 +25,7 @@ class SiswaRepository(
     private val userPreferences: UserPreferences
 ) {
 
-    suspend fun updateParentEmail (
+    suspend fun updateParentEmail(
         studentEmail: String,
         parentEmail: String
     ) = flow {
@@ -45,7 +44,7 @@ class SiswaRepository(
     fun getSession(): Flow<UserModelResponse> = userPreferences.getUserPref()
 
     //GET EMAIL USER
-    suspend fun getEmailUser() : Flow<ResponseState<String>> = flow {
+    suspend fun getEmailUser(): Flow<ResponseState<String>> = flow {
         emit(ResponseState.Loading)
         try {
             val response = userPreferences.getUserPref().first().email
@@ -91,7 +90,8 @@ class SiswaRepository(
     }
 
     //GET PROFILE DATA
-    suspend fun getProfileData(email: String
+    suspend fun getProfileData(
+        email: String
     ): Flow<ResponseState<UserProfile>> = flow {
         emit(ResponseState.Loading)
         try {
@@ -103,6 +103,7 @@ class SiswaRepository(
             emit(ResponseState.Error(e.message ?: "An unknown error occurred"))
         }
     }
+
     //GET HISTORY STUDENT
     suspend fun getHistoryStudent(email: String): Flow<ResponseState<List<GradeHistory>>> = flow {
         emit(ResponseState.Loading)
@@ -115,6 +116,7 @@ class SiswaRepository(
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
+
     //QUIZ
     suspend fun getQuizList() = flow {
         emit(ResponseState.Loading)
@@ -151,12 +153,31 @@ class SiswaRepository(
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
-
     suspend fun postLearningStyle(request: LearningStyleRequest) = flow {
         emit(ResponseState.Loading)
         try {
             val response = apiService.putLearningStyle(request)
             emit(ResponseState.Success(response))
+                    } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+    // MATERIALS
+    suspend fun getCombinedMaterialList() = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getMaterialList()
+            val materialListFromApi = response.result?.mapIndexed { index, material ->
+                convertMaterialListToMateriBelajar(material, (index + 1).toString())
+            }
+            val localMaterialList = listOf(materi_bangun_ruang)
+            if (materialListFromApi != null) {
+                emit(ResponseState.Success(materialListFromApi + localMaterialList))
+            } else {
+                emit(ResponseState.Success(localMaterialList))
+            }
         } catch (e: HttpException) {
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         } catch (e: Exception) {
@@ -164,6 +185,38 @@ class SiswaRepository(
         }
     }
 
+    suspend fun getMaterialDetail(id: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getMaterialList()
+            val materialListFromApi = response.result?.mapIndexed { index, material ->
+                convertMaterialListToMateriBelajar(material, (index + 1).toString())
+            }
+            val localMaterialList = listOf(materi_bangun_ruang)
+            val materiDetail = (materialListFromApi?.plus(localMaterialList))?.find { it.id == id }
+
+            emit(ResponseState.Success(materiDetail))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    suspend fun getVideoContent(idMateri: String, idVideo: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            // val apiResponse = apiService.getVideoContent(id)
+            val localResponse = listOf(materi_bangun_ruang).find { it.id == idMateri }
+            val videoItem = localResponse?.materiVideo?.find { it.id == idVideo }
+            emit(ResponseState.Success(videoItem))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+            Log.d("SiswaRepository", "getVideoContent: ${e.localizedMessage}")
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
     companion object {
         @Volatile
         private var instance: SiswaRepository? = null

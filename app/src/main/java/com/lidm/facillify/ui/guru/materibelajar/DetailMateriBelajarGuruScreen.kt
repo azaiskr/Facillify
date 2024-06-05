@@ -13,6 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -22,26 +25,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriVideoItem
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
+import com.lidm.facillify.ui.viewmodel.MateriBelajarViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun DetailMateriBelajarGuruScreen(
-    materiId: Int,
+    materiId: String,
     modifier: Modifier,
 ) {
-    val materiBelajar = listMateri.find { it.id == materiId }!!
-
-    DetailMateriGuru(
-        materi = materiBelajar,
-        modifier = modifier,
+    val viewModel: MateriBelajarViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(LocalContext.current)
     )
+    val materiBelajar by viewModel.materiDetailResponse.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getMaterialDetail(materiId)
+    }
+    when(materiBelajar) {
+        is ResponseState.Loading ->  LoadingScreen()
+        is ResponseState.Success -> {
+            val materi = (materiBelajar as ResponseState.Success).data ?: return
+            DetailMateriGuru(
+                materi = materi,
+                modifier = modifier,
+            )
+        }
+        is ResponseState.Error -> {
+            ErrorScreen(
+                onTryAgain = {viewModel.getMaterialDetail(materiId)}
+            )
+        }
+    }
+
+
 }
 
 @Composable
