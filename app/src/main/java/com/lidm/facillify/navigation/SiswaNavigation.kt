@@ -23,30 +23,32 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
 import com.lidm.facillify.ui.chat.ChatbotScreen
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
+import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.FormEditEmailOrtu
 import com.lidm.facillify.ui.siswa.SiswaHomeScreen
-import com.lidm.facillify.ui.siswa.SiswaRiwayatScreen
+import com.lidm.facillify.ui.siswa.belajar.AudioPlayerScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanScreen
 import com.lidm.facillify.ui.siswa.belajar.LatihanSiswaListScreen
+import com.lidm.facillify.ui.siswa.belajar.MateriBelajarAudioScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
+import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
 //@Preview
 @Composable
 fun SiswaNavigation(
-    email: String,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
     navController: NavHostController = rememberNavController()
@@ -71,12 +73,14 @@ fun SiswaNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.SiswaHome.route -> "Hallo, ${email}"
+                    //Screen.SiswaHome.route -> "Home"
                     Screen.Belajar.route -> "Belajar"
                     Screen.MateriBelajar.route -> "Materi Belajar"
                     Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.SiswaMateriBelajarVideo.route -> "Materi Video"
                     Screen.SiswaVideoPlayer.route -> "Video Player"
+                    Screen.SiswaMateriBelajarAudio.route -> "Materi Audio"
+                    Screen.SiswaAudioPlayer.route -> "Audio Player"
                     Screen.Latihan.route -> "Latihan Soal"
                     Screen.Konsultasi.route -> "Konsultasi"
                     Screen.Chatbot.route -> "FACILLIFY AI"
@@ -101,7 +105,8 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.GayaBelajarInterface.route || currentRoute == Screen.GayaBelajarTest.route || currentRoute == Screen.GayaBelajarTestResult.route,
+                isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
     ) { innerPadding ->
@@ -135,6 +140,7 @@ fun SiswaNavigation(
                     } else {
                         scaleIn(initialScale = 0.8f) + fadeIn()
                     }
+
                     else -> scaleIn(initialScale = 0.8f) + fadeIn()
                 }
             },
@@ -161,11 +167,32 @@ fun SiswaNavigation(
                             )
                         )
                     },
-                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) }
-
+                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) },
+                    onNavigateToTestGayaBelajar = { navController.navigate(Screen.GayaBelajarInterface.route) }
                 )
             }
 
+            // GAYA BELAJAR INTERFACE
+            composable(Screen.GayaBelajarInterface.route) {
+                GayaBelajarOnBoardScreen(
+                    onNavigateToTestForm = { navController.navigate(Screen.GayaBelajarTest.route) }
+                )
+            }
+
+            //GAYA BELAJAR TEST
+            composable(Screen.GayaBelajarTest.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.GayaBelajarTestResult.route) }
+                )
+            }
+
+            composable(Screen.GayaBelajarTestResult.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.SiswaHome.route) }
+                )
+            }
 
             // BELAJAR
             composable(Screen.Belajar.route) {
@@ -186,22 +213,25 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaMateriBelajarDetail.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 MateriBelajarDetailScreen(
                     modifier = modifier,
                     materiId = id,
                     onNavigateToMateriVideo = { materiId ->
                         navController.navigate(Screen.SiswaMateriBelajarVideo.createRoute(materiId))
+                    },
+                    onNavigateToMateriMusik = { materiId ->
+                        navController.navigate(Screen.SiswaMateriBelajarAudio.createRoute(materiId))
                     }
                 )
             }
             composable(
                 route = Screen.SiswaMateriBelajarVideo.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 MateriBelajarVideoScreen(
                     modifier = modifier,
                     materiId = id,
@@ -218,11 +248,11 @@ fun SiswaNavigation(
             composable(
                 route = Screen.SiswaVideoPlayer.route,
                 arguments = listOf(
-                    navArgument("materiId") { type = NavType.IntType },
+                    navArgument("materiId") { type = NavType.StringType },
                     navArgument("videoId") { type = NavType.StringType }
                 )
             ) {
-                val materiId = it.arguments?.getInt("materiId") ?: 0
+                val materiId = it.arguments?.getString("materiId") ?: ""
                 val videoId = it.arguments?.getString("videoId") ?: ""
                 VideoPlayerScreen(
                     modifier = modifier,
@@ -238,6 +268,50 @@ fun SiswaNavigation(
                     }
                 )
             }
+            // BELAJAR - AUDIO
+            composable(
+                route = Screen.SiswaMateriBelajarAudio.route,
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("materiId") ?: ""
+                MateriBelajarAudioScreen(
+                    modifier = modifier,
+                    materiId = id,
+                    onNavigateToAudioPlayer = { materiId, audioId ->
+                        navController.navigate(
+                            Screen.SiswaAudioPlayer.createRoute(
+                                materiId,
+                                audioId
+                            )
+                        )
+                    }
+                )
+            }
+            composable(
+                route = Screen.SiswaAudioPlayer.route,
+                arguments = listOf(
+                    navArgument("materiId") { type = NavType.StringType },
+                    navArgument("audioId") { type = NavType.StringType }
+                )
+            ) {
+                val _materiId = it.arguments?.getString("materiId") ?: ""
+                val _audioId = it.arguments?.getString("audioId") ?: ""
+                AudioPlayerScreen(
+                    modifier = modifier,
+                    audioId = _audioId,
+                    materiId = _materiId,
+                    onNavigateToAudioContent = { materiId, audioId ->
+                        navController.navigate(
+                            Screen.SiswaAudioPlayer.createRoute(
+                                materiId,
+                                audioId
+                            )
+                        )
+                    }
+                )
+            }
+
+
             //BELAJAR - LATIHAN
             composable(Screen.Latihan.route) {
                 LatihanSiswaListScreen(
@@ -249,25 +323,31 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaLatihanForm.route,
-                arguments = listOf(navArgument("latihanId") { type = NavType.IntType })
+                arguments = listOf(navArgument("latihanId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("latihanId") ?: 0
+                val id = it.arguments?.getString("latihanId") ?: ""
                 LatihanScreen(
                     modifier = modifier,
-                    latihanId = id
+                    latihanId = id,
+                    onBackClicked = {
+                        navController.popBackStack()
+                    }
                 )
             }
-
+            
+            //CONSULTATION -> THREAD
             composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
-                )
+                KonsultasiForumScreen {
+                    navController.navigate(Screen.KonsultasiThread.createRoute(it))
+                }
             }
-
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
+            composable(
+                route = Screen.KonsultasiThread.route,
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("threadId") ?: ""
+                KonsultasiDetailScreen(
+                    threadID = id,
                 )
             }
 
@@ -276,7 +356,8 @@ fun SiswaNavigation(
             }
 
             composable(Screen.Riwayat.route) {
-                SiswaRiwayatScreen()
+                //SiswaRiwayatScreen()
+                RiwayatScreen()
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(

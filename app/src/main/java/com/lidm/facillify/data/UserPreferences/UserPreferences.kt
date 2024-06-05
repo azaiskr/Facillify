@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lidm.facillify.data.remote.response.UserModelResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 val Context.datastore by preferencesDataStore(name="loginSession")
@@ -39,6 +40,12 @@ class UserPreferences private constructor(private val dataStore:DataStore<Prefer
         dataStore.edit { preferences ->
             preferences.clear()
         }
+    }
+
+    suspend fun getToken(): String {
+        return dataStore.data.map { preferences ->
+            preferences[TOKEN_KEY] ?: ""
+        }.first()
     }
 
     companion object {

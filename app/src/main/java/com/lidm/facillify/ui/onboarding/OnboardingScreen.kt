@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
@@ -36,9 +39,9 @@ import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.util.OnboardingPage
 
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnboardingScreen(
-    index: Int,
     onSkip: () -> Unit
 ) {
     val pages = listOf(
@@ -47,19 +50,28 @@ fun OnboardingScreen(
         OnboardingPage.PageThree
     )
 
+    val pagerState = rememberPagerState()
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(0.dp, 16.dp, 0.dp, 16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            PagerScreen(onBoardingPage = pages[index])
+            HorizontalPager(
+                count = pages.size,
+                state = pagerState,
+                modifier = Modifier.weight(1f),
+            ) { index ->
+                PagerScreen(onBoardingPage = pages[index])
+            }
 
-            CircleIndicator(index)
+            CircleIndicator(pagerState.currentPage)
 
             SkipButton(
                 modifier = Modifier,
@@ -143,7 +155,8 @@ fun CircleIndicator(
 ){
     // Create indicators based on the list state
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .fillMaxHeight(0.1f),
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -177,7 +190,6 @@ fun IndicatorPreview() {
 @Composable
 fun OnboardingScreenPreview() {
     OnboardingScreen(
-        index = 0,
         onSkip = {}
     )
     //PagerScreen(onBoardingPage = OnboardingPage.PageOne)

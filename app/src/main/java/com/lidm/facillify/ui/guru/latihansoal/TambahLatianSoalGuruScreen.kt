@@ -1,5 +1,8 @@
 package com.lidm.facillify.ui.guru.latihansoal
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,52 +18,66 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lidm.facillify.data.ItemSoal
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.lidm.facillify.data.remote.request.CreateQuizRequest
+import com.lidm.facillify.data.remote.request.Question
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.InputTextFieldDefault
 import com.lidm.facillify.ui.components.ItemSoalCard
-import com.lidm.facillify.ui.components.MainTopAppBar
-import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.theme.SecondaryRed
+import com.lidm.facillify.ui.viewmodel.TambahLatianSoalGuruViewModel
+import com.lidm.facillify.util.ResponseState
+import kotlinx.coroutines.launch
 
 @Composable
-fun TambahLatianSoalGuruScreen() {
-    var latihanSoal = remember { mutableStateListOf<ItemSoal>() }
-    var judulSoal by remember { mutableStateOf("") }
-    var deskripsiSoal by remember { mutableStateOf("") }
+fun TambahLatianSoalGuruScreen(
+    context: Context = LocalContext.current,
+    onBackClick: () -> Unit = {}
+) {
+    //viewmodel
+    val tambahSoalViewModel: TambahLatianSoalGuruViewModel = viewModel(factory = ViewModelFactory.getInstance(context.applicationContext))
 
-    //DUMMY DATA
-    latihanSoal.add(ItemSoal("Soal 1", listOf("Jawaban 1", "Jawaban 2", "Jawaban 3"), "Jawaban 1"))
-    latihanSoal.add(ItemSoal("Soal 2", listOf("Jawaban 1", "Jawaban 2", "Jawaban 3"), "Jawaban 2"))
-    latihanSoal.add(ItemSoal("Soal 1", listOf("Jawaban 1", "Jawaban 2", "Jawaban 3"), "Jawaban 1"))
-    latihanSoal.add(ItemSoal("Soal 2", listOf("Jawaban 1", "Jawaban 2", "Jawaban 3"), "Jawaban 2"))
+    val latihanSoal by tambahSoalViewModel.latihanSoal.collectAsState()
+    val judulSoal by tambahSoalViewModel.judulSoal.collectAsState()
+    val deskripsiSoal by tambahSoalViewModel.deskripsiSoal.collectAsState()
+    val durasi by tambahSoalViewModel.durasi.collectAsState()
+    val createdQuiz by tambahSoalViewModel.createdQuiz.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    var editingIndex by remember { mutableStateOf(-1) }
+    var questionToEdit by remember { mutableStateOf<Question?>(null) }
+
+    var showDialog by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -73,22 +90,27 @@ fun TambahLatianSoalGuruScreen() {
                     .weight(1f)
             ) {
 
-                InputTextFieldDefault(topText = "Judul Latihan Soal", insideText = "Masukan judul latihan soal", valueText = judulSoal, onValueChange = {judulSoal = it} )
+                InputTextFieldDefault(topText = "Judul Latihan Soal", insideText = "Masukan judul latihan soal", valueText = judulSoal, onValueChange = {tambahSoalViewModel.setJudulSoal(it)} )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                InputTextFieldDefault(topText = "Deskripsi Materi Latihan Soal", insideText = "Masukan deskripsi materi latihan soal", valueText = deskripsiSoal, onValueChange = {deskripsiSoal = it} )
+                InputTextFieldDefault(topText = "Deskripsi Materi Latihan Soal", insideText = "Masukan deskripsi materi latihan soal", valueText = deskripsiSoal, onValueChange = {tambahSoalViewModel.setDeskripsiSoal(it)} )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn{
                     items(latihanSoal.size){index ->
                         ItemSoalCard(
-                            soal = latihanSoal[index].soal,
-                            jawaban = latihanSoal[index].jawaban ,
-                            jawabanBenar = latihanSoal[index].jawabanBenar,
-                            onEditClick = { /*TODO*/ }) {
+                            soal = latihanSoal[index].question,
+                            jawaban = latihanSoal[index].options,
+                            jawabanBenar = latihanSoal[index].correct_option_key,
+                            onEditClick = {
+                                editingIndex = index
+                                questionToEdit = latihanSoal[index]
+                                showDialog = true
+                            }) {
                             //TODO LOGIC FOR DELETE ITEM AND EDIT
+                            tambahSoalViewModel.removeQuestion(index)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -96,15 +118,59 @@ fun TambahLatianSoalGuruScreen() {
                 }
             }
             ButtonAddSoal (
-                onClickAdd = { /*TODO*/ }
+                onClickAdd = { showDialog = true }
             )
             TimeAndUploadButton(
                 modifier = Modifier
                     .padding(horizontal= 16.dp),
-                duration = ""/*TODO*/,
-                onClickUpload = { /*TODO*/ },
-                durationOnChange = { /*TODO*/ }
+                duration = durasi,
+                onClickUpload = {
+                    val quiz = CreateQuizRequest(
+                        title = judulSoal,
+                        description = deskripsiSoal,
+                        questions = latihanSoal,
+                        time = durasi
+                    )
+                    tambahSoalViewModel.createQuiz(quiz)
+                },
+                durationOnChange = { tambahSoalViewModel.setDurasi(it.toInt() ?: 0) }
             )
+        }
+    }
+    if (showDialog) {
+        DialogTambahSoal(
+            initialQuestion = questionToEdit,
+            onDismissRequest = { showDialog = false },
+            onConfirmation = { question ->
+                if (editingIndex >= 0) {
+                    tambahSoalViewModel.updateQuestion(editingIndex, question)
+                } else {
+                    tambahSoalViewModel.addQuestion(question)
+                }
+                showDialog = false
+            }
+        )
+    }
+
+    LaunchedEffect(createdQuiz) {
+        when (createdQuiz) {
+            is ResponseState.Success -> {
+                coroutineScope.launch {
+                    // Show success message
+                    //ScaffoldState.snackbarHostState.showSnackbar("Quiz berhasil diunggah")
+                    Toast.makeText(context, "Quiz berhasil diunggah.", Toast.LENGTH_SHORT).show()
+                    onBackClick()
+                }
+            }
+            is ResponseState.Error -> {
+                coroutineScope.launch {
+                    // Show error message
+
+                    //Sca.snackbarHostState.showSnackbar("Gagal mengunggah quiz: ${(createdQuiz as ResponseState.Error).error}")
+                    Toast.makeText(context, "Quiz gagal diunggah.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> {}
         }
     }
 }
@@ -113,9 +179,12 @@ fun TambahLatianSoalGuruScreen() {
 fun TimeAndUploadButton(
     modifier: Modifier = Modifier,
     onClickUpload: () -> Unit,
-    duration: String,
-    durationOnChange: (String) -> Unit
+    duration: Int,
+    durationOnChange: (Int) -> Unit
 ) {
+    var durationText by remember { mutableStateOf(if (duration == 0) "" else duration.toString()) }
+    var isError by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth(),
@@ -142,18 +211,29 @@ fun TimeAndUploadButton(
                 //INPUT FIELD
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(0.5f),
-                    value = duration,
-                    onValueChange = durationOnChange, colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedTextColor = Blue,
-                    unfocusedTextColor = Blue,
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent
-                ), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    value = if (duration == 0) "" else duration.toString(),
+                    onValueChange = {
+                        durationText = it
+                        val intValue = it.toIntOrNull()
+                        if (intValue != null) {
+                            isError = false
+                            durationOnChange(intValue)
+                        } else {
+                            isError = true
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        focusedTextColor = if (isError) Color.Red else Blue,
+                        unfocusedTextColor = if (isError) Color.Red else Blue,
+                        focusedBorderColor = if (isError) Color.Red else Color.Transparent,
+                        unfocusedBorderColor = if (isError) Color.Red else Color.Transparent
+                    ), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     placeholder = {
                     Text(text = "Dalam Menit", fontSize = 16.sp, color = SecondaryBlue)
-                }, shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 8.dp)
+                }, shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 8.dp),
+                    isError = isError
                 )
 
                 //BUTTON
@@ -188,14 +268,15 @@ fun ButtonAddSoal(
 }
 
 //Dialog Tambah Soal
-@Composable
+/*@Composable
 fun DialogTambahSoal(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (Question) -> Unit,
 ){
     var question by remember { mutableStateOf("") }
     var answers by remember { mutableStateOf(listOf("", "", "", "")) }
     var correctAnswer by remember { mutableIntStateOf(0) }
+
     AlertDialog(
         containerColor =  Color.White,
         onDismissRequest = { onDismissRequest() },
@@ -207,13 +288,19 @@ fun DialogTambahSoal(
         confirmButton = { Button(
             onClick = {
                 //TODO LOGIC FOR ADD ITEM
-                /*onSubmit(
+                onConfirmation(
                     Question(
                         question = question,
-                        answers = answers,
-                        correctAnswer = correctAnswer
+                        options = Options(
+                            a = answers[0],
+                            b = answers[1],
+                            c = answers[2],
+                            d = answers[3],
+                            e = answers[4]
+                        ),
+                        correct_option_key = listOf("a", "b", "c", "d", "e")[correctAnswer]
                     )
-                )*/
+                )
             },
             colors = ButtonDefaults.buttonColors(containerColor = Blue),
         ) {
@@ -286,7 +373,7 @@ fun DialogTambahSoal(
                             )
                         )
 
-                        if (index == answers.lastIndex && answers.size < 6) {
+                        if (index == answers.lastIndex && answers.size < 5) {
                             IconButton(onClick = {
                                 answers = answers.toMutableList().apply { add("") }
                             }) {
@@ -309,6 +396,124 @@ fun DialogTambahSoal(
             }
         }
     )
+}*/
+
+@Composable
+fun DialogTambahSoal(
+    initialQuestion: Question? = null,
+    onDismissRequest: () -> Unit,
+    onConfirmation: (Question) -> Unit,
+    context: Context = LocalContext.current
+) {
+    var question by remember { mutableStateOf(initialQuestion?.question ?: "") }
+    var answers by remember { mutableStateOf(
+        initialQuestion?.options ?: listOf("", "", "", "", "")
+    )}
+    var correctAnswer by remember { mutableIntStateOf(
+        initialQuestion?.let { listOf("a", "b", "c", "d", "e").indexOf(it.correct_option_key) } ?: 0
+    )}
+
+    AlertDialog(
+        containerColor = Color.White,
+        onDismissRequest = { onDismissRequest() },
+        dismissButton = {
+            Button(onClick = onDismissRequest, colors = ButtonDefaults.buttonColors(containerColor = SecondaryRed)) {
+                Text("Batal")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (answers.all { it.isNotEmpty() }) {
+                        onConfirmation(
+                            Question(
+                                question = question,
+                                options = answers,
+                                correct_option_key = listOf("a", "b", "c", "d", "e")[correctAnswer]
+                            )
+                        )
+                    } else {
+                        // Handle the case when not all answers are filled
+                        // For example, show a Toast message
+                        Toast.makeText(context, "Semua jawaban harus diisi.", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Blue),
+            ) {
+                Text("Simpan")
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "Soal Pertanyaan",
+                    fontSize = 16.sp,
+                    color = Blue,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = question,
+                    onValueChange = { question = it },
+                    placeholder = {
+                        Text(
+                            text = "Masukan soal pertanyaan",
+                            color = SecondaryBlue,
+                            fontSize = 16.sp,
+                        )
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Blue,
+                        unfocusedBorderColor = SecondaryBlue,
+                        focusedTextColor = Blue,
+                        unfocusedTextColor = Blue
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Answer fields
+                answers.forEachIndexed { index, answer ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = Blue,
+                                unselectedColor = SecondaryBlue
+                            ),
+                            selected = correctAnswer == index,
+                            onClick = { correctAnswer = index }
+                        )
+                        Log.d("Tambah Lation SOAL GURU", "DialogTambahSoal: $correctAnswer")
+                        OutlinedTextField(
+                            value = answer,
+                            onValueChange = {
+                                answers = answers.toMutableList().apply { set(index, it) }
+                            },
+                            label = {
+                                Text("Jawaban ${index + 1}",
+                                    color = Blue,)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Blue,
+                                unfocusedBorderColor = SecondaryBlue,
+                                focusedTextColor = Blue,
+                                unfocusedTextColor = Blue
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -320,7 +525,7 @@ fun TambahLationSoalGuruScreenPreview() {
 @Composable
 @Preview(showBackground = true)
 fun TimeAndUploadButtonPreview() {
-    var duration by remember { mutableStateOf("") }
+    val duration by remember { mutableIntStateOf(0) }
     TimeAndUploadButton(
         duration = duration,
         onClickUpload = { /*TODO*/ },

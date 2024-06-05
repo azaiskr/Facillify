@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -24,13 +25,16 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.googlefonts.isAvailableOnDevice
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.navigation.AuthNavigation
+import com.lidm.facillify.navigation.GayaBelajarNavigation
 import com.lidm.facillify.navigation.GuruNavigation
 import com.lidm.facillify.navigation.OrtuNavigation
 import com.lidm.facillify.navigation.SiswaNavigation
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.FacillifyTheme
 import com.lidm.facillify.ui.theme.provider
-import com.lidm.facillify.util.Role
+import com.lidm.facillify.util.ResponseState
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 class MainActivity : ComponentActivity() {
@@ -42,22 +46,6 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val muridLogin = DummyLoginResponse(
-            username = "Siswa Reyhan",
-            isTested = true,
-        )
-
-        val guruLogin = DummyLoginResponse(
-            username = "Prof. Facillify",
-            isTested = true,
-        )
-
-        val ortuLogin = DummyLoginResponse(
-            username = "Bp Drajad",
-            isTested = true,
-        )
-
         viewModel.getSession().observe(this) { preference ->
             if (preference.token == "") {
                 setContent {
@@ -71,23 +59,41 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } else {
-                var role : Role? = null
                 when(preference.type) {
                     "murid" -> {
-                        // role = Role.STUDENT
                         setContent {
                             FacillifyTheme {
                                 Surface(
                                     modifier = Modifier.fillMaxSize(),
                                     color = Color.White
                                 ) {
-                                    SiswaNavigation(email = preference.email)
+                                    Log.d("MainActivity", "onCreate: ${preference.email}")
+                                    val profileResponse = viewModel.profileResponse.collectAsState()
+                                    viewModel.getUserProfile(preference.email)
+
+                                    when (profileResponse.value) {
+                                        is ResponseState.Loading -> {
+                                            LoadingScreen()
+                                        }
+                                        is ResponseState.Success -> {
+                                            val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+                                            Log.d("MainActivity", "onCreate: ${profileData.result.learning_style}")
+                                            if(profileData.result.learning_style?.isEmpty() == true || profileData.result.learning_style == null) {
+                                                GayaBelajarNavigation()
+                                            } else
+                                            {
+                                                SiswaNavigation()
+                                            }
+                                        }
+                                        is ResponseState.Error -> {
+
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                     "guru" -> {
-                        // role = Role.TEACHER
                         setContent {
                             FacillifyTheme {
                                 Surface(
@@ -100,7 +106,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     "orang tua" -> {
-                        // role = Role.PARENT
                         setContent {
                             FacillifyTheme {
                                 Surface(
@@ -115,6 +120,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
 //                            Role.STUDENT -> {
 //                                if (userLogin.isTested == false) {
 //                                    GayaBelajarNavigation()

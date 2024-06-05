@@ -1,6 +1,7 @@
 package com.lidm.facillify.ui.siswa
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.lidm.facillify.data.RiwayatLatihanSoal
 import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 
@@ -44,5 +45,5 @@ fun SiswaRiwayatScreen(
 //            }
 //        }
 
-    RiwayatScreen(evaluasi = "Loremipsum", saranPendidik = "Ini Saran", listRiwayat = dummyData )
+    //RiwayatScreen(evaluasi = "Loremipsum", saranPendidik = "Ini Saran", listRiwayat = dummyData )
 }

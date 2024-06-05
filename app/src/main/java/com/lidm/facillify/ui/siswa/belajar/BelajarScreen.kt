@@ -211,6 +211,7 @@ fun ContentCardAR(
             Text(
                 text = "Augmented\nReality",
                 fontSize = 32.sp,
+                lineHeight = 32.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End

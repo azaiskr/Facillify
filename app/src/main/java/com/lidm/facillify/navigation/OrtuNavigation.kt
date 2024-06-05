@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
@@ -18,20 +17,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainTopAppBar
+import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.theme.DarkBlue
-import com.lidm.facillify.ui.tracking.DetailTrackingScreen
-import com.lidm.facillify.ui.tracking.ListTrackingScreen
+import com.lidm.facillify.ui.tracking.DetailTrackingAnakScreen
+import com.lidm.facillify.ui.tracking.TrackingAnakScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -59,7 +59,7 @@ fun OrtuNavigation(
         topBar = {
             MainTopAppBar(
                 sectionTitle = when (currentRoute) {
-                    Screen.Konsultasi.route -> "Halo, ${email}"
+                    //Screen.Konsultasi.route -> "Halo, ${email}"
                     Screen.TrackingList.route -> "Tracking Anak"
                     Screen.TrackingDetail.route -> "Perkembangan Anak"
                     Screen.Profile.route -> "Profile"
@@ -67,7 +67,7 @@ fun OrtuNavigation(
                 },
                 contentColor = if(currentRoute == Screen.TrackingDetail.route) Color.White else DarkBlue,
                 backIcon = when (currentRoute) {
-                    Screen.Chat.route -> true
+                    Screen.KonsultasiThread.route -> true
                     Screen.TrackingDetail.route -> true
                     Screen.Profile.route -> true
                     else -> false
@@ -78,7 +78,8 @@ fun OrtuNavigation(
                     Screen.Profile.route -> false
                     else -> true
                 },
-                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route
+                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route,
+                isHome = currentRoute == Screen.Konsultasi.route
             )
         }
     ) { innerPadding ->
@@ -118,31 +119,37 @@ fun OrtuNavigation(
                 slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
             }
         ) {
+            //KONSULTASI -> THREAD
             composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) })
+                KonsultasiForumScreen {
+                    navController.navigate(Screen.KonsultasiThread.createRoute(it))
+                }
             }
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
+            composable(
+                route = Screen.KonsultasiThread.route,
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("threadId") ?: ""
+                KonsultasiDetailScreen(
+                    threadID = id,
                 )
             }
             composable(Screen.TrackingList.route) {
-                ListTrackingScreen(
-                    onDetailClick = { navController.navigate(Screen.TrackingDetail.route) }
-                )
+                TrackingAnakScreen(onDetailClick = {
+                    navController.navigate(Screen.TrackingDetail.createRoute(it))
+                }, role = role)
             }
             composable(Screen.TrackingDetail.route) {
-                DetailTrackingScreen(
+                val email: String = it.arguments?.getString("studentEmail") ?: ""
+                DetailTrackingAnakScreen(
                     onClickBack = { navController.popBackStack() },
-                    role = role
+                    emailStudent = email,
+                    userRole = role
                 )
             }
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     modifier = modifier,
-                    role = role,
                 )
             }
         }

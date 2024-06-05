@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,16 +49,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.ButtonDefault
 import com.lidm.facillify.ui.components.InputTextFieldDefault
+import com.lidm.facillify.ui.components.ShowToast
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.SecondaryBlue
+import com.lidm.facillify.ui.viewmodel.RegisterViewModel
+import com.lidm.facillify.util.ResponseState
 import com.lidm.facillify.util.Role
 
 @Composable
 fun SignUpInputScreen(
-    selectedRole : Role,
+    selectedRole: Role,
     onSignUp: () -> Unit = {}
 ) {
     Surface(
@@ -83,6 +89,39 @@ fun SignUpInputScreen(
         val religionOption = listOf("Islam", "Kristen", "Katolik", "Hindu", "Budha", "Konghucu")
         var selectedReligion by rememberSaveable { mutableStateOf("") }
 
+        val rgViewModel: RegisterViewModel = viewModel(
+            factory = ViewModelFactory.getInstance(LocalContext.current)
+        )
+
+        val type = when (selectedRole) {
+            Role.STUDENT -> "murid"
+            Role.TEACHER -> "guru"
+            Role.PARENT -> "orang tua"
+        }
+
+        fun rgMurid() {
+            rgViewModel.registerMurid(type = type, email = email, name = name, password = password, pod = birthPlace, dob = dateOfBirth, gender = selectedGender, address = address, phone_number = phone, religion = selectedReligion, nisn = nisn)
+        }
+        fun rgGuru() {
+            rgViewModel.registerGuru(type = type, email = email, name = name, password = password, pod = birthPlace, dob = dateOfBirth, gender = selectedGender, address = address, phone_number = phone, religion = selectedReligion, nip = nip)
+        }
+        fun rgOrangTua() {
+            rgViewModel.registerOrtu(type = type, email = email, name = name, password = password, pod = birthPlace, dob = dateOfBirth, gender = selectedGender, address = address, phone_number = phone, religion = selectedReligion, job = job)
+        }
+
+        val rgResponse by rgViewModel.registerResponse.collectAsState()
+        when(rgResponse){
+            is ResponseState.Loading ->{
+                //LoadingScreen()
+            }
+            is ResponseState.Success -> {
+                ShowToast(message = "Register Berhasil")
+                onSignUp()
+            }
+            is ResponseState.Error -> {
+                (rgResponse as ResponseState.Error).error?.let { ShowToast(message = it) }
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -105,6 +144,7 @@ fun SignUpInputScreen(
                             color = Blue
                         )
                     }
+
                     Role.TEACHER -> {
                         Text(
                             text = "Mendaftar Sebagai Guru",
@@ -113,6 +153,7 @@ fun SignUpInputScreen(
                             color = Blue
                         )
                     }
+
                     else -> {
                         Text(
                             text = "Mendaftar Sebagai Orang Tua",
@@ -139,8 +180,8 @@ fun SignUpInputScreen(
                 InputTextFieldDefault(
                     topText = "Email",
                     insideText = "Masukan email",
-                    valueText = email ,
-                    onValueChange = { email = it } ,
+                    valueText = email,
+                    onValueChange = { email = it },
                     isEmail = true
                 )
 
@@ -179,7 +220,7 @@ fun SignUpInputScreen(
                     topText = "Tanggal Lahir",
                     insideText = "Masukan tanggal lahir",
                     valueText = dateOfBirth,
-                    onValueChange = { dateOfBirth = it},
+                    onValueChange = { dateOfBirth = it },
                     isDate = true
                 )
 
@@ -234,6 +275,7 @@ fun SignUpInputScreen(
                             isNumberOnly = true
                         )
                     }
+
                     Role.TEACHER -> {
                         InputTextFieldDefault(
                             topText = "NIP",
@@ -243,6 +285,7 @@ fun SignUpInputScreen(
                             isNumberOnly = true
                         )
                     }
+
                     else -> {
                         InputTextFieldDefault(
                             topText = "Pekerjaan",
@@ -258,7 +301,19 @@ fun SignUpInputScreen(
                 ButtonDefault(
                     modifier = Modifier,
                     text = "Daftar",
-                    onClick = onSignUp
+                    onClick = when (selectedRole) {
+                        Role.STUDENT -> {
+                            { rgMurid() }
+                        }
+
+                        Role.TEACHER -> {
+                            { rgGuru() }
+                        }
+
+                        Role.PARENT -> {
+                            { rgOrangTua() }
+                        }
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -297,15 +352,19 @@ fun TopSectionSignUp() {
 fun SpinnerTemplate(
     topText: String,
     listItem: List<String>,
-    selectedItem : String,
-    onItemSelected: (selectedItem : String) -> Unit,
+    selectedItem: String,
+    onItemSelected: (selectedItem: String) -> Unit,
     placeholder: String
-){
+) {
     var tempSelected by rememberSaveable { mutableStateOf(selectedItem) }
     var expanded by rememberSaveable { mutableStateOf(false) }
     val mContext = LocalContext.current
     Column {
-        Text(text = topText, style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold), color = Blue)
+        Text(
+            text = topText,
+            style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold),
+            color = Blue
+        )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
             modifier = Modifier
@@ -318,10 +377,12 @@ fun SpinnerTemplate(
                 contentColor = if (selectedItem.isBlank()) SecondaryBlue else Blue,
             ),
             enabled = listItem.isNotEmpty(),
-            border = BorderStroke(1.dp,
-                if(expanded) {
-                Blue
-            } else SecondaryBlue),
+            border = BorderStroke(
+                1.dp,
+                if (expanded) {
+                    Blue
+                } else SecondaryBlue
+            ),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -333,7 +394,10 @@ fun SpinnerTemplate(
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
                 )
-                Icon(if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, contentDescription = null)
+                Icon(
+                    if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = null
+                )
             }
         }
 
@@ -344,7 +408,7 @@ fun SpinnerTemplate(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            listItem.forEach {item ->
+            listItem.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(text = item) },
                     onClick = {
@@ -356,41 +420,11 @@ fun SpinnerTemplate(
                     colors = MenuDefaults.itemColors(
                         textColor = Blue,
                         leadingIconColor = SecondaryBlue
-                    ))
+                    )
+                )
             }
         }
         //Debug
         //Text(text = "Selected Item : $selectedItem")
     }
-}
-
-
-
-
-@Composable
-@Preview(showBackground = true)
-fun SignUpInputScreenPreview() {
-    SignUpInputScreen(
-        selectedRole = Role.STUDENT
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun TopSectionSignUpPreview() {
-    TopSectionSignUp()
-}
-
-@Composable
-@Preview(showBackground = true)
-fun SpinnerTemplatePreview() {
-    val genderList = listOf("Laki-laki", "Perempuan", "Genderuwo","Siluman Gondrong")
-    var selectedGender by rememberSaveable { mutableStateOf("") }
-    SpinnerTemplate(
-        topText = "Jenis Kelamin",
-        listItem = genderList,
-        selectedItem = selectedGender,
-        onItemSelected = { selectedGender = it },
-        placeholder = "Pilih Jenis Kelamin"
-    )
 }

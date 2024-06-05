@@ -22,11 +22,11 @@ class RealApiServiceTest {
     private val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im0ucmFpaGFud2lkYWdkb0BnbWFpbC5jb24iLCJpYXQiOjE3MTY5MTExNzcsImV4cCI6MTcxNjkyMTk3N30.P1Yohcbmsr28nuJbRzjmFAdeMp7hK6UDJhjHcS31M-o" // Ganti dengan token yang valid
 
     @Before
-    fun setUp() {
+    fun setUp() {/*
         apiService = ApiConfig.createApiServiceTest(
             "https://lucky.widzzz.com/",
             token
-        )
+        )*/
     }
     @Test
     fun `test getAllThread`() = runBlocking {

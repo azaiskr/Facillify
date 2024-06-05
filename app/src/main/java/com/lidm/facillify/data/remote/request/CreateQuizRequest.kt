@@ -9,15 +9,15 @@ data class CreateQuizRequest(
 
 data class Question(
     val question: String,
-    val options: List<Option>,
+    val options: List<String>,
     val correct_option_key: String
 )
 
-data class Option(
-    val a: String? = null,
-    val b: String? = null,
-    val c: String? = null,
-    val d: String? = null,
-    val e: String? = null,
+data class Options(
+    val a: String,
+    val b: String,
+    val c: String,
+    val d: String,
+    val e: String,
 )
 

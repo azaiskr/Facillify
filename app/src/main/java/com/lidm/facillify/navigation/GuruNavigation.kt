@@ -17,25 +17,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.lidm.facillify.navigation.utils.Screen
-import com.lidm.facillify.ui.DummyLoginResponse
-import com.lidm.facillify.ui.chat.konsultasi.ChatKonsultasi
-import com.lidm.facillify.ui.chat.konsultasi.ListKonsultasi
 import com.lidm.facillify.ui.components.MainBottomAppBar
 import com.lidm.facillify.ui.components.MainFab
 import com.lidm.facillify.ui.components.MainTopAppBar
 import com.lidm.facillify.ui.guru.latihansoal.BaseLatihanSoalGuruScreen
 import com.lidm.facillify.ui.guru.latihansoal.TambahLatianSoalGuruScreen
-import com.lidm.facillify.ui.guru.materi.MateriBelajarGuruScreen
+import com.lidm.facillify.ui.guru.materibelajar.DetailMateriBelajarGuruScreen
+import com.lidm.facillify.ui.guru.materibelajar.DetailMateriGuru
+import com.lidm.facillify.ui.guru.materibelajar.MateriBelajarGuruScreen
 import com.lidm.facillify.ui.guru.materibelajar.TambahMateriBelajarScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiDetailScreen
+import com.lidm.facillify.ui.konsultasi.KonsultasiForumScreen
 import com.lidm.facillify.ui.profile.ProfileScreen
 import com.lidm.facillify.ui.siswa.belajar.BelajarScreen
-import com.lidm.facillify.ui.tracking.DetailTrackingScreen
-import com.lidm.facillify.ui.tracking.ListTrackingScreen
+import com.lidm.facillify.ui.tracking.DetailTrackingAnakScreen
+import com.lidm.facillify.ui.tracking.TrackingAnakScreen
 import com.lidm.facillify.util.Role
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,8 +68,9 @@ fun GuruNavigation(
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = { navController.navigate(Screen.Profile.route) },
                 sectionTitle = when (currentRoute) {
-                    Screen.Belajar.route -> "Halo, ${email}"
+                    //Screen.Belajar.route -> "Halo, ${email}"
                     Screen.MateriBelajar.route -> "Materi Belajar"
+                    Screen.SiswaMateriBelajarDetail.route -> "Detail Materi"
                     Screen.TambahMateri.route -> "Upload Materi"
                     Screen.Latihan.route -> "Latihan Siswa"
                     Screen.TambahLatihan.route -> "Upload Latihan"
@@ -89,7 +93,8 @@ fun GuruNavigation(
                     Screen.TrackingList.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route
+                isHide = currentRoute == Screen.Chat.route || currentRoute == Screen.TrackingDetail.route,
+                isHome = currentRoute == Screen.Belajar.route
             )
         },
         floatingActionButton = {
@@ -159,39 +164,59 @@ fun GuruNavigation(
                 BaseLatihanSoalGuruScreen()
             }
             composable(Screen.MateriBelajar.route) {
-                MateriBelajarGuruScreen()
+                MateriBelajarGuruScreen(
+                    onItemMateriBelajarClicked = {
+                        navController.navigate(Screen.SiswaMateriBelajarDetail.createRoute(it))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.SiswaMateriBelajarDetail.route,
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
+            ){
+                val id = it.arguments?.getString("materiId") ?: ""
+                DetailMateriBelajarGuruScreen(materiId = id, modifier = modifier)
             }
 
             composable(Screen.TambahMateri.route) {
                 TambahMateriBelajarScreen()
             }
             composable(Screen.TambahLatihan.route) {
-                TambahLatianSoalGuruScreen()
-            }
-            composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) }
+                TambahLatianSoalGuruScreen(
+                    onBackClick = {navController.popBackStack()}
                 )
             }
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
+            //KONSULTASI -> THREAD
+            composable(Screen.Konsultasi.route) {
+                KonsultasiForumScreen {
+                    navController.navigate(Screen.KonsultasiThread.createRoute(it))
+                }
+            }
+            composable(
+                route = Screen.KonsultasiThread.route,
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) {
+                val id = it.arguments?.getString("threadId") ?: ""
+                KonsultasiDetailScreen(
+                    threadID = id,
                 )
             }
             composable(Screen.TrackingList.route) {
-                ListTrackingScreen(
-                    onDetailClick = { navController.navigate(Screen.TrackingDetail.route) }
-                )
+                TrackingAnakScreen(onDetailClick = {
+                    navController.navigate(Screen.TrackingDetail.createRoute(it))
+                }, role = role)
             }
             composable(Screen.TrackingDetail.route) {
-                DetailTrackingScreen(
+                val email: String = it.arguments?.getString("studentEmail") ?: ""
+                DetailTrackingAnakScreen(
                     onClickBack = { navController.popBackStack() },
-                    role = role
+                    emailStudent = email,
+                    userRole = role
                 )
             }
             composable(Screen.Profile.route) {
-                ProfileScreen(modifier = modifier, role = role)
+                ProfileScreen(modifier = modifier)
             }
         }
     }

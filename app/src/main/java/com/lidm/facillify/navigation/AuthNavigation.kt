@@ -37,9 +37,9 @@ fun AuthNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Scaffold (
+    Scaffold(
         containerColor = Color.White
-    ){ innerPadding ->
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.OnBoarding.route,
@@ -58,10 +58,7 @@ fun AuthNavigation(
                 }
             },
             exitTransition = {
-                when (targetState.destination.route) {
-                    Screen.Register.route -> slideOutVertically(targetOffsetY = { -1000 })
-                    else -> fadeOut()
-                }
+                fadeOut()
             },
             popEnterTransition = {
                 when (targetState.destination.route) {
@@ -71,12 +68,13 @@ fun AuthNavigation(
                         } else
                             scaleIn(initialScale = 0.8f) + fadeIn()
                     }
+
                     else -> scaleIn(initialScale = 0.8f) + fadeIn()
                 }
             },
             popExitTransition = {
                 when (targetState.destination.route) {
-                    Screen.Login.route -> slideOutVertically(targetOffsetY = { 1000 })
+                    Screen.Login.route -> fadeOut()
                     else -> slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
                 }
 
@@ -84,13 +82,17 @@ fun AuthNavigation(
         ) {
             composable(Screen.OnBoarding.route) {
                 OnboardingScreen(
-                    index = 0,
-                    onSkip = { navController.navigate(Screen.Login.route) } //TODO : clear backstack
+                    onSkip = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.OnBoarding.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onLogin = {/*TODO*/ },
+                    onLogin = {  },
                     onSignUp = { navController.navigate(Screen.Register.route) }
                 )
             }
@@ -110,10 +112,10 @@ fun AuthNavigation(
                 SignUpInputScreen(
                     selectedRole = role?.let { Role.valueOf(role) } ?: Role.STUDENT,
                     onSignUp = {
-                        navController.popBackStack(
-                            Screen.Login.route,
-                            inclusive = false
-                        )
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
                     },
                 )
             }

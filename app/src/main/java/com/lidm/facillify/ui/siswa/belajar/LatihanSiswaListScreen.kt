@@ -17,75 +17,77 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.lidm.facillify.data.local.LatihanItem
-import com.lidm.facillify.data.local.dataLatihan
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.lidm.facillify.data.local.Filter
+import com.lidm.facillify.data.local.dummyDataFilter
+import com.lidm.facillify.data.remote.response.QuizListItem
+import com.lidm.facillify.data.remote.response.QuizListResponse
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.components.DialogConfirm
 import com.lidm.facillify.ui.components.SearchAppBar
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
-
-data class Filter(
-    val id: Int,
-    val name: String
-)
-
-val dummyDataFilter = listOf(
-    Filter(
-        id = 1,
-        name = "Selesai"
-    ),
-    Filter(
-        id = 2,
-        name = "Bangun Ruang"
-    ),
-    Filter(
-        id = 3,
-        name = "Statistika"
-    ),
-    Filter(
-        id = 4,
-        name = "SPLDV"
-    ),
-)
+import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun LatihanSiswaListScreen(
     modifier: Modifier,
-    onNavigateToLatihanForm: (Int) -> Unit,
+    onNavigateToLatihanForm: (String) -> Unit,
 ) {
-    //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
-    ListLatihan(
-        data = dataLatihan,
-        filter = dummyDataFilter,
-        modifier = modifier,
-        onNavigateToLatihanForm = onNavigateToLatihanForm
+
+    val viewModel: LatihanSiswaViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(LocalContext.current)
     )
+    val quizListResponse by viewModel.quizList.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getQuizList()
+    }
+    when (quizListResponse) {
+        is ResponseState.Loading -> {
+            LoadingScreen()
+        }
+
+        is ResponseState.Success -> {
+            val response = (quizListResponse as ResponseState.Success<QuizListResponse>).data
+            val quizList = response.result
+            ListLatihan(
+                data = quizList,
+                filter = dummyDataFilter,
+                modifier = modifier,
+                onNavigateToLatihanForm = onNavigateToLatihanForm
+            )
+        }
+
+        is ResponseState.Error -> {
+            ErrorScreen(
+                onTryAgain = { viewModel.getQuizList() }
+            )
+        }
+    }
+
 }
 
 @Composable
 fun ListLatihan(
-    data: List<LatihanItem>,
+    data: List<QuizListItem>,
     filter: List<Filter>,
     modifier: Modifier,
-    onNavigateToLatihanForm: (Int) -> Unit,
+    onNavigateToLatihanForm: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -103,7 +105,7 @@ fun ListLatihan(
         }
 
         var selectedLatihanId by rememberSaveable {
-            mutableStateOf<Int?>(null)
+            mutableStateOf<String?>(null)
         }
 
         SearchAppBar(
@@ -120,8 +122,7 @@ fun ListLatihan(
 
         val filteredData = if (selectedFilters.isNotEmpty() || query != "") {
             data.filter { latihan ->
-                (selectedFilters.any { filter -> (filter.id == 1 && latihan.done) || latihan.subBab == filter.name })
-                && (query == "" || latihan.judul.contains(query, ignoreCase = true))
+                latihan.title.contains(query, ignoreCase = true)
             }
         } else {
             data
@@ -150,17 +151,16 @@ fun ListLatihan(
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             items(filteredData.size) { index ->
-                CardLatihanItem(
-                    latihan = filteredData[index],
-                    modifier = modifier,
-                    onCLick = {
-                        selectedLatihanId = filteredData[index].id
-                        showDialog = true
-                    }
-                )
-            }
+                    CardLatihanItem(
+                        latihan = filteredData[index],
+                        modifier = modifier,
+                        onCLick = {
+                            selectedLatihanId = filteredData[index].id
+                            showDialog = true
+                        }
+                    )
+                }
         }
 
         if (showDialog && selectedLatihanId != null) {
@@ -171,12 +171,11 @@ fun ListLatihan(
                     onNavigateToLatihanForm(selectedLatihanId!!)
                 },
                 title = "Kerjakan Latihan?",
-                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                msg = "Yakin ingin mengerjakan latihan ini? Kamu tidak akan dapat kembali ketika latihan dimulai. Pastikan kamu sudah siap ya!",
                 confirmLabel = "Kerjakan",
                 dismissLabel = "Kembali"
             )
         }
-
     }
 }
 

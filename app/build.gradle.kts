@@ -115,7 +115,7 @@ dependencies {
 
     //Coil
     //implementation(libs.accompanist.coil)
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.compose)
 
     //lifecycle
     //liveCycle
@@ -135,9 +135,20 @@ dependencies {
     // JUnit
     testImplementation(libs.junit)
 
+    //accompanist pager
+    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+
+
     // Coroutine Test
     testImplementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.dotenv.kotlin)
 
+    //COIL
+    implementation(libs.coil.kt.coil)
+
+    //SWIPE REFRESH
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.swiperefresh.v0263beta)
+    implementation(libs.google.accompanist.flowlayout)
 }

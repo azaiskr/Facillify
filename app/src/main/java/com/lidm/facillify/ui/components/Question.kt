@@ -18,11 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lidm.facillify.ui.theme.Orange
 import com.lidm.facillify.data.local.Question
+import com.lidm.facillify.data.remote.response.QuestionsItem
+import com.lidm.facillify.model.QuizGayaBelajar
 
 @Composable
 fun QuestionItem(
     modifier: Modifier,
-    question: Question,
+    question: QuestionsItem,
     onAnswerSelected: (Int, String) -> Unit,
     selectedAnswer: String,
 ){
@@ -31,12 +33,12 @@ fun QuestionItem(
             .padding(bottom = 16.dp)
     ){
         Text(
-            text = question.questionText,
+            text = question.question,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = modifier.padding(bottom = 4.dp)
         )
-        question.answer.forEachIndexed { index, answer ->
+        question.options?.forEachIndexed { index, answer ->
             AnswerItem(
                 answer = answer,
                 onAnswerSelected = {onAnswerSelected(index, answer)},
@@ -81,17 +83,45 @@ fun AnswerItem(
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
+//@Composable
+//fun QuestionItemPreview(){
+//    QuestionItem(
+//        question = Question(
+//            id = 1,
+//            questionText = "Pada video ini kita akan mempelajari mengenai bangun ruang yang ada di sekitar kita",
+//            answer = listOf("Video 1", "Video 2", "Video 3")
+//        ),
+//        modifier = Modifier,
+//        onAnswerSelected = { _, _ -> },
+//        selectedAnswer = ""
+//    )
+//}
+
 @Composable
-fun QuestionItemPreview(){
-    QuestionItem(
-        question = Question(
-            id = 1,
-            questionText = "Pada video ini kita akan mempelajari mengenai bangun ruang yang ada di sekitar kita",
-            answer = listOf("Video 1", "Video 2", "Video 3")
-        ),
-        modifier = Modifier,
-        onAnswerSelected = {_,_ -> },
-        selectedAnswer = ""
-    )
+fun QuestionItemGayaBelajar(
+    modifier: Modifier,
+    question: QuizGayaBelajar,
+    onAnswerSelected: (Int, String) -> Unit,
+    selectedAnswer: String,
+){
+    Column (
+        modifier = modifier
+            .padding(bottom = 16.dp)
+    ){
+        Text(
+            text = question.question,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
+        question.options?.forEachIndexed { index, answer ->
+            AnswerItem(
+                answer = answer,
+                onAnswerSelected = {onAnswerSelected(index, answer)},
+                modifier = modifier,
+                selectedAnswer = selectedAnswer,
+            )
+        }
+    }
 }

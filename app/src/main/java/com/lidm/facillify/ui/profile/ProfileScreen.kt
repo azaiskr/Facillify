@@ -6,10 +6,9 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +23,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,86 +39,139 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberImagePainter
-import com.lidm.facillify.R
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.UserProfile
-import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.components.DynamicSizeImage
+import com.lidm.facillify.ui.components.MainButton
 import com.lidm.facillify.ui.components.SecondaryButton
+import com.lidm.facillify.ui.components.ShowToast
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.AlertRed
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
 import com.lidm.facillify.ui.viewmodel.ProfileViewModel
 import com.lidm.facillify.util.ResponseState
-import com.lidm.facillify.util.Role
-
-data class Siswa(
-    val imgProfile: Int,
-    val name: String,
-    val email: String,
-    val birthPlace: String,
-    val birthDate: String,
-    val gender: String,
-    val address: String,
-    val phone: String,
-    val religion: String,
-    val nisn: String,
-    val parent: String? = null,
-    val role: Role = Role.STUDENT,
-)
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier,
     navigateToFormTambahDataOrtu: () -> Unit = {},
-    role: Role = Role.STUDENT,
     context: Context = LocalContext.current,
 ) {
     val profileViewModel: ProfileViewModel = viewModel(
         factory = ViewModelFactory.getInstance(context.applicationContext)
     )
+    val uploadImageState = profileViewModel.uploadImageState.collectAsState()
+    val swipeRefreshState = remember { SwipeRefreshState(isRefreshing = false) }
     val profileResponse = profileViewModel.profileResponse.collectAsState()
     val preferences by profileViewModel.getSession().observeAsState()
+    val email = preferences?.email
 
-    LaunchedEffect(preferences) {
-        preferences?.let {
-            profileViewModel.getUserProfile(it.email)
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect (email) {
+        if (email != null) {
+            profileViewModel.getUserProfile(email)
         }
     }
 
-    when (profileResponse.value) {
-        is ResponseState.Loading -> {
-            //TODO: show loading
+    LaunchedEffect(uploadImageState.value) {
+        when (uploadImageState.value) {
+            is ResponseState.Success -> {
+                Toast.makeText(context, "Foto profil berhasil diunggah", Toast.LENGTH_SHORT)
+                    .show()
+            }
 
+            is ResponseState.Error -> {
+                Toast.makeText(context, "Gagal mengunggah foto profil", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
+            else -> {
+            }
         }
-        is ResponseState.Success -> {
-            val profileData = (profileResponse.value as ResponseState.Success<ProfileResponse>).data
-            ProfileContent(
-                profileData = profileData.result,
-                modifier = modifier,
-                actionLogOut = { profileViewModel.logOut() },
+    }
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = {
+            profileViewModel.getUserProfile(email ?: "")
+        }
+    ) {
+        Column {
+            when (profileResponse.value) {
+                is ResponseState.Loading -> {
+                    LoadingScreen()
+                }
+
+                is ResponseState.Success -> {
+                    val profileData =
+                        (profileResponse.value as ResponseState.Success<ProfileResponse>).data
+                    ProfileContent(
+                        profileData = profileData.result,
+                        modifier = modifier,
+                        actionLogOut = { showDialog = true },
+                        onClick = navigateToFormTambahDataOrtu,
+                        onImageSelected = { uri ->
+                            preferences?.email?.let { email ->
+                                profileViewModel.uploadNewProfilePhoto(uri, email)
+                            }
+                        },
+                        bearerToken = preferences?.token.toString()
+                    )
+                }
+
+                is ResponseState.Error -> {
+                    (profileResponse.value as ResponseState.Error).error?.let {
+                        ShowToast(
+                            message = it
+                        )
+                    }
+                    ErrorScreen(
+                        onTryAgain = {
+                            profileViewModel.getUserProfile(email ?: "")
+                        }
+                    )
+                    MainButton(
+                        modifier = Modifier.padding(48.dp),
+                        onClick = { profileViewModel.logOut() },
+                        labelText = "Keluar"
+                    )
+                }
+            }
+            Spacer(modifier = modifier.height(24.dp))
+        }
+
+        if (showDialog) {
+            DialogConfirm(
+                title = "Keluar Aplikasi?",
+                msg = "Apakah anda yakin ingin keluar?",
+                onConfirm = {
+                    profileViewModel.logOut()
+                    showDialog = false
+                },
+                onDismiss = {
+                    showDialog = false
+                },
+                confirmLabel = "Ya",
+                dismissLabel = "Tidak",
             )
         }
-        is ResponseState.Error -> {
-            //TODO: show error
-        }
     }
-
 
 }
 
@@ -128,6 +181,8 @@ fun ProfileContent(
     modifier: Modifier,
     actionLogOut: () -> Unit = {},
     onClick: () -> Unit = {},
+    onImageSelected: (Uri) -> Unit = {},
+    bearerToken: String
 ) {
     val dataLabel = mutableListOf<String>()
     val dataValues = mutableListOf<String?>()
@@ -156,12 +211,13 @@ fun ProfileContent(
     dataLabel.add("Agama")
     dataValues.add(profileData.religion)
 
+
     if (profileData.nisn != null) {
         dataLabel.add("NISN")
         dataValues.add(profileData.nisn)
     }
 
-    if (profileData.parent_email != null) {
+    if (profileData.type == "murid") {
         dataLabel.add("Email Wali")
         dataValues.add(profileData.parent_email)
     }
@@ -176,6 +232,11 @@ fun ProfileContent(
         dataValues.add(profileData.nip)
     }
 
+    if (profileData.learning_style != null) {
+        dataLabel.add("Gaya Belajar")
+        dataValues.add(profileData.learning_style)
+    }
+
     // State to hold the selected profile image URI
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
@@ -186,6 +247,7 @@ fun ProfileContent(
         onResult = { uri: Uri? ->
             if (uri != null) {
                 profileImageUri = uri
+                onImageSelected(uri)
             }
         }
     )
@@ -208,7 +270,7 @@ fun ProfileContent(
                     val source = ImageDecoder.createSource(context.contentResolver, uri)
                     ImageDecoder.decodeBitmap(source)
                 }
-                Image(
+                /*Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = null,
                     modifier = modifier
@@ -216,17 +278,29 @@ fun ProfileContent(
                         .clip(CircleShape)
                         .background(Color.Gray),
                     contentScale = ContentScale.Crop,
+                )*/
+                DynamicSizeImage(
+                    modifier = modifier.size(96.dp),
+                    imageUrl = profileData.profile_image_url.toString() ?: "",
+                    bearerToken = bearerToken
                 )
+
             } ?: run {
-                Image(
+                /*Image(
                     painter = rememberImagePainter(data = profileData.profile_image_url),
                     contentDescription = null,
                     modifier = modifier
                         .size(96.dp)
                         .clip(CircleShape)
                         .background(Color.Gray),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
+                )*/
+                DynamicSizeImage(
+                    modifier = modifier.size(96.dp),
+                    imageUrl = profileData.profile_image_url.toString() ?: "",
+                    bearerToken = bearerToken
                 )
+                Log.d("ProfileContent", "ProfileContent: ${profileData.profile_image_url}")
             }
             IconButton(
                 onClick = { launcher.launch("image/*") },
@@ -250,10 +324,8 @@ fun ProfileContent(
             text = profileData.name,
             modifier = modifier
                 .padding(vertical = 16.dp),
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-            )
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
         )
         Spacer(modifier = modifier.height(24.dp))
         dataLabel.mapIndexed { index, label ->
@@ -272,21 +344,21 @@ fun ProfileContent(
                 label = "Edit Email Orang Tua"
             )
         }
-        Spacer(modifier = modifier.height(24.dp))
-        OutlinedButton(
+        Button(
             modifier = modifier
                 .fillMaxWidth()
                 .height(40.dp),
             onClick = { actionLogOut() },
-            border = BorderStroke(2.dp, AlertRed),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AlertRed,
+                contentColor = Color.White
+            ),
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
                 text = "Keluar",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    color = AlertRed,
-                ),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
         }
@@ -307,24 +379,20 @@ fun DetailProfileData(
     ) {
         Text(
             text = label,
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = OnBlueSecondary,
-            ),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = OnBlueSecondary,
             modifier = modifier
-                .weight(0.5f)
+                .weight(0.25f)
         )
         Text(
             text = data ?: "Tidak ada data",
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = DarkBlue,
-                textAlign = TextAlign.End,
-            ),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = DarkBlue,
+            textAlign = TextAlign.End,
             modifier = modifier
-                .weight(0.5f)
+                .weight(0.75f)
         )
     }
 }

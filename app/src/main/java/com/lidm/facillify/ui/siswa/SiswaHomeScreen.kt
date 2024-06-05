@@ -1,6 +1,7 @@
 package com.lidm.facillify.ui.siswa
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,57 +34,111 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
+import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.ui.components.CardLatihanItem
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarItem
-import com.lidm.facillify.data.local.dataLatihan
-import com.lidm.facillify.data.local.listMateri
-import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
+import com.lidm.facillify.data.remote.response.MaterialList
+import com.lidm.facillify.data.remote.response.QuizListItem
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.DialogConfirm
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
+import com.lidm.facillify.ui.viewmodel.HomeSiswaViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun SiswaHomeScreen(
     modifier: Modifier = Modifier,
-    onItemBelajarClick: (Int) -> Unit,
-    onItemLatihanClick: (Int) -> Unit,
+    onItemBelajarClick: (String) -> Unit,
+    onItemLatihanClick: (String) -> Unit,
     onNavigateToBelajar: () -> Unit,
     onNavigateToLatihan: () -> Unit,
     onNavigateToChatbot: () -> Unit,
+    onNavigateToTestGayaBelajar: () -> Unit
 ) {
-    //viewModel
-    //state
-
-    HomeScreenContent(
-        modifier = modifier,
-        onItemBelajarClick = onItemBelajarClick,
-        onItemLatihanClick = onItemLatihanClick,
-        onNavigateToBelajar = onNavigateToBelajar,
-        onNavigateToLatihan = onNavigateToLatihan,
-        onNavigateToChatbot = onNavigateToChatbot,
+    val viewModel: HomeSiswaViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(
+            LocalContext.current)
     )
+    val quizList by viewModel.quizList.collectAsState()
+    val materialResponse by viewModel.materialResponse.collectAsState()
+    var listOfQuiz by rememberSaveable {
+        mutableStateOf<List<QuizListItem>>(emptyList())
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getQuizList()
+        viewModel.getMaterial()
+    }
+
+    when (quizList) {
+        is ResponseState.Loading -> {
+            LoadingScreen()
+
+        }
+        is ResponseState.Success -> {
+            val quizResponse = (quizList as ResponseState.Success).data
+            listOfQuiz = quizResponse.result
+
+            when(materialResponse){
+                is ResponseState.Loading -> {
+                    LoadingScreen()
+                }
+                is ResponseState.Success -> {
+                    val materialList = (materialResponse as ResponseState.Success).data
+                    HomeScreenContent(
+                        modifier = modifier,
+                        onItemBelajarClick = onItemBelajarClick,
+                        onItemLatihanClick = onItemLatihanClick,
+                        onNavigateToBelajar = onNavigateToBelajar,
+                        onNavigateToLatihan = onNavigateToLatihan,
+                        onNavigateToChatbot = onNavigateToChatbot,
+                        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
+                        listQuiz = listOfQuiz,
+                        listMaterial = materialList
+                    )
+                }
+                is ResponseState.Error -> {
+                    ErrorScreen (
+                        onTryAgain = { viewModel.getMaterial() }
+                    )
+                }
+            }
+        }
+        is ResponseState.Error -> {
+            ErrorScreen (
+                onTryAgain = { viewModel.getQuizList() }
+            )
+        }
+    }
 }
 
 @Composable
 fun HomeScreenContent(
     modifier: Modifier,
-    onItemBelajarClick: (Int) -> Unit = {},
-    onItemLatihanClick: (Int) -> Unit = {},
+    onItemBelajarClick: (String) -> Unit = {},
+    onItemLatihanClick: (String) -> Unit = {},
     onNavigateToBelajar: () -> Unit = {},
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
+    onNavigateToTestGayaBelajar: () -> Unit = {},
+    listQuiz: List<QuizListItem>,
+    listMaterial: List<MateriBelajar>
 ) {
     var showDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
     var selectedLatihanId by rememberSaveable {
-        mutableStateOf<Int?>(null)
+        mutableStateOf<String?>(null)
     }
 
     Column(
@@ -126,6 +183,32 @@ fun HomeScreenContent(
             }
         }
 
+        Button(
+            onClick = { onNavigateToTestGayaBelajar() },
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
+                .height(56.dp)
+                .border( 1.dp, Blue, shape = RoundedCornerShape(16.dp)),
+            colors = ButtonDefaults.buttonColors(
+                Color.Transparent,
+                contentColor = Color.White
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = modifier.padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Test Gaya Belajar",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Blue
+                )
+            }
+        }
 
         LazyColumn(
             contentPadding = PaddingValues(vertical = 8.dp),
@@ -173,11 +256,11 @@ fun HomeScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(listMateri.size) {index ->
+                        items(listMaterial.size) { index ->
                             MateriBelajarItem(
                                 modifier = modifier,
-                                onClick = { onItemBelajarClick(listMateri[index].id) },
-                                materi = listMateri[index]
+                                onClick = { onItemBelajarClick(listMaterial[index].id) },
+                                materi = listMaterial[index]
                             )
                         }
                     }
@@ -217,13 +300,13 @@ fun HomeScreenContent(
                     }
                 }
             }
-            items(dataLatihan.size) {
+            items(listQuiz.size) {
                 Box(modifier = modifier.padding(horizontal = 16.dp)) {
                     CardLatihanItem(
-                        latihan = dataLatihan[it],
+                        latihan = listQuiz[it],
                         modifier = modifier,
                         onCLick = {
-                            selectedLatihanId = dataLatihan[it].id
+                            selectedLatihanId = listQuiz[it].id
                             showDialog = true
                         }
                     )
@@ -239,19 +322,11 @@ fun HomeScreenContent(
                     onItemLatihanClick(selectedLatihanId!!)
                 },
                 title = "Kerjakan Latihan?",
-                msg = "Yakin ingin mengerjakan latihan ini? Pastikan dirimu sudah siap ya! Jangan lupa berdoa sebelum mengerjakan dan harap teliti ketika menjawab soal.",
+                msg = "Yakin ingin mengerjakan latihan ini? Kamu tidak akan dapat kembali ketika latihan dimulai. Pastikan kamu sudah siap ya!",
                 confirmLabel = "Kerjakan",
                 dismissLabel = "Kembali"
             )
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreenContent(
-        modifier = Modifier
-    )
 }
