@@ -4,6 +4,8 @@ import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 import com.lidm.facillify.data.remote.api.ApiService
+import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
+import com.lidm.facillify.data.remote.request.LearningStyleRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
@@ -151,7 +153,17 @@ class SiswaRepository(
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
-
+    suspend fun postLearningStyle(request: LearningStyleRequest) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.putLearningStyle(request)
+            emit(ResponseState.Success(response))
+                    } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
     // MATERIALS
     suspend fun getCombinedMaterialList() = flow {
         emit(ResponseState.Loading)
@@ -205,7 +217,6 @@ class SiswaRepository(
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
-
     companion object {
         @Volatile
         private var instance: SiswaRepository? = null

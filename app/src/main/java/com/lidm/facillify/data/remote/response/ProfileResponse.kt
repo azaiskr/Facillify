@@ -20,6 +20,7 @@ data class UserProfile(
     val parent_email: String? = null,
     val nisn: String? = null,
     val job: String? = null,
-    val nip: String? = null
+    val nip: String? = null,
+    val learning_style: String? = null
 )
 

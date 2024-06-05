@@ -1,5 +1,7 @@
 package com.lidm.facillify.navigation
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -11,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.lidm.facillify.navigation.utils.Screen
+import com.lidm.facillify.ui.MainActivity
 import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
 import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarResultScreen
 import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
@@ -26,7 +30,8 @@ import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 @Composable
 fun GayaBelajarNavigation(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    context: Context = LocalContext.current
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -64,7 +69,14 @@ fun GayaBelajarNavigation(
             }
             composable(Screen.GayaBelajarTestResult.route) {
                 GayaBelajarResultScreen(
-                    onNavigateToHome = { /*TODO*/ }
+                    onNavigateToHome = {
+                        // Clear the back stack and navigate to MainActivity
+                        val intent = Intent(context, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        context.startActivity(intent)
+                        navController.popBackStack()
+                    }
                 )
             }
         }

@@ -57,4 +57,10 @@ class TambahLatianSoalGuruViewModel(
             }
         }
     }
+
+    fun updateQuestion(index: Int, question: Question) {
+        _latihanSoal.value = _latihanSoal.value.toMutableList().apply {
+            set(index, question)
+        }
+    }
 }

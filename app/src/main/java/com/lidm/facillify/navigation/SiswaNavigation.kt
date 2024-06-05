@@ -40,6 +40,8 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarDetailScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 import com.lidm.facillify.util.Role
 
@@ -103,7 +105,7 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.GayaBelajarInterface.route || currentRoute == Screen.GayaBelajarTest.route || currentRoute == Screen.GayaBelajarTestResult.route,
                 isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
@@ -165,11 +167,32 @@ fun SiswaNavigation(
                             )
                         )
                     },
-                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) }
-
+                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) },
+                    onNavigateToTestGayaBelajar = { navController.navigate(Screen.GayaBelajarInterface.route) }
                 )
             }
 
+            // GAYA BELAJAR INTERFACE
+            composable(Screen.GayaBelajarInterface.route) {
+                GayaBelajarOnBoardScreen(
+                    onNavigateToTestForm = { navController.navigate(Screen.GayaBelajarTest.route) }
+                )
+            }
+
+            //GAYA BELAJAR TEST
+            composable(Screen.GayaBelajarTest.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.GayaBelajarTestResult.route) }
+                )
+            }
+
+            composable(Screen.GayaBelajarTestResult.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.SiswaHome.route) }
+                )
+            }
 
             // BELAJAR
             composable(Screen.Belajar.route) {

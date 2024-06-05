@@ -1,6 +1,6 @@
 package com.lidm.facillify.ui.components
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,17 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lidm.facillify.R
 import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Blue
 import com.lidm.facillify.ui.theme.DarkBlue
+import com.lidm.facillify.ui.theme.OnBlueSecondary
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
 
@@ -38,7 +35,7 @@ fun StudentCard(
     linkImage: String,
     bearerToken: String,
     nameStudent: String,
-    numberStudent: Long,
+    learnigStyle: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -58,7 +55,7 @@ fun StudentCard(
             //Image
             DynamicSizeImage(
                 imageUrl = linkImage,
-                modifier = Modifier.size(96.dp),
+                modifier = Modifier.size(116.dp),
                 bearerToken = bearerToken
             )
 
@@ -67,33 +64,46 @@ fun StudentCard(
             Column(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                //Name
-                Text(
-                    text = "Nama Siswa",
-                    fontSize = 12.sp,
-                    color = DarkBlue,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = nameStudent,
-                    fontSize = 14.sp,
-                    color = Black,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                //NISN
-                Text(
-                    text = "NISN",
-                    fontSize = 12.sp,
-                    color = DarkBlue,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = numberStudent.toString(),
-                    fontSize = 14.sp,
-                    color = Black,
-                    maxLines = 1
-                )
+
+                Row(
+                    modifier= Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        //Name
+                        Text(
+                            text = "Nama Siswa",
+                            fontSize = 12.sp,
+                            color = DarkBlue,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = nameStudent,
+                            fontSize = 14.sp,
+                            color = Black,
+                            maxLines = 1
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Gaya Belajar",
+                            fontSize = 12.sp,
+                            color = DarkBlue,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        var learning = learnigStyle
+
+                        when (learnigStyle) {
+                            "null" -> learning = "Belum diisi"
+                        }
+                        Text(
+                            text = learning,
+                            fontSize = 14.sp,
+                            color = Black,
+                            maxLines = 1
+                        )
+                    }
+                }
 
                 //Button
                 Spacer(modifier = Modifier.height(16.dp))
@@ -128,5 +138,17 @@ fun MiniButton(
                 fontSize = 8.sp,
             )
         }
+    )
+}
+
+@Composable
+@Preview
+fun StudentCardPreview() {
+    StudentCard(
+        linkImage = "",
+        bearerToken = "0",
+        nameStudent = "John Doe",
+        learnigStyle = "Visual",
+        onClick = {}
     )
 }

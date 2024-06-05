@@ -1,6 +1,7 @@
 package com.lidm.facillify.ui.siswa
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,7 @@ fun SiswaHomeScreen(
     onNavigateToBelajar: () -> Unit,
     onNavigateToLatihan: () -> Unit,
     onNavigateToChatbot: () -> Unit,
+    onNavigateToTestGayaBelajar: () -> Unit
 ) {
     val viewModel: HomeSiswaViewModel = viewModel(
         factory = ViewModelFactory.getInstance(
@@ -116,6 +118,17 @@ fun SiswaHomeScreen(
             )
         }
     }
+
+    HomeScreenContent(
+        modifier = modifier,
+        onItemBelajarClick = onItemBelajarClick,
+        onItemLatihanClick = onItemLatihanClick,
+        onNavigateToBelajar = onNavigateToBelajar,
+        onNavigateToLatihan = onNavigateToLatihan,
+        onNavigateToChatbot = onNavigateToChatbot,
+        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
+        listQuiz = listOfQuiz
+    )
 }
 
 @Composable
@@ -126,7 +139,8 @@ fun HomeScreenContent(
     onNavigateToBelajar: () -> Unit = {},
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
-    listQuiz: List<QuizListItem>,
+    onNavigateToTestGayaBelajar: () -> Unit = {},
+    listQuiz: List<QuizListItem>
     listMaterial: List<MateriBelajar>
 ) {
     var showDialog by rememberSaveable {
@@ -179,6 +193,32 @@ fun HomeScreenContent(
             }
         }
 
+        Button(
+            onClick = { onNavigateToTestGayaBelajar() },
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
+                .height(56.dp)
+                .border( 1.dp, Blue, shape = RoundedCornerShape(16.dp)),
+            colors = ButtonDefaults.buttonColors(
+                Color.Transparent,
+                contentColor = Color.White
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = modifier.padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Test Gaya Belajar",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Blue
+                )
+            }
+        }
 
         LazyColumn(
             contentPadding = PaddingValues(vertical = 8.dp),

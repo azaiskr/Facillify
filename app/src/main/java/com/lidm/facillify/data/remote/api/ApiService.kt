@@ -4,6 +4,7 @@ import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.CreateCommentThreadRequest
 import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
+import com.lidm.facillify.data.remote.request.LearningStyleRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
@@ -13,6 +14,7 @@ import com.lidm.facillify.data.remote.response.CreatedAssessmentForSiswaResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.GetAllStudentResponse
 import com.lidm.facillify.data.remote.response.GradeHistoryResponse
+import com.lidm.facillify.data.remote.response.LearningStyleRespons
 import com.lidm.facillify.data.remote.response.MaterialListResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
@@ -162,4 +164,14 @@ interface ApiService {
     suspend fun getSiswaGrade(
         @Query("email") email: String
     ): GradeHistoryResponse
+
+    //CHILD GET
+    @GET("api/v1/child")
+    suspend fun getChild(): GetAllStudentResponse
+
+    //POST LEARNING STYLE
+    @PUT("api/v1/learning-style")
+    suspend fun putLearningStyle(
+        @Body request: LearningStyleRequest
+    ): LearningStyleRespons
 }

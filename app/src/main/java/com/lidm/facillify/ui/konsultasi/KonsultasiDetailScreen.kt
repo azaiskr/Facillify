@@ -230,12 +230,16 @@ fun KonsultasiDetailScreen(
                             .align(Alignment.BottomCenter)
                             .padding(16.dp)
                     ) {
+                        threadViewModel.getNameOfThisUser(preferences?.email.toString())
+                        val nameUser by threadViewModel.nameAccount.collectAsState()
+
                         ChatInputField(message = jawaban, onMessageChange = { jawaban = it }, onSend = {
+
                             Log.d("KonsultasiDetailScreen", "emailUser: $emailUser")
                             threadViewModel.createThreadComment(
                                 CreateCommentThreadRequest(
                                     thread_id = threadID,
-                                    email = emailUser.toString(), // Use the user email
+                                    email = nameUser, // Use the user email
                                     content = jawaban
                                 )
                             )

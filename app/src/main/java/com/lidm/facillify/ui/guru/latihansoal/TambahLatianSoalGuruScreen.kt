@@ -1,6 +1,7 @@
 package com.lidm.facillify.ui.guru.latihansoal
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -72,6 +73,9 @@ fun TambahLatianSoalGuruScreen(
     val createdQuiz by tambahSoalViewModel.createdQuiz.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    var editingIndex by remember { mutableStateOf(-1) }
+    var questionToEdit by remember { mutableStateOf<Question?>(null) }
+
     var showDialog by remember { mutableStateOf(false) }
 
 
@@ -100,7 +104,11 @@ fun TambahLatianSoalGuruScreen(
                             soal = latihanSoal[index].question,
                             jawaban = latihanSoal[index].options,
                             jawabanBenar = latihanSoal[index].correct_option_key,
-                            onEditClick = { /*TODO*/ }) {
+                            onEditClick = {
+                                editingIndex = index
+                                questionToEdit = latihanSoal[index]
+                                showDialog = true
+                            }) {
                             //TODO LOGIC FOR DELETE ITEM AND EDIT
                             tambahSoalViewModel.removeQuestion(index)
                         }
@@ -131,9 +139,14 @@ fun TambahLatianSoalGuruScreen(
     }
     if (showDialog) {
         DialogTambahSoal(
+            initialQuestion = questionToEdit,
             onDismissRequest = { showDialog = false },
             onConfirmation = { question ->
-                tambahSoalViewModel.addQuestion(question)
+                if (editingIndex >= 0) {
+                    tambahSoalViewModel.updateQuestion(editingIndex, question)
+                } else {
+                    tambahSoalViewModel.addQuestion(question)
+                }
                 showDialog = false
             }
         )
@@ -387,13 +400,18 @@ fun DialogTambahSoal(
 
 @Composable
 fun DialogTambahSoal(
+    initialQuestion: Question? = null,
     onDismissRequest: () -> Unit,
     onConfirmation: (Question) -> Unit,
     context: Context = LocalContext.current
 ) {
-    var question by remember { mutableStateOf("") }
-    var answers by remember { mutableStateOf(listOf("", "", "", "", "")) }
-    var correctAnswer by remember { mutableIntStateOf(0) }
+    var question by remember { mutableStateOf(initialQuestion?.question ?: "") }
+    var answers by remember { mutableStateOf(
+        initialQuestion?.options ?: listOf("", "", "", "", "")
+    )}
+    var correctAnswer by remember { mutableIntStateOf(
+        initialQuestion?.let { listOf("a", "b", "c", "d", "e").indexOf(it.correct_option_key) } ?: 0
+    )}
 
     AlertDialog(
         containerColor = Color.White,
@@ -472,7 +490,7 @@ fun DialogTambahSoal(
                             selected = correctAnswer == index,
                             onClick = { correctAnswer = index }
                         )
-
+                        Log.d("Tambah Lation SOAL GURU", "DialogTambahSoal: $correctAnswer")
                         OutlinedTextField(
                             value = answer,
                             onValueChange = {

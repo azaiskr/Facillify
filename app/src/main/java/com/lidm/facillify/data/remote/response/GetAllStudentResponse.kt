@@ -18,5 +18,6 @@ data class GetStudentResponse(
     val religion: String,
     val nisn: String,
     val profile_image_url: String,
-    val parent_email: String
+    val parent_email: String,
+    val learning_style: String? = null
 )

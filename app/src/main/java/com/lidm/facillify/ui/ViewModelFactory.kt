@@ -13,6 +13,7 @@ import com.lidm.facillify.di.Inject
 import com.lidm.facillify.ui.viewmodel.AuthViewModel
 import com.lidm.facillify.ui.viewmodel.ChatViewModel
 import com.lidm.facillify.ui.viewmodel.DetailTrackingAnakViewModel
+import com.lidm.facillify.ui.viewmodel.GayaBelajarViewModel
 import com.lidm.facillify.ui.viewmodel.HomeSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.LatihanSiswaViewModel
 import com.lidm.facillify.ui.viewmodel.LatihanSoalGuruViewModel
@@ -86,7 +87,10 @@ class ViewModelFactory(
                 val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
                 HomeSiswaViewModel(siswaRepository) as T
             }
-
+            modelClass.isAssignableFrom(GayaBelajarViewModel::class.java) -> {
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                GayaBelajarViewModel(siswaRepository) as T
+            }
             modelClass.isAssignableFrom(LatihanSoalGuruViewModel::class.java) -> {
                 val userRepository = repositories[UserRepository::class.java] as UserRepository
                 LatihanSoalGuruViewModel(userRepository) as T

@@ -19,6 +19,9 @@ class TrackingAnakViewModel(
     private val _listStudent = MutableStateFlow<ResponseState<List<GetStudentResponse>>>(ResponseState.Loading)
     val listStudent: StateFlow<ResponseState<List<GetStudentResponse>>> get() = _listStudent
 
+    private val _listChild = MutableStateFlow<ResponseState<List<GetStudentResponse>>>(ResponseState.Loading)
+    val listChild: StateFlow<ResponseState<List<GetStudentResponse>>> get() = _listChild
+
     private val _profileUrlMap = mutableMapOf<String, MutableStateFlow<ResponseState<ProfileResponse>>>()
 
     fun getProfileUrlFlow(email: String): StateFlow<ResponseState<ProfileResponse>> {
@@ -42,6 +45,14 @@ class TrackingAnakViewModel(
         viewModelScope.launch {
             userRepository.getAllStudent().collect { responseState ->
                 _listStudent.value = responseState
+            }
+        }
+    }
+
+    fun getAllChild() {
+        viewModelScope.launch {
+            userRepository.getChildByParent().collect { responseState ->
+                _listChild.value = responseState
             }
         }
     }
