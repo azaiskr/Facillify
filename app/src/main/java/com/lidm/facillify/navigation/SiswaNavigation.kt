@@ -105,7 +105,7 @@ fun SiswaNavigation(
                     Screen.Riwayat.route -> true
                     else -> false
                 },
-                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route,
+                isHide = currentRoute == Screen.SiswaLatihanForm.route || currentRoute == Screen.Chat.route || currentRoute == Screen.GayaBelajarInterface.route || currentRoute == Screen.GayaBelajarTest.route || currentRoute == Screen.GayaBelajarTestResult.route,
                 isHome = currentRoute == Screen.SiswaHome.route,
             )
         },
@@ -167,8 +167,8 @@ fun SiswaNavigation(
                             )
                         )
                     },
-                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) }
-
+                    onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) },
+                    onNavigateToTestGayaBelajar = { navController.navigate(Screen.GayaBelajarInterface.route) }
                 )
             }
 
@@ -187,7 +187,12 @@ fun SiswaNavigation(
                 )
             }
 
-
+            composable(Screen.GayaBelajarTestResult.route) {
+                GayaBelajarTest(
+                    modifier = modifier,
+                    onNavigateToTestResult = { navController.navigate(Screen.SiswaHome.route) }
+                )
+            }
 
             // BELAJAR
             composable(Screen.Belajar.route) {

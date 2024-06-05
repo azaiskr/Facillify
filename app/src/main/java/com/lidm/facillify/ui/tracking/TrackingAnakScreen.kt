@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,10 +21,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.lidm.facillify.R
 import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.StudentCard
 import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
@@ -113,7 +110,7 @@ fun TrackingAnakScreen(
                                         StudentCard(
                                             linkImage = tempProfileUrl?.toString() ?: "",
                                             nameStudent = student.name,
-                                            numberStudent = student.nisn.toLong(),
+                                            learnigStyle = student.learning_style.toString(),
                                             onClick = { onDetailClick(student.email) },
                                             bearerToken = preferences?.token.toString()
                                         )
@@ -124,7 +121,7 @@ fun TrackingAnakScreen(
                                         StudentCard(
                                             linkImage = "", // Use a placeholder image or empty string
                                             nameStudent = student.name,
-                                            numberStudent = student.nisn.toLong(),
+                                            learnigStyle = student.learning_style.toString(),
                                             onClick = { onDetailClick(student.email) },
                                             bearerToken = preferences?.token.toString()
                                         )
@@ -190,7 +187,7 @@ fun TrackingAnakScreen(
                                         StudentCard(
                                             linkImage = tempProfileUrl?.toString() ?: "",
                                             nameStudent = student.name,
-                                            numberStudent = student.nisn.toLong(),
+                                            learnigStyle = student.learning_style.toString(),
                                             onClick = { onDetailClick(student.email) },
                                             bearerToken = preferences?.token.toString()
                                         )
@@ -201,7 +198,7 @@ fun TrackingAnakScreen(
                                         StudentCard(
                                             linkImage = "", // Use a placeholder image or empty string
                                             nameStudent = student.name,
-                                            numberStudent = student.nisn.toLong(),
+                                            learnigStyle = student.learning_style.toString(),
                                             onClick = { onDetailClick(student.email) },
                                             bearerToken = preferences?.token.toString()
                                         )

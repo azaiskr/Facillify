@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.R
-import com.lidm.facillify.data.RiwayatLatihanSoal
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.response.DetailAssesment
 import com.lidm.facillify.data.remote.response.GradeHistory
@@ -249,7 +246,6 @@ fun DetailTrackingAnakScreen(
                         }
 
                     }
-
                 }
 
                 //FOR PARENT GET ASSESSMENT SISWA
