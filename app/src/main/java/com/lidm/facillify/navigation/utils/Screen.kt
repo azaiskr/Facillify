@@ -39,30 +39,29 @@ sealed class Screen (
     data object SiswaHome: Screen ("siswa_home")
 
     data object SiswaMateriBelajarDetail: Screen("materi_belajar/{materiId}"){
-        fun createRoute(materiId: Int) = "materi_belajar/$materiId"
+        fun createRoute(materiId: String) = "materi_belajar/$materiId"
     }
 
+    // TODO : Replace with string
     data object SiswaMateriBelajarVideo: Screen("materi_belajar/{materiId}/video") {
-        fun createRoute(materiId: Int) = "materi_belajar/$materiId/video"
+        fun createRoute(materiId: String) = "materi_belajar/$materiId/video"
     }
 
     data object SiswaVideoPlayer: Screen("materi_belajar/{materiId}/video/{videoId}"){
-        fun createRoute(materiId: Int, videoId: String) = "materi_belajar/$materiId/video/$videoId"
+        fun createRoute(materiId: String, videoId: String) = "materi_belajar/$materiId/video/$videoId"
     }
 
     data object SiswaMateriBelajarAudio: Screen("materi_belajar/{materiId}/audio") {
-        fun createRoute(materiId: Int) = "materi_belajar/$materiId/audio"
+        fun createRoute(materiId: String) = "materi_belajar/$materiId/audio"
     }
     data object SiswaAudioPlayer: Screen("materi_belajar/{materiId}/audio/{audioId}"){
-        fun createRoute(materiId: Int, audioId: String) = "materi_belajar/$materiId/audio/$audioId"
+        fun createRoute(materiId: String, audioId: String) = "materi_belajar/$materiId/audio/$audioId"
     }
 
     data object SiswaLatihanForm: Screen("latihan/{latihanId}"){
         fun createRoute(latihanId: String) = "latihan/$latihanId"
     }
-//    data object SiswaLatihanResult: Screen("latihan/{quizTitle}/result") {
-//        fun createRoute(quizTitle: String) = "latihan/$quizTitle/result"
-//    }
+
     data object FormTambahDataOrtu: Screen("form_tambah_data_ortu")
 
     data object KonsultasiThread: Screen("konsultasi_thread/{threadId}"){

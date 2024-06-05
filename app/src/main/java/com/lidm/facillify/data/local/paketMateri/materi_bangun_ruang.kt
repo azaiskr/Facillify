@@ -4,7 +4,7 @@ import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
 
 val materi_bangun_ruang = MateriBelajar(
-    id = 1,
+    id = "bangun_ruang",
     image = "https://asset-a.grid.id/crop/0x0:0x0/x/photo/2023/03/31/bangun-ruangjpg-20230331095251.jpg",
     title = "Bangun Ruang",
     desc = "Bab bangun ruang mencakup konsep-konsep dasar tentang berbagai bentuk tiga dimensi, seperti kubus, " +

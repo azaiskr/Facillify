@@ -19,6 +19,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,49 +35,60 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.lidm.facillify.R
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
-import com.lidm.facillify.data.local.listMateri
-import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.SearchAppBar
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.DarkBlue
 import com.lidm.facillify.ui.theme.SecondaryBlue
+import com.lidm.facillify.ui.viewmodel.MateriBelajarViewModel
+import com.lidm.facillify.util.ResponseState
 
 
 @Composable
 fun MateriBelajarVideoScreen(
-    materiId: Int,
+    materiId: String,
     modifier: Modifier,
-    onNavigateToVideoPlayer: (Int, String) -> Unit,
+    onNavigateToVideoPlayer: (String, String) -> Unit,
 ) {
-    val materi = listMateri.find { it.id == materiId }!!
+
+    val viewModel: MateriBelajarViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(LocalContext.current)
+    )
+    val materiDetailResponse by viewModel.materiDetailResponse.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getMaterialDetail(materiId)
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-
-        //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
-
-        ListMateriVideo(
-            modifier = modifier,
-            materi = materi,
-            onNavigateToVideoContent = onNavigateToVideoPlayer,
-        )
-
+        when (materiDetailResponse){
+            is ResponseState.Loading -> {
+                LoadingScreen()
+            }
+            is ResponseState.Success -> {
+                ListMateriVideo(
+                    modifier = modifier,
+                    materi = (materiDetailResponse as ResponseState.Success<MateriBelajar?>).data as MateriBelajar,
+                    onNavigateToVideoContent = onNavigateToVideoPlayer,
+                )
+            }
+            is ResponseState.Error -> {
+                ErrorScreen(
+                    onTryAgain = { viewModel.getMaterialDetail(materiId) },
+                )
+            }
+        }
     }
 }
 
@@ -83,7 +96,7 @@ fun MateriBelajarVideoScreen(
 fun ListMateriVideo(
     modifier: Modifier,
     materi: MateriBelajar,
-    onNavigateToVideoContent: (Int, String) -> Unit,
+    onNavigateToVideoContent: (String, String) -> Unit,
     isSearchBarVisible: Boolean = true,
 ) {
     var query by rememberSaveable {
@@ -110,6 +123,7 @@ fun ListMateriVideo(
     } else {
         materi.materiVideo
     }
+
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),

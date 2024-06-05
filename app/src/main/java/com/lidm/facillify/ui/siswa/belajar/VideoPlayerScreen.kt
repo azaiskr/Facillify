@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
@@ -32,11 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import com.lidm.facillify.data.local.MateriBelajar
 import com.lidm.facillify.data.local.VideoItem
-import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.ui.ViewModelFactory
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
 import com.lidm.facillify.ui.theme.DarkBlue
+import com.lidm.facillify.ui.viewmodel.MateriBelajarViewModel
+import com.lidm.facillify.util.ResponseState
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener
@@ -48,30 +55,52 @@ import com.lidm.facillify.ui.siswa.belajar.BackHandler as _BackHandler
 fun VideoPlayerScreen(
     modifier: Modifier = Modifier,
     videoId: String = "uNWKfPx1UWM",
-    materiId: Int = 1,
-    onNavigateToVideoContent: (Int, String) -> Unit = { _, _ -> }
+    materiId: String = "",
+    onNavigateToVideoContent: (String, String) -> Unit = { _, _ -> }
 ) {
-    val materiBelajar = listMateri.find { it.id == materiId }!!
-    val video = materiBelajar.materiVideo.find { it.id == videoId }!!
-
-    //        when (val response = viewModel.materiBelajar){
-//            is Response.Loading -> {
-//                /*TODO*/
-//            }
-//            is Response.Success -> {
-//                /*TODO*/
-//            }
-//            is Response.Error -> {
-//                /*TODO*/
-//            }
-//        }
-    VideoPlayerContent(
-        modifier = modifier,
-        videoContent = video,
-        relatedContents = materiBelajar,
-        onNavigateToVideoContent = onNavigateToVideoContent
+    val viewModel: MateriBelajarViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(LocalContext.current)
     )
+    val videoResponse by viewModel.videoContentResponse.collectAsState()
+    val materiBelajar by viewModel.materiDetailResponse.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.getVideoContent(materiId, videoId)
+        viewModel.getMaterialDetail(materiId)
+    }
+
+    when (videoResponse) {
+        is ResponseState.Loading -> {
+            LoadingScreen()
+        }
+
+        is ResponseState.Success -> {
+            when (materiBelajar) {
+                is ResponseState.Loading -> LoadingScreen()
+                is ResponseState.Success -> {
+                    val videoContent = (videoResponse as ResponseState.Success<VideoItem?>).data!!
+                    val materi = (materiBelajar as ResponseState.Success<MateriBelajar?>).data!!
+                    VideoPlayerContent(
+                        modifier = modifier,
+                        videoContent = videoContent,
+                        relatedContents = materi,
+                        onNavigateToVideoContent = onNavigateToVideoContent
+                    )
+                }
+                is ResponseState.Error -> ErrorScreen(onTryAgain = {
+                    viewModel.getVideoContent(materiId, videoId)
+                    viewModel.getMaterialDetail(materiId)
+                })
+            }
+
+        }
+
+        is ResponseState.Error -> {
+            ErrorScreen(
+                onTryAgain = { viewModel.getVideoContent(materiId,videoId) }
+            )
+        }
+    }
 }
 
 @OptIn(UnstableApi::class)
@@ -81,8 +110,8 @@ fun VideoPlayerContent(
     videoContent: VideoItem,
     contentVideo: Boolean = true,
     relatedContents: MateriBelajar,
-    onNavigateToVideoContent: (Int, String) -> Unit,
-    onNavigateToAudioContent: (Int, String) -> Unit = { _, _ -> }
+    onNavigateToVideoContent: (String, String) -> Unit,
+    onNavigateToAudioContent: (String, String) -> Unit = { _, _ -> }
 ) {
     var isFullScreen by rememberSaveable {
         mutableStateOf(false)

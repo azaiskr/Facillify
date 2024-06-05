@@ -6,33 +6,63 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lidm.facillify.data.local.MateriBelajar
-import com.lidm.facillify.data.local.listMateri
+import com.lidm.facillify.ui.ViewModelFactory
 import com.lidm.facillify.ui.components.SearchAppBar
+import com.lidm.facillify.ui.responseStateScreen.ErrorScreen
+import com.lidm.facillify.ui.responseStateScreen.LoadingScreen
+import com.lidm.facillify.ui.viewmodel.MateriBelajarViewModel
+import com.lidm.facillify.util.ResponseState
 
 @Composable
 fun MateriBelajarAudioScreen(
-    materiId: Int,
+    materiId: String,
     modifier: Modifier,
-    onNavigateToAudioPlayer: (Int, String) -> Unit
+    onNavigateToAudioPlayer: (String, String) -> Unit
 ) {
-    val materi = listMateri.find { it.id == materiId }!!
-    Column (
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        ListMateriAudio(
-            modifier = modifier,
-            materi = materi,
-            onNavigateToMateriAudio = onNavigateToAudioPlayer
-        )
+    val viewModel: MateriBelajarViewModel = viewModel(
+        factory = ViewModelFactory.getInstance(LocalContext.current)
+    )
+    val materiDetail by viewModel.materiDetailResponse.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getMaterialDetail(materiId)
     }
+
+    when (materiDetail) {
+        is ResponseState.Loading -> LoadingScreen()
+        is ResponseState.Success -> {
+            val materi = (materiDetail as ResponseState.Success).data ?: return
+
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+            ) {
+
+                ListMateriAudio(
+                    modifier = modifier,
+                    materi = materi,
+                    onNavigateToMateriAudio = onNavigateToAudioPlayer
+                )
+            }
+        }
+        is ResponseState.Error -> {
+            ErrorScreen(
+                onTryAgain = { viewModel.getMaterialDetail(materiId) }
+            )
+        }
+    }
+
 
 }
 
@@ -40,7 +70,7 @@ fun MateriBelajarAudioScreen(
 fun ListMateriAudio(
     modifier: Modifier,
     materi: MateriBelajar,
-    onNavigateToMateriAudio: (Int, String) -> Unit,
+    onNavigateToMateriAudio: (String, String) -> Unit,
     isSearchBarVisible: Boolean = true
 ) {
     var query by rememberSaveable {

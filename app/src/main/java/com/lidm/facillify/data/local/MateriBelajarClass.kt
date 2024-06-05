@@ -4,7 +4,7 @@ import android.provider.MediaStore.Video
 import com.lidm.facillify.data.local.paketMateri.materi_bangun_ruang
 
 data class MateriBelajar(
-    val id: Int,
+    val id: String,
     val image: String,
     val title: String,
     val desc: String,

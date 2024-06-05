@@ -190,9 +190,9 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaMateriBelajarDetail.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 MateriBelajarDetailScreen(
                     modifier = modifier,
                     materiId = id,
@@ -206,9 +206,9 @@ fun SiswaNavigation(
             }
             composable(
                 route = Screen.SiswaMateriBelajarVideo.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 MateriBelajarVideoScreen(
                     modifier = modifier,
                     materiId = id,
@@ -225,11 +225,11 @@ fun SiswaNavigation(
             composable(
                 route = Screen.SiswaVideoPlayer.route,
                 arguments = listOf(
-                    navArgument("materiId") { type = NavType.IntType },
+                    navArgument("materiId") { type = NavType.StringType },
                     navArgument("videoId") { type = NavType.StringType }
                 )
             ) {
-                val materiId = it.arguments?.getInt("materiId") ?: 0
+                val materiId = it.arguments?.getString("materiId") ?: ""
                 val videoId = it.arguments?.getString("videoId") ?: ""
                 VideoPlayerScreen(
                     modifier = modifier,
@@ -248,9 +248,9 @@ fun SiswaNavigation(
             // BELAJAR - AUDIO
             composable(
                 route = Screen.SiswaMateriBelajarAudio.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ) {
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 MateriBelajarAudioScreen(
                     modifier = modifier,
                     materiId = id,
@@ -267,11 +267,11 @@ fun SiswaNavigation(
             composable(
                 route = Screen.SiswaAudioPlayer.route,
                 arguments = listOf(
-                    navArgument("materiId") { type = NavType.IntType },
+                    navArgument("materiId") { type = NavType.StringType },
                     navArgument("audioId") { type = NavType.StringType }
                 )
             ) {
-                val _materiId = it.arguments?.getInt("materiId") ?: 0
+                val _materiId = it.arguments?.getString("materiId") ?: ""
                 val _audioId = it.arguments?.getString("audioId") ?: ""
                 AudioPlayerScreen(
                     modifier = modifier,

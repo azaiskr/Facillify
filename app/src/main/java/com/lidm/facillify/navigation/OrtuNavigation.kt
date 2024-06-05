@@ -67,7 +67,7 @@ fun OrtuNavigation(
                 },
                 contentColor = if(currentRoute == Screen.TrackingDetail.route) Color.White else DarkBlue,
                 backIcon = when (currentRoute) {
-                    Screen.Chat.route -> true
+                    Screen.KonsultasiThread.route -> true
                     Screen.TrackingDetail.route -> true
                     Screen.Profile.route -> true
                     else -> false
@@ -119,16 +119,6 @@ fun OrtuNavigation(
                 slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
             }
         ) {
-            /*composable(Screen.Konsultasi.route) {
-                ListKonsultasi(
-                    modifier = modifier,
-                    onNavigateToChat = { navController.navigate(Screen.Chat.route) })
-            }
-            composable(Screen.Chat.route) {
-                ChatKonsultasi(
-                    onBackClick = { navController.popBackStack() }
-                )
-            }*/
             //KONSULTASI -> THREAD
             composable(Screen.Konsultasi.route) {
                 KonsultasiForumScreen {

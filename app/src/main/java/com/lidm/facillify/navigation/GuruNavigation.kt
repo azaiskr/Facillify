@@ -173,9 +173,9 @@ fun GuruNavigation(
 
             composable(
                 route = Screen.SiswaMateriBelajarDetail.route,
-                arguments = listOf(navArgument("materiId") { type = NavType.IntType })
+                arguments = listOf(navArgument("materiId") { type = NavType.StringType })
             ){
-                val id = it.arguments?.getInt("materiId") ?: 0
+                val id = it.arguments?.getString("materiId") ?: ""
                 DetailMateriBelajarGuruScreen(materiId = id, modifier = modifier)
             }
 
