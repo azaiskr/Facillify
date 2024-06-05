@@ -1,8 +1,6 @@
 package com.lidm.facillify.ui.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -57,6 +55,8 @@ class ThreadViewModel(
     private val _profileImageUrlMap = MutableStateFlow<Map<String, String>>(emptyMap())
     val profileImageUrlMap: StateFlow<Map<String, String>> get() = _profileImageUrlMap
 
+    private val _nameAccount = MutableStateFlow<String>("")
+    val nameAccount: StateFlow<String> get() = _nameAccount
     init {
         getAllThreads()
     }
@@ -158,6 +158,16 @@ class ThreadViewModel(
                     val updatedMap = _profileImageUrlMap.value.toMutableMap()
                     updatedMap[email] = responseState.data.result.profile_image_url.toString()
                     _profileImageUrlMap.value = updatedMap
+                }
+            }
+        }
+    }
+
+    fun getNameOfThisUser(email:String){
+        viewModelScope.launch {
+            userRepository.getUserProfile(email).collect { responseState ->
+                if (responseState is ResponseState.Success) {
+                    _nameAccount.value = responseState.data.result.name
                 }
             }
         }
