@@ -101,6 +101,7 @@ fun SiswaHomeScreen(
                         onNavigateToBelajar = onNavigateToBelajar,
                         onNavigateToLatihan = onNavigateToLatihan,
                         onNavigateToChatbot = onNavigateToChatbot,
+                        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
                         listQuiz = listOfQuiz,
                         listMaterial = materialList
                     )
@@ -118,17 +119,6 @@ fun SiswaHomeScreen(
             )
         }
     }
-
-    HomeScreenContent(
-        modifier = modifier,
-        onItemBelajarClick = onItemBelajarClick,
-        onItemLatihanClick = onItemLatihanClick,
-        onNavigateToBelajar = onNavigateToBelajar,
-        onNavigateToLatihan = onNavigateToLatihan,
-        onNavigateToChatbot = onNavigateToChatbot,
-        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
-        listQuiz = listOfQuiz
-    )
 }
 
 @Composable
@@ -140,7 +130,7 @@ fun HomeScreenContent(
     onNavigateToLatihan: () -> Unit = {},
     onNavigateToChatbot: () -> Unit = {},
     onNavigateToTestGayaBelajar: () -> Unit = {},
-    listQuiz: List<QuizListItem>
+    listQuiz: List<QuizListItem>,
     listMaterial: List<MateriBelajar>
 ) {
     var showDialog by rememberSaveable {
