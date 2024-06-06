@@ -1,7 +1,9 @@
 package com.lidm.facillify.di
 
 import android.content.Context
+import androidx.room.Room
 import com.lidm.facillify.data.UserPreferences.UserPreferences
+import com.lidm.facillify.data.local.dao.AppDatabase
 import com.lidm.facillify.data.remote.api.ApiConfig
 import com.lidm.facillify.data.remote.api.ChatbotApiService
 import com.lidm.facillify.data.repository.SiswaRepository
@@ -29,6 +31,14 @@ object Inject {
         val apiService = ApiConfig.getMainApiService(context.applicationContext)
         val userPref = UserPreferences.getInstance(context.applicationContext)
         return SiswaRepository.getInstance(apiService, userPref)
+    }
+
+    fun provideDatabase(context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "facillify_db"
+        ).build()
     }
 
 }

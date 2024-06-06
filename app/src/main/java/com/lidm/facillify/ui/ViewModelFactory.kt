@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.lidm.facillify.data.local.dao.AppDatabase
 import com.lidm.facillify.data.remote.api.ChatbotApiService
 import com.lidm.facillify.data.repository.SiswaRepository
 import com.lidm.facillify.data.repository.UserRepository
@@ -43,7 +44,9 @@ class ViewModelFactory(
             }
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
                 val chatbotApiService = repositories[ChatbotApiService::class.java] as ChatbotApiService
-                ChatViewModel(chatbotApiService) as T
+                val siswaRepository = repositories[SiswaRepository::class.java] as SiswaRepository
+                val database = repositories[AppDatabase::class.java] as AppDatabase
+                ChatViewModel(chatbotApiService, siswaRepository, database) as T
             }
             modelClass.isAssignableFrom(ThreadViewModel::class.java) -> {
                 val threadRepository = repositories[ThreadRepository::class.java] as ThreadRepository
@@ -113,7 +116,8 @@ class ViewModelFactory(
                         UserRepository::class.java to Inject.provideAuthRepo(context.applicationContext),
                         ChatbotApiService::class.java to Inject.privodeChatAPiService(context.applicationContext),
                         ThreadRepository::class.java to Inject.provideThreadRepo(context.applicationContext),
-                        SiswaRepository::class.java to Inject.provideSiswaRepo(context.applicationContext)
+                        SiswaRepository::class.java to Inject.provideSiswaRepo(context.applicationContext),
+                        AppDatabase::class.java to Inject.provideDatabase(context.applicationContext)
                         // Tambahkan repository lainnya di sini
                     )
                 ).also { instance = it }

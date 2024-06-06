@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.googlefonts.isAvailableOnDevice
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
+import com.lidm.facillify.data.local.dao.AppDatabase
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.navigation.AuthNavigation
 import com.lidm.facillify.navigation.GayaBelajarNavigation
@@ -39,6 +41,8 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 
 class MainActivity : ComponentActivity() {
 
+    lateinit var database: AppDatabase
+
     private val viewModel by viewModels<MainViewModel> {
         ViewModelFactory.getInstance(this)
     }
@@ -46,6 +50,10 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "app_database"
+        ).build()
         viewModel.getSession().observe(this) { preference ->
             if (preference.token == "") {
                 setContent {

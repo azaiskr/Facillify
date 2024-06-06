@@ -1,4 +1,6 @@
 [versions]
+roomCompilerVersion = "2.6.1"
+roomRuntimeVersion = "2.6.1"
 accompanistCoil = "0.18.0"
 accompanistFlowlayout = "0.26.3-beta"
 accompanistSwiperefresh = "0.26.2"
@@ -10,7 +12,7 @@ core = "11.1.0"
 datastorePreferences = "1.1.1"
 documentfile = "1.0.1"
 dotenvKotlin = "6.2.2"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -58,8 +60,14 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
 play-services-fonts = { module = "com.google.android.gms:play-services-fonts", version.ref = "playServicesFonts" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompilerVersion" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompilerVersion" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
 

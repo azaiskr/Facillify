@@ -37,11 +37,9 @@ fun ChatScreen(
 ) {
     var userInput by remember { mutableStateOf("") }
     val messages by viewModel.messages.collectAsState()
-    // Create a reference to the LazyListState
     val listState = rememberLazyListState()
 
     LaunchedEffect(messages.size) {
-        // Scroll to the bottom when a new message is added
         listState.animateScrollToItem(messages.size)
     }
 
@@ -55,7 +53,6 @@ fun ChatScreen(
                 .padding(8.dp),
             state = listState
         ) {
-            //var lastDate: LocalDate? = null
             var lastDate: String? = null
             items(messages) { message ->
                 val messageDate = message.timestamp
