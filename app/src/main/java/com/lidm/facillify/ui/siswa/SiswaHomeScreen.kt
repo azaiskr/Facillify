@@ -103,8 +103,7 @@ fun SiswaHomeScreen(
                         onNavigateToChatbot = onNavigateToChatbot,
                         onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
                         listQuiz = listOfQuiz,
-                        listMaterial = materialList,
-                        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar
+                        listMaterial = materialList
                     )
                 }
                 is ResponseState.Error -> {
