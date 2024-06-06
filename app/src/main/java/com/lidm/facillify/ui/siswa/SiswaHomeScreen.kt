@@ -101,6 +101,7 @@ fun SiswaHomeScreen(
                         onNavigateToBelajar = onNavigateToBelajar,
                         onNavigateToLatihan = onNavigateToLatihan,
                         onNavigateToChatbot = onNavigateToChatbot,
+                        onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar,
                         listQuiz = listOfQuiz,
                         listMaterial = materialList,
                         onNavigateToTestGayaBelajar = onNavigateToTestGayaBelajar
