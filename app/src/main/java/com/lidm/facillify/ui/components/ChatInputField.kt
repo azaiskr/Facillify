@@ -62,8 +62,7 @@ fun ChatInputField(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
-            },
-            maxLines = 1
+            }
         )
         IconButton(
             onClick = onSend,

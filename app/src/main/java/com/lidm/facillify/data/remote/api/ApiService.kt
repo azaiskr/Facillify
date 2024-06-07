@@ -6,16 +6,21 @@ import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.CreateThreadRequest
 import com.lidm.facillify.data.remote.request.LearningStyleRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
+import com.lidm.facillify.data.remote.request.MaterialRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.request.SubmitQuizAnswerRequest
 import com.lidm.facillify.data.remote.request.UpdateParentEmailRequest
+import com.lidm.facillify.data.remote.request.UploadAudioRequest
+import com.lidm.facillify.data.remote.request.UploadVideoRequest
 import com.lidm.facillify.data.remote.response.AllThreadResponse
+import com.lidm.facillify.data.remote.response.AudioInfoResponse
 import com.lidm.facillify.data.remote.response.CreatedAssessmentForSiswaResponse
 import com.lidm.facillify.data.remote.response.CreatedThreadCommentResponse
 import com.lidm.facillify.data.remote.response.GetAllStudentResponse
 import com.lidm.facillify.data.remote.response.GradeHistoryResponse
 import com.lidm.facillify.data.remote.response.LearningStyleRespons
 import com.lidm.facillify.data.remote.response.MaterialListResponse
+import com.lidm.facillify.data.remote.response.MaterialResponse
 import com.lidm.facillify.data.remote.response.MessageResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
 import com.lidm.facillify.data.remote.response.QuizDetailResponse
@@ -26,10 +31,13 @@ import com.lidm.facillify.data.remote.response.ThreadCreatedResponse
 import com.lidm.facillify.data.remote.response.ThreadDetailResponse
 import com.lidm.facillify.data.remote.response.UpdateImageResponse
 import com.lidm.facillify.data.remote.response.UpdateEmailParentResponse
+import com.lidm.facillify.data.remote.response.UploadVideoAudioResponse
 import com.lidm.facillify.data.remote.response.UserModelResponse
+import com.lidm.facillify.data.remote.response.VIdeoInfoResponse
 import com.lidm.facillify.data.remote.response.VideoListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -174,4 +182,43 @@ interface ApiService {
     suspend fun putLearningStyle(
         @Body request: LearningStyleRequest
     ): LearningStyleRespons
+
+    //CREATE MATERIAL
+    @Multipart
+    @POST("/api/v1/material")
+    suspend fun uploadMaterial(
+        @Part image: MultipartBody.Part,
+        @Part("video_url") videoUrl: RequestBody,
+        @Part("title") title: RequestBody,
+        @Part("description") description: RequestBody,
+        @Part("category") category: RequestBody,
+        @Part("music_list") musicList: List<String>,
+        @Part("video_list") videoList: List<String>
+    ): MaterialResponse
+
+    @Multipart
+    @POST("/api/v1/upload/audio")
+    suspend fun uploadAudio(
+        @Part audio: MultipartBody.Part,
+        @Part("title") title: RequestBody
+    ): UploadVideoAudioResponse
+
+    @Multipart
+    @POST("/api/v1/upload/video")
+    suspend fun uploadVideo(
+        @Part video: MultipartBody.Part,
+        @Part("title") title: RequestBody,
+        @Part("desc") desc: RequestBody
+    ): UploadVideoAudioResponse
+
+    //GET AUDIO AND VIDEO INFO
+    @GET("/api/v1/info/audio")
+    suspend fun getAudioInfo(
+        @Query("url") audioUrl: String
+    ): AudioInfoResponse
+
+    @GET("/api/v1/info/video")
+    suspend fun getVideoInfo(
+        @Query("url") videoUrl: String
+    ): VIdeoInfoResponse
 }

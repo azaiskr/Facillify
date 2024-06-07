@@ -4,6 +4,14 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2024-06-07T03:07:17.913829400Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="Default" identifier="serial=emulator-5554;connection=dd37f827" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="StudentCardPreview">
         <option name="selectionMode" value="DROPDOWN" />
@@ -16,7 +24,7 @@
       </SelectionState>
       <SelectionState runConfigName="GayaBelajarTest">
         <option name="selectionMode" value="DROPDOWN" />
-    </SelectionState>
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

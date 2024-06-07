@@ -30,7 +30,8 @@ fun ChatbotScreen() {
 
     if (profileState is ResponseState.Success && assessmentState is ResponseState.Success && historyState is ResponseState.Success) {
         ChatScreen(
-            viewModel = chatViewModel
+            viewModel = chatViewModel,
+            messages = messages
         )
     } else if (profileState is ResponseState.Error || assessmentState is ResponseState.Error || historyState is ResponseState.Error) {
         Text(text = "Error: Data pengguna belum lengkap atau terjadi kesalahan.", modifier = Modifier.fillMaxSize())

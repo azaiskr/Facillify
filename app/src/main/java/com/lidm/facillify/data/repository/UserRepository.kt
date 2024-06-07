@@ -1,14 +1,17 @@
 package com.lidm.facillify.data.repository
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import com.lidm.facillify.data.UserPreferences.UserPreferences
 import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
+import com.lidm.facillify.data.remote.request.MaterialRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.response.GetStudentResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
@@ -20,7 +23,14 @@ import com.lidm.facillify.util.createPartFromString
 import com.lidm.facillify.util.getFilePartFromUri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import java.io.File
+import java.io.FileOutputStream
 
 
 class UserRepository (
@@ -279,6 +289,131 @@ class UserRepository (
         } catch (e: Exception) {
             emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
 
+        }
+    }
+    private fun getFileFromUri(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val file = File(context.cacheDir, context.contentResolver.getFileName(uri))
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun ContentResolver.getFileName(uri: Uri): String {
+        var name = ""
+        val returnCursor = this.query(uri, null, null, null, null)
+        if (returnCursor != null) {
+            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            returnCursor.moveToFirst()
+            name = returnCursor.getString(nameIndex)
+            returnCursor.close()
+        }
+        return name
+    }
+
+    //UPLOAD VIDEO
+    suspend fun uploadVideoMaterial(context: Context, videoFile: Uri, title: String, desc: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val file = getFileFromUri(context, videoFile)
+            if (file == null) {
+                emit(ResponseState.Error("File not found or could not be created from URI"))
+                return@flow
+            }
+            val requestFile = file.asRequestBody("video/*".toMediaTypeOrNull())
+            val videoPart = MultipartBody.Part.createFormData("video", file.name, requestFile)
+            val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
+            val descPart = desc.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = apiService.uploadVideo(video = videoPart, title = titlePart, desc = descPart)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //UPLOAD AUDIO
+    suspend fun uploadAudioMaterial(context: Context, audioFile: Uri, title: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val file = getFileFromUri(context, audioFile)
+            if (file == null) {
+                emit(ResponseState.Error("File not found or could not be created from URI"))
+                return@flow
+            }
+            val mimeType = context.contentResolver.getType(audioFile) ?: "audio/*"
+            val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
+            val audioPart = MultipartBody.Part.createFormData("audio", file.name, requestFile)
+            val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            val response = apiService.uploadAudio(audio = audioPart, title = titlePart)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //UPLOAD MATERIAL
+    suspend fun uploadMaterial(
+        image: MultipartBody.Part,
+        videoUrl: RequestBody,
+        title: RequestBody,
+        description: RequestBody,
+        category: RequestBody,
+        musicList: List<String>,
+        videoList: List<String>
+    ) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.uploadMaterial(
+                image = image,
+                videoUrl = videoUrl,
+                title = title,
+                description = description,
+                category = category,
+                musicList = musicList,
+                videoList = videoList
+            )
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //GET AUDIO INFO
+    suspend fun getAudioInfo(audioUrl: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getAudioInfo(audioUrl)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        }
+    }
+
+    //GET VIDEO INFO
+    suspend fun getVideoInfo(videoUrl: String) = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apiService.getVideoInfo(videoUrl)
+            emit(ResponseState.Success(response))
+        } catch (e: HttpException) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
+        } catch (e: Exception) {
+            emit(ResponseState.Error(e.localizedMessage ?: "An unexpected error occurred"))
         }
     }
 

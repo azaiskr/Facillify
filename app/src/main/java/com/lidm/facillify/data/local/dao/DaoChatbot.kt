@@ -6,6 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Database
+import androidx.room.Delete
 import androidx.room.RoomDatabase
 
 @Entity(tableName = "chat_messages")
@@ -23,6 +24,9 @@ interface ChatMessageDao {
 
     @Insert
     suspend fun insertMessage(message: ChatMessageEntity)
+
+    @Delete
+    suspend fun deleteMessage(message: ChatMessageEntity)
 
     @Query("DELETE FROM chat_messages")
     suspend fun deleteAllMessages()

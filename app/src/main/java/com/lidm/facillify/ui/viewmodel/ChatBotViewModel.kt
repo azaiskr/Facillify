@@ -35,6 +35,7 @@ class ChatViewModel(
             timestamp = getCurrentDateTime()
         )
     ))
+
     val messages: StateFlow<List<ChatMessage>>
         get() = _messages
 
@@ -56,6 +57,21 @@ class ChatViewModel(
 
     init {
         loadEmailAndData()
+        loadMessagesFromDatabase()
+    }
+
+    fun deleteMessage(message: ChatMessage) {
+        viewModelScope.launch {
+            chatMessageDao.deleteMessage(
+                ChatMessageEntity(
+                    text = message.text,
+                    isUser = message.isUser,
+                    timestamp = message.timestamp
+                )
+            )
+            // Perbarui state _messages
+            _messages.value = _messages.value.filter { it != message }
+        }
     }
 
     private fun loadEmailAndData() {
@@ -175,6 +191,20 @@ class ChatViewModel(
             )
         )
     }
+
+    private fun loadMessagesFromDatabase() {
+        viewModelScope.launch {
+            val messagesFromDb = chatMessageDao.getAllMessages().map {
+                ChatMessage(
+                    text = it.text,
+                    isUser = it.isUser,
+                    timestamp = it.timestamp
+                )
+            }
+            _messages.value = messagesFromDb
+        }
+    }
+
 
     private fun buildUserInfoMessage(
         profile: UserProfile,

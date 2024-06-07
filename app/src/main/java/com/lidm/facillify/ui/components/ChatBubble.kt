@@ -1,6 +1,8 @@
 package com.lidm.facillify.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -8,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,8 +23,9 @@ import com.lidm.facillify.ui.theme.Black
 import com.lidm.facillify.ui.theme.Grey
 import com.lidm.facillify.ui.theme.SecondaryBlue
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(message: ChatMessage, onLongPress: (ChatMessage) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,6 +40,10 @@ fun ChatBubble(message: ChatMessage) {
                 )
                 .padding(16.dp)
                 .widthIn(max = 240.dp)
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = { onLongPress(message) }
+                )
         ) {
             Text(
                 text = message.text,
@@ -43,23 +52,4 @@ fun ChatBubble(message: ChatMessage) {
             )
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun ChatBubblePreview() {
-    ChatBubble(
-        message = ChatMessage(
-            text = "Halo, apa kabar?",
-            isUser = true,
-            timestamp = "2131"
-        )
-    )
-    ChatBubble(
-        message = ChatMessage(
-            text = "Halo, apa kabar?",
-            isUser = false,
-            timestamp = "2131"
-        )
-    )
 }

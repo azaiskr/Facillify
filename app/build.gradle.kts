@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.devtools.ksp")
     alias(libs.plugins.compose.compiler)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -44,11 +45,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
@@ -93,9 +94,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     //exo-player
-    implementation("androidx.media3:media3-exoplayer:1.3.1")
-    implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
-    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.media3.exoplayer.dash)
+    implementation(libs.media3.ui)
 
     //youtubePlayer
     implementation(libs.core)
@@ -104,15 +105,15 @@ dependencies {
     implementation(libs.coil.compose)
 
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(libs.retrofit2.retrofit)
+    implementation(libs.converter.gson)
 
     //OKHTTP
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.logging.interceptor)
+    implementation(libs.okhttp)
 
     //live data
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
+    implementation(libs.androidx.runtime.livedata)
 
     //Coil
     //implementation(libs.accompanist.coil)
@@ -120,9 +121,9 @@ dependencies {
 
     //lifecycle
     //liveCycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
-    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.activity.ktx)
 
     //Document
     implementation(libs.androidx.documentfile)
@@ -137,7 +138,7 @@ dependencies {
     testImplementation(libs.junit)
 
     //accompanist pager
-    implementation("com.google.accompanist:accompanist-pager:0.28.0")
+    implementation(libs.accompanist.pager)
 
 
     // Coroutine Test
