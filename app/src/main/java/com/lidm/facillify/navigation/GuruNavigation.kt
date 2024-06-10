@@ -180,7 +180,9 @@ fun GuruNavigation(
             }
 
             composable(Screen.TambahMateri.route) {
-                TambahMateriBelajarScreen()
+                TambahMateriBelajarScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
             }
             composable(Screen.TambahLatihan.route) {
                 TambahLatianSoalGuruScreen(

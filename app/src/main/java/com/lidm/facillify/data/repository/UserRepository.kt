@@ -11,7 +11,6 @@ import com.lidm.facillify.data.remote.api.ApiService
 import com.lidm.facillify.data.remote.request.CreateAssessmentForSiswaRequest
 import com.lidm.facillify.data.remote.request.CreateQuizRequest
 import com.lidm.facillify.data.remote.request.LoginRequest
-import com.lidm.facillify.data.remote.request.MaterialRequest
 import com.lidm.facillify.data.remote.request.RegisterRequest
 import com.lidm.facillify.data.remote.response.GetStudentResponse
 import com.lidm.facillify.data.remote.response.ProfileResponse
@@ -30,8 +29,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import java.io.File
-import java.io.FileOutputStream
-
 
 class UserRepository (
     private val apiService: ApiService,
@@ -291,22 +288,22 @@ class UserRepository (
 
         }
     }
-    private fun getFileFromUri(context: Context, uri: Uri): File? {
+    fun getFileFromUri(context: Context, uri: Uri): File? {
         return try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val file = File(context.cacheDir, context.contentResolver.getFileName(uri))
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            file
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val tempFile = File(context.cacheDir, context.contentResolver.getFileName(uri))
+            tempFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+            tempFile
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }
 
-    private fun ContentResolver.getFileName(uri: Uri): String {
+    fun ContentResolver.getFileName(uri: Uri): String {
         var name = ""
-        val returnCursor = this.query(uri, null, null, null, null)
+        val returnCursor = query(uri, null, null, null, null)
         if (returnCursor != null) {
             val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             returnCursor.moveToFirst()
@@ -317,10 +314,10 @@ class UserRepository (
     }
 
     //UPLOAD VIDEO
-    suspend fun uploadVideoMaterial(context: Context, videoFile: Uri, title: String, desc: String) = flow {
+    suspend fun uploadVideoMaterial(context: Context, videoUri: Uri, title: String, desc: String) = flow {
         emit(ResponseState.Loading)
         try {
-            val file = getFileFromUri(context, videoFile)
+            val file = getFileFromUri(context, videoUri)
             if (file == null) {
                 emit(ResponseState.Error("File not found or could not be created from URI"))
                 return@flow
@@ -340,15 +337,15 @@ class UserRepository (
     }
 
     //UPLOAD AUDIO
-    suspend fun uploadAudioMaterial(context: Context, audioFile: Uri, title: String) = flow {
+    suspend fun uploadAudioMaterial(context: Context, audioUri: Uri, title: String) = flow {
         emit(ResponseState.Loading)
         try {
-            val file = getFileFromUri(context, audioFile)
+            val file = getFileFromUri(context, audioUri)
             if (file == null) {
                 emit(ResponseState.Error("File not found or could not be created from URI"))
                 return@flow
             }
-            val mimeType = context.contentResolver.getType(audioFile) ?: "audio/*"
+            val mimeType = context.contentResolver.getType(audioUri) ?: "audio/*"
             val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
             val audioPart = MultipartBody.Part.createFormData("audio", file.name, requestFile)
             val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -364,7 +361,7 @@ class UserRepository (
 
     //UPLOAD MATERIAL
     suspend fun uploadMaterial(
-        image: MultipartBody.Part,
+        imageUri: Uri,
         videoUrl: RequestBody,
         title: RequestBody,
         description: RequestBody,
@@ -374,14 +371,19 @@ class UserRepository (
     ) = flow {
         emit(ResponseState.Loading)
         try {
+            val musicListParts = musicList.map { it.toRequestBody("text/plain".toMediaTypeOrNull()) }
+            val videoListParts = videoList.map { it.toRequestBody("text/plain".toMediaTypeOrNull()) }
+
+            val imagePart = getFilePartFromUri(context, imageUri, "image")
+
             val response = apiService.uploadMaterial(
-                image = image,
+                image = imagePart!!,
                 videoUrl = videoUrl,
                 title = title,
                 description = description,
                 category = category,
-                musicList = musicList,
-                videoList = videoList
+                musicList = musicListParts,
+                videoList = videoListParts
             )
             emit(ResponseState.Success(response))
         } catch (e: HttpException) {

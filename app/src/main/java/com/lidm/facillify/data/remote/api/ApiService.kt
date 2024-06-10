@@ -192,8 +192,8 @@ interface ApiService {
         @Part("title") title: RequestBody,
         @Part("description") description: RequestBody,
         @Part("category") category: RequestBody,
-        @Part("music_list") musicList: List<String>,
-        @Part("video_list") videoList: List<String>
+        @Part("music_list") musicList: List<RequestBody>,
+        @Part("video_list") videoList: List<RequestBody>
     ): MaterialResponse
 
     @Multipart
