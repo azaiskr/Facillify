@@ -139,9 +139,10 @@ class ChatViewModel(
 
                     val userInfoMessageContent = buildUserInfoMessage(profile, assessment, history)
 
+                    //USING PROMPT FRAMEWORK RACE (Role,Action,Context,Execution)
                     val systemMessage = com.lidm.facillify.data.remote.response.Message(
                         role = "system",
-                        content = "Anda adalah chatbot bernama FACILLIFY AI dari aplikasi Learning Management System (LMS) Faciliffy. Jawab semua pertanyaan dalam bahasa Indonesia. Berikut adalah identitas dari pengguna atau user yang sedang berinteraksi dengan Anda: $userInfoMessageContent"
+                        content = "Anda adalah FACILLIFY AI, chatbot dari aplikasi Learning Management System (LMS) Facillify yang membantu siswa dengan memberikan informasi dan saran pendidikan.\n Berikut adalah informasi tentang pengguna yang sedang berinteraksi dengan Anda:\n$userInfoMessageContent"
                     )
 
                     val userMessageApi = com.lidm.facillify.data.remote.response.Message(
@@ -211,16 +212,16 @@ class ChatViewModel(
         assessment: DetailAssesment,
         history: List<GradeHistory>
     ): String {
-        val profileInfo = "Nama: ${profile.name}, Email: ${profile.email}, Gender: ${profile.gender}, Tanggal Lahir: ${profile.dob}, Tempat Lahir: ${profile.pob}, Alamat: ${profile.address}, Nomor Telepon: ${profile.phone_number}, Agama: ${profile.religion}, NISN: ${profile.nisn}, Gaya Belajar: ${profile.learning_style}"
+        val profileInfo = "Nama: ${profile.name}\n Email: ${profile.email}\n Gender: ${profile.gender}\n Tanggal Lahir: ${profile.dob}\n Tempat Lahir: ${profile.pob}\n Alamat: ${profile.address}\n Nomor Telepon: ${profile.phone_number}\n Agama: ${profile.religion}\n NISN: ${profile.nisn}\n Gaya Belajar: ${profile.learning_style}\n"
 
-        val assessmentInfo = "Evaluasi dari guru: ${assessment.evaluation}, Saran dari guru: ${assessment.suggestion}, Waktu: ${assessment.time}"
+        val assessmentInfo = "Evaluasi dari guru: ${assessment.evaluation}\n Saran dari guru: ${assessment.suggestion}\n Waktu: ${assessment.time}\n"
 
-        val historyInfo = "Jumlah Riwayat: ${history.size}, Riwayat: ${
+        val historyInfo = "Jumlah Riwayat: ${history.size}\n Riwayat: ${
             history.joinToString("\n") {
-                "Judul: ${it.quiz_title}, Nilai: ${it.grade}, Waktu: ${it.submit_time}"
+                "Judul: ${it.quiz_title}, Nilai: ${it.grade}, Waktu: ${it.submit_time}\n"
             }
         }"
-
-        return "$profileInfo\n$assessmentInfo\n$historyInfo"
+        //Action, Context, Execution
+        return "Anda sedang berinteraksi dengan ${profile.name}, seorang siswa/siswi ${profile.gender} yang memiliki gaya belajar ${profile.learning_style}.\nBerikut adalah informasi tentang ${profile.name} yang dapat membantu Anda memberikan respon yang sesuai dan bermanfaat:\n$profileInfo\n$assessmentInfo\n$historyInfo\nJawaban harus relevan dengan pertanyaan ${profile.name}, mempertimbangkan gaya belajar ${profile.learning_style}nya, menggunakan bahasa yang sopan dan ramah, serta apabila bertanya mengenai soal bentuk matematis jangan berikan dalam tulisan yang dipahami komputer."
     }
 }

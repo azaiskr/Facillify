@@ -41,6 +41,7 @@ import com.lidm.facillify.ui.siswa.belajar.MateriBelajarScreen
 import com.lidm.facillify.ui.siswa.belajar.MateriBelajarVideoScreen
 import com.lidm.facillify.ui.siswa.belajar.VideoPlayerScreen
 import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarOnBoardScreen
+import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarResultScreen
 import com.lidm.facillify.ui.siswa.gayabelajar.GayaBelajarTest
 import com.lidm.facillify.ui.siswa.riwayat.RiwayatScreen
 import com.lidm.facillify.util.Role
@@ -169,28 +170,6 @@ fun SiswaNavigation(
                     },
                     onNavigateToChatbot = { navController.navigate(Screen.Chatbot.route) },
                     onNavigateToTestGayaBelajar = { navController.navigate(Screen.GayaBelajarInterface.route) }
-                )
-            }
-
-            // GAYA BELAJAR INTERFACE
-            composable(Screen.GayaBelajarInterface.route) {
-                GayaBelajarOnBoardScreen(
-                    onNavigateToTestForm = { navController.navigate(Screen.GayaBelajarTest.route) }
-                )
-            }
-
-            //GAYA BELAJAR TEST
-            composable(Screen.GayaBelajarTest.route) {
-                GayaBelajarTest(
-                    modifier = modifier,
-                    onNavigateToTestResult = { navController.navigate(Screen.GayaBelajarTestResult.route) }
-                )
-            }
-
-            composable(Screen.GayaBelajarTestResult.route) {
-                GayaBelajarTest(
-                    modifier = modifier,
-                    onNavigateToTestResult = { navController.navigate(Screen.SiswaHome.route) }
                 )
             }
 
@@ -368,6 +347,25 @@ fun SiswaNavigation(
             composable(Screen.FormTambahDataOrtu.route) {
                 FormEditEmailOrtu(
                     onClick = { navController.popBackStack() }
+                )
+            }
+
+            // Add this block for GayaBelajarInterface
+            composable(Screen.GayaBelajarInterface.route) {
+                GayaBelajarOnBoardScreen(
+                    onNavigateToTestForm = { navController.navigate(Screen.GayaBelajarTest.route) }
+                )
+            }
+            composable(Screen.GayaBelajarTest.route) {
+                GayaBelajarTest(
+                    onNavigateToTestResult = { navController.navigate(Screen.GayaBelajarTestResult.route) }
+                )
+            }
+            composable(Screen.GayaBelajarTestResult.route) {
+                GayaBelajarResultScreen(
+                    onNavigateToHome = {
+                        navController.popBackStack(Screen.SiswaHome.route, false)
+                    }
                 )
             }
         }
